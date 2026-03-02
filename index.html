@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Goings OS | Sovereign Command V8</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- FIREBASE SDK INJECTIONS (COMMANDER'S KEYS SECURED) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // COMMANDER GOINGS: EXTRACTED FIREBASE DNA
+        const firebaseConfig = {
+            apiKey: "AIzaSyBk_1eJFpKmHs_tXArWmr4ka88TIqnC7VQ",
+            authDomain: "goings-os-command.firebaseapp.com",
+            projectId: "goings-os-command",
+            storageBucket: "goings-os-command.firebasestorage.app",
+            messagingSenderId: "618999325541",
+            appId: "1:618999325541:web:f3a8cdh830e713d25d176c",
+            measurementId: "G-X3XGBVQP31"
+        };
+
+        // Initialize Firebase
+        try {
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            window.kigDb = db; 
+            window.addDoc = addDoc;
+            window.collection = collection;
+            console.log("Sovereign Firebase Vault Connected.");
+        } catch(e) {
+            console.error("Firebase Connection Failed: ", e);
+        }
+    </script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 950: '#020617', 900: '#0f172a', 800: '#1e293b' },
+                        amber: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706', 900: '#78350f' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #020617; color: #cbd5e1; -webkit-tap-highlight-color: transparent; }
+        .glass-panel { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(245, 158, 11, 0.15); }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 10px; }
+        .layer { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .layer.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .glow-gold { box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
+        input, select, textarea { background: #0f172a !important; color: white !important; border: 1px solid #334155 !important; }
+        input:focus, select:focus, textarea:focus { border-color: #f59e0b !important; outline: none !important; box-shadow: 0 0 5px rgba(245, 158, 11, 0.5) !important; }
+        ::-webkit-calendar-picker-indicator { filter: invert(1) sepia(100%) saturate(500%) hue-rotate(350deg); cursor: pointer; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden font-sans selection:bg-amber-500/30">
+
+    <!-- GLOBAL HEADER -->
+    <header class="p-3 md:p-4 glass-panel flex justify-between items-center z-50 shrink-0 border-b-2 border-amber-500">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 md:w-12 md:h-12 bg-slate-900 rounded border border-amber-500 flex items-center justify-center overflow-hidden glow-gold">
+                <i class="fas fa-crown text-amber-500 text-lg md:text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-base md:text-lg font-black tracking-widest text-white uppercase">GOINGS <span class="text-amber-500">OS</span></h1>
+                <p class="text-[9px] md:text-[10px] font-mono text-slate-400">COMMANDER: TERRENCE & TANITA</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <div id="clock" class="text-amber-500 font-mono font-bold text-xs md:text-sm tracking-wider">00:00:00</div>
+            <div class="text-[8px] md:text-[9px] text-emerald-500 font-mono uppercase tracking-widest animate-pulse"><i class="fas fa-network-wired"></i> Vault Sync Active</div>
+        </div>
+    </header>
+
+    <!-- LAYER NAVIGATION -->
+    <nav class="flex overflow-x-auto bg-slate-900 border-b border-slate-800 shrink-0 custom-scrollbar">
+        <button onclick="switchLayer('god-view')" id="nav-god-view" class="flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-amber-500 border-b-2 border-amber-500 bg-amber-900/20 whitespace-nowrap transition-all">
+            <i class="fas fa-eye mr-2"></i>God View
+        </button>
+        <button onclick="switchLayer('tactical')" id="nav-tactical" class="flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 whitespace-nowrap transition-all">
+            <i class="fas fa-bolt mr-2"></i>Tactical Wings
+        </button>
+        <button onclick="switchLayer('radar')" id="nav-radar" class="flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 whitespace-nowrap transition-all">
+            <i class="fas fa-radar mr-2"></i>J.A.R.V.I.S. Radar
+        </button>
+        <button onclick="switchLayer('portal')" id="nav-portal" class="flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 whitespace-nowrap transition-all">
+            <i class="fas fa-laptop-house mr-2"></i>Client Portal
+        </button>
+    </nav>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950">
+        
+        <!-- LAYER 1: THE GOD VIEW -->
+        <div id="layer-god-view" class="layer active max-w-6xl mx-auto space-y-4 md:space-y-6">
+            <h2 class="text-xl font-black text-white uppercase tracking-widest border-l-4 border-amber-500 pl-3">Empire Status</h2>
+            
+            <!-- Top Row: Core Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="glass-panel p-5 rounded-xl glow-gold relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 text-amber-500/10"><i class="fas fa-chart-line text-8xl"></i></div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Global Revenue (MTD)</h3>
+                    <div class="text-3xl md:text-4xl font-black text-emerald-400 font-mono mb-2">$14,250</div>
+                    <div class="w-full bg-slate-800 rounded-full h-2 mb-1"><div class="bg-emerald-500 h-2 rounded-full w-[85%]"></div></div>
+                    <div class="text-[10px] text-slate-500 font-mono flex justify-between"><span>Nut: $5,000</span><span class="text-amber-500">+185% Target</span></div>
+                </div>
+                <div class="glass-panel p-5 rounded-xl relative overflow-hidden">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Choice Inc. Ops</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-[10px] font-bold text-amber-500 mb-1"><span>SQUAD A: Body & Soul</span><span>80%</span></div>
+                            <div class="w-full bg-slate-800 rounded-full h-1"><div class="bg-amber-500 h-1 rounded-full w-[80%]"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[10px] font-bold text-blue-400 mb-1"><span>SQUAD B: Production</span><span>45%</span></div>
+                            <div class="w-full bg-slate-800 rounded-full h-1"><div class="bg-blue-400 h-1 rounded-full w-[45%]"></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-panel p-5 rounded-xl relative overflow-hidden">
+                     <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">API Bridge Integrity</h3>
+                     <div class="flex items-center gap-3 mb-2">
+                         <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
+                         <span class="text-xs font-mono text-slate-300">Firebase: SECURE & ONLINE</span>
+                     </div>
+                     <div class="flex items-center gap-3 mb-2">
+                         <div class="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></div>
+                         <span class="text-xs font-mono text-slate-300">GHL Intercept: ACTIVE</span>
+                     </div>
+                     <div class="flex items-center gap-3">
+                         <div class="w-3 h-3 rounded-full bg-amber-500 animate-pulse"></div>
+                         <span class="text-xs font-mono text-slate-300">Radar Engines: SCANNING</span>
+                     </div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: SWOT & PMP Intelligence -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Conglomerate SWOT -->
+                <div class="glass-panel p-5 rounded-xl md:col-span-2 relative overflow-hidden">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4"><i class="fas fa-crosshairs mr-2"></i>Conglomerate S.W.O.T. Analysis</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="bg-emerald-950/30 border border-emerald-900/50 p-3 rounded">
+                            <span class="text-[10px] text-emerald-500 font-bold uppercase block mb-1">Strengths</span>
+                            <p class="text-[11px] text-slate-300 font-mono">Automated Infrastructure, 5-Pillar Synergy, TBE Tax Validation, $20k/Day Baseline Framework.</p>
+                        </div>
+                        <div class="bg-rose-950/30 border border-rose-900/50 p-3 rounded">
+                            <span class="text-[10px] text-rose-500 font-bold uppercase block mb-1">Weaknesses</span>
+                            <p class="text-[11px] text-slate-300 font-mono">Dependency on manual intake triggers in field (Mitigating via AppSheet integration).</p>
+                        </div>
+                        <div class="bg-blue-950/30 border border-blue-900/50 p-3 rounded">
+                            <span class="text-[10px] text-blue-500 font-bold uppercase block mb-1">Opportunities</span>
+                            <p class="text-[11px] text-slate-300 font-mono">757 Market Void, Corporate Grants, AA Model High-Ticket Scaling, Fleet Logistics Domination.</p>
+                        </div>
+                        <div class="bg-amber-950/30 border border-amber-900/50 p-3 rounded">
+                            <span class="text-[10px] text-amber-500 font-bold uppercase block mb-1">Threats</span>
+                            <p class="text-[11px] text-slate-300 font-mono">Compliance shifts (TCPA/HIPAA), Venue scheduling conflicts, Local competitor imitation.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PMP Signal Boosting -->
+                <div class="glass-panel p-5 rounded-xl relative overflow-hidden">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4"><i class="fas fa-satellite-dish mr-2"></i>PMP Signal Boosting</h3>
+                    <div class="space-y-4">
+                        <div class="border-b border-slate-800 pb-2">
+                            <div class="flex justify-between text-[10px] font-bold text-slate-300 mb-1"><span>GMB Portsmouth Dominance</span><span class="text-emerald-400">Active</span></div>
+                            <p class="text-[10px] font-mono text-slate-500">Automated reputation loop & local SEO indexing running.</p>
+                        </div>
+                        <div class="border-b border-slate-800 pb-2">
+                            <div class="flex justify-between text-[10px] font-bold text-slate-300 mb-1"><span>Norfolk Takeover Cruise</span><span class="text-amber-400">Staging</span></div>
+                            <p class="text-[10px] font-mono text-slate-500">TravelJoy integration 80% complete. VIP Tier open.</p>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-300 mb-1"><span>AppSheet Fleet Engine</span><span class="text-blue-400">Deployed</span></div>
+                            <p class="text-[10px] font-mono text-slate-500">Awaiting initial telemetry from first logistics client.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYER 2: TACTICAL WINGS (V8 ENTERPRISE UPGRADE) -->
+        <div id="layer-tactical" class="layer max-w-6xl mx-auto space-y-6">
+            <h2 class="text-xl font-black text-white uppercase tracking-widest border-l-4 border-amber-500 pl-3">Enterprise Operations & CRM</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- TBE SHIELD (TANITA'S FORENSIC CRM) -->
+                <div class="glass-panel p-5 rounded-xl border-t-4 border-emerald-500 lg:col-span-2">
+                    <h3 class="text-emerald-400 font-bold text-sm mb-4 uppercase tracking-widest"><i class="fas fa-shield-alt mr-2"></i>TBE Tax Shield & Forensic Ledger</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                        <input type="text" id="tbe-client" placeholder="Client / Entity Name" class="w-full rounded p-3 text-sm md:col-span-2">
+                        <div class="relative">
+                            <span class="absolute text-[9px] text-rose-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Total IRS Debt ($)</span>
+                            <input type="number" id="tbe-debt" placeholder="0.00" class="w-full rounded p-3 text-sm text-rose-400">
+                        </div>
+                        <div class="relative">
+                            <span class="absolute text-[9px] text-emerald-400 -top-2 left-2 bg-slate-900 px-1 font-bold">TBE Retainer Fee ($)</span>
+                            <input type="number" id="tbe-fee" placeholder="0.00" class="w-full rounded p-3 text-sm text-emerald-400 font-bold">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <select id="tbe-service" class="w-full rounded p-3 text-sm">
+                            <option value="" disabled selected>Select Primary Service...</option>
+                            <option value="Income Tax Preparation">Income Tax Preparation</option>
+                            <option value="Corporate Bookkeeping">Corporate Bookkeeping</option>
+                            <option value="IRS Representation (In Person)">IRS Representation (In Person)</option>
+                            <option value="IRS Representation (Phone)">IRS Representation (Phone)</option>
+                            <option value="Offer In Compromise (OIC)">Offer In Compromise (OIC)</option>
+                            <option value="Penalty Abatement">Penalty Abatement</option>
+                        </select>
+                        <select id="tbe-urgency" class="w-full rounded p-3 text-sm">
+                            <option value="Standard Operations">Urgency: Standard Operations</option>
+                            <option value="High (Impending Levy/Lien)">Urgency: High (Impending Levy/Lien)</option>
+                            <option value="Critical (Active Audit)">Urgency: Critical (Active Audit)</option>
+                        </select>
+                    </div>
+
+                    <input type="text" id="tbe-notes" placeholder="Strategic Notes / Next Action (e.g., Requesting 2024 W2s)..." class="w-full rounded p-3 text-sm mb-4">
+                    
+                    <button onclick="writeToFirebase('tbe')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95">LOCK LEDGER & DEPLOY SHIELD</button>
+                </div>
+
+                <!-- LUXURY AFFAIRS (ROBUST) -->
+                <div class="glass-panel p-5 rounded-xl border-t-4 border-purple-500 flex flex-col h-full">
+                    <h3 class="text-purple-400 font-bold text-sm mb-4 uppercase tracking-widest"><i class="fas fa-building mr-2"></i>Luxury Affairs HQ CRM</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <input type="text" id="lux-client" placeholder="Client Name / Event Title" class="w-full rounded p-3 text-sm md:col-span-2">
+                        
+                        <div class="relative">
+                            <span class="absolute text-[9px] text-purple-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Event Date</span>
+                            <input type="date" id="lux-date" class="w-full rounded p-3 text-sm">
+                        </div>
+                        <input type="number" id="lux-guests" placeholder="Guest Count (e.g., 75)" class="w-full rounded p-3 text-sm">
+                        
+                        <select id="lux-tables" class="w-full rounded p-3 text-sm">
+                            <option value="" disabled selected>Table Layout Requirements...</option>
+                            <option value="10 Round / 2 Rectangle">10 Round / 2 Rectangle</option>
+                            <option value="8 Round / 4 Rectangle">8 Round / 4 Rectangle</option>
+                            <option value="Standing Room / Cocktail">Standing Room / Cocktail</option>
+                            <option value="Custom Floorplan Required">Custom Floorplan Required</option>
+                        </select>
+                        
+                        <select id="lux-tier" class="w-full rounded p-3 text-sm">
+                            <option value="" disabled selected>Select Access Tier...</option>
+                            <option value="Gold Access (Repast/Weekday)">Gold Access (Repast/Weekday)</option>
+                            <option value="Platinum Access (Standard Weekend)">Platinum Access (Standard Weekend)</option>
+                            <option value="Signature Access (Full Service)">Signature Access (Full Service)</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 bg-purple-900/10 p-3 rounded border border-purple-500/20">
+                        <div class="relative">
+                            <span class="absolute text-[9px] text-emerald-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Total Venue Fee ($)</span>
+                            <input type="number" id="lux-rev" placeholder="0.00" class="w-full rounded p-3 text-sm text-emerald-400 font-bold">
+                        </div>
+                        <div class="relative">
+                            <span class="absolute text-[9px] text-amber-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Deposit Paid ($)</span>
+                            <input type="number" id="lux-dep" placeholder="0.00" class="w-full rounded p-3 text-sm text-amber-400 font-bold">
+                        </div>
+                    </div>
+
+                    <button onclick="writeToFirebase('luxury')" class="mt-auto w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(168,85,247,0.4)] active:scale-95">LOCK VENUE & SYNC VAULT</button>
+                </div>
+
+                <!-- KIG OS ENGINE (ROBUST) -->
+                <div class="glass-panel p-5 rounded-xl border-t-4 border-blue-500 flex flex-col h-full">
+                    <h3 class="text-blue-400 font-bold text-sm mb-4 uppercase tracking-widest"><i class="fas fa-bolt mr-2"></i>KIG OS Tech Build Pipeline</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <input type="text" id="kig-client" placeholder="Business Name / Client" class="w-full rounded p-3 text-sm md:col-span-2">
+                        
+                        <select id="kig-type" class="w-full rounded p-3 text-sm">
+                            <option value="" disabled selected>Tech Architecture Scope...</option>
+                            <option value="AppSheet Custom CRM">AppSheet Custom CRM</option>
+                            <option value="Sovereign Command Dashboard">Sovereign Command Dashboard</option>
+                            <option value="API Database Bridge">API Database Bridge</option>
+                            <option value="Full Cloud Enterprise Suite">Full Cloud Enterprise Suite</option>
+                        </select>
+
+                        <select id="kig-phase" class="w-full rounded p-3 text-sm">
+                            <option value="Phase 1: Discovery & Blueprint">Phase 1: Discovery & Blueprint</option>
+                            <option value="Phase 2: Database Architecture">Phase 2: Database Architecture</option>
+                            <option value="Phase 3: Frontend Development">Phase 3: Frontend Development</option>
+                            <option value="Phase 4: Testing & Deployment">Phase 4: Testing & Deployment</option>
+                        </select>
+                        
+                        <div class="relative md:col-span-2">
+                            <span class="absolute text-[9px] text-blue-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Target Launch Date</span>
+                            <input type="date" id="kig-date" class="w-full rounded p-3 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 bg-blue-900/10 p-3 rounded border border-blue-500/20">
+                        <div class="relative">
+                            <span class="absolute text-[9px] text-emerald-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Total Setup Fee ($)</span>
+                            <input type="number" id="kig-fee" placeholder="8500" class="w-full rounded p-3 text-sm text-emerald-400 font-bold">
+                        </div>
+                        <div class="relative">
+                            <span class="absolute text-[9px] text-amber-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Deposit Paid ($)</span>
+                            <input type="number" id="kig-dep" placeholder="0.00" class="w-full rounded p-3 text-sm text-amber-400 font-bold">
+                        </div>
+                    </div>
+
+                    <button onclick="writeToFirebase('kig')" class="mt-auto w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] active:scale-95">UPDATE PIPELINE</button>
+                </div>
+
+                <!-- CHOICE INC. LEGACY ENGINE -->
+                <div class="glass-panel p-5 rounded-xl border-t-4 border-amber-500 lg:col-span-2">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded bg-amber-900/50 flex items-center justify-center border border-amber-500"><i class="fas fa-globe text-amber-400"></i></div>
+                        <div>
+                            <h3 class="text-amber-400 font-bold text-sm uppercase tracking-widest">Choice Inc. Legacy (Grant Hunter)</h3>
+                            <p class="text-[10px] text-slate-400 font-mono">Philanthropic Capital & Project 350 Deployment</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                        <input type="text" id="choice-grant" placeholder="Grant Name / Funding Target" class="w-full rounded p-3 text-sm md:col-span-2">
+                        <div class="relative">
+                            <span class="absolute text-[9px] text-emerald-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Target Amount ($)</span>
+                            <input type="number" id="choice-amount" placeholder="0.00" class="w-full rounded p-3 text-sm text-emerald-400 font-bold">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                        <div class="relative">
+                            <span class="absolute text-[9px] text-amber-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Submission Deadline</span>
+                            <input type="date" id="choice-date" class="w-full rounded p-3 text-sm">
+                        </div>
+                        <select id="choice-focus" class="w-full rounded p-3 text-sm">
+                            <option value="" disabled selected>Strategic Focus...</option>
+                            <option value="Project 350 (Youth Education)">Project 350 (Youth Education/Events)</option>
+                            <option value="Community Infrastructure">Community Infrastructure (757)</option>
+                            <option value="Corporate Sponsorship">Corporate Sponsorship Alignment</option>
+                        </select>
+                        <select id="choice-squad" class="w-full rounded p-3 text-sm">
+                            <option value="" disabled selected>Assign Squad...</option>
+                            <option value="Squad A (Body & Soul)">Squad A (Body & Soul / Logistics)</option>
+                            <option value="Squad B (Production)">Squad B (Production / Execution)</option>
+                            <option value="Executive Command">Executive Command (Architects Only)</option>
+                        </select>
+                    </div>
+
+                    <button onclick="writeToFirebase('choice')" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-900 font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] active:scale-95">DEPLOY GRANT SCOUT & LOG TO VAULT</button>
+                </div>
+
+                <!-- THE 5TH GEM: BUSINESS STRATEGIST -->
+                <div class="glass-panel p-5 rounded-xl border-t-4 border-rose-500 lg:col-span-2">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded bg-rose-900/50 flex items-center justify-center border border-rose-500"><i class="fas fa-chess-knight text-rose-400"></i></div>
+                        <div>
+                            <h3 class="text-rose-400 font-bold text-sm uppercase tracking-widest">The Business Strategist</h3>
+                            <p class="text-[10px] text-slate-400 font-mono">Viability Audits & Empire Scaling</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                        <input type="text" id="strat-venture" placeholder="Venture / Concept Name" class="w-full rounded p-3 text-sm md:col-span-2">
+                        <select id="strat-industry" class="w-full rounded p-3 text-sm">
+                            <option value="" disabled selected>Industry Niche...</option>
+                            <option value="Logistics & Transport">Logistics & Transport</option>
+                            <option value="Healthcare & Homecare">Healthcare & Homecare</option>
+                            <option value="Retail & E-commerce">Retail & E-commerce</option>
+                            <option value="Service & Consulting">Service & Consulting</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+                        <div class="relative md:col-span-1">
+                            <span class="absolute text-[9px] text-amber-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Viability Score (1-100)</span>
+                            <input type="number" id="strat-score" placeholder="e.g., 85" class="w-full rounded p-3 text-sm text-center font-bold text-amber-400 text-lg">
+                        </div>
+                        <div class="md:col-span-3">
+                            <textarea id="strat-notes" rows="2" placeholder="Blindspots detected & scaling recommendation..." class="w-full rounded p-3 text-sm custom-scrollbar"></textarea>
+                        </div>
+                    </div>
+
+                    <button onclick="writeToFirebase('strategist')" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(244,63,94,0.4)] active:scale-95">LOG AUDIT TO VAULT</button>
+                </div>
+
+            </div>
+            
+            <div id="sys-notification" class="hidden bg-emerald-900/50 border border-emerald-500 text-emerald-400 p-3 rounded font-mono text-xs text-center sticky bottom-4">
+                DATA SYNCED TO FIREBASE VAULT SUCCESSFULLY.
+            </div>
+        </div>
+
+        <!-- LAYER 3: 757 RADAR -->
+        <div id="layer-radar" class="layer max-w-6xl mx-auto space-y-6">
+            <h2 class="text-xl font-black text-white uppercase tracking-widest border-l-4 border-amber-500 pl-3">J.A.R.V.I.S. Omni-Radar</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="glass-panel p-5 rounded-xl hover:border-amber-500 transition-all cursor-pointer">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-bold bg-amber-900/50 text-amber-400 px-2 py-1 rounded">ZONING</span>
+                        <span class="text-[10px] text-slate-500 font-mono">Chesapeake</span>
+                    </div>
+                    <p class="text-sm text-slate-300">New commercial development approved on Victory Blvd. Logistics fleet expanding.</p>
+                </div>
+                <div class="glass-panel p-5 rounded-xl hover:border-emerald-500 transition-all cursor-pointer">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-bold bg-emerald-900/50 text-emerald-400 px-2 py-1 rounded">GRANT</span>
+                        <span class="text-[10px] text-slate-500 font-mono">Norfolk</span>
+                    </div>
+                    <p class="text-sm text-slate-300">Downtown small business innovation grant ($50k pool) opens next Tuesday. Choice Inc. target identified.</p>
+                </div>
+                <div class="glass-panel p-5 rounded-xl hover:border-blue-500 transition-all cursor-pointer">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-bold bg-blue-900/50 text-blue-400 px-2 py-1 rounded">CORPORATE</span>
+                        <span class="text-[10px] text-slate-500 font-mono">Va Beach</span>
+                    </div>
+                    <p class="text-sm text-slate-300">Tech firm relocating 50 employees to Town Center. Potential KIG OS installation leads.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYER 4: PORTAL -->
+        <div id="layer-portal" class="layer max-w-4xl mx-auto space-y-6">
+            <div class="flex justify-between items-end">
+                <h2 class="text-xl font-black text-white uppercase tracking-widest border-l-4 border-amber-500 pl-3">Client View (Portal)</h2>
+                <div class="text-[10px] bg-slate-800 px-2 py-1 rounded font-mono text-slate-400">Viewing as: Apex Logistics</div>
+            </div>
+            <div class="bg-slate-50 rounded-2xl overflow-hidden shadow-2xl text-slate-900">
+                <div class="bg-slate-950 p-6 flex justify-between items-center border-b border-amber-500">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-crown text-amber-500 text-2xl"></i>
+                        <h2 class="text-xl font-black text-white tracking-widest">KIG <span class="text-amber-500 font-light">SOVEREIGN</span></h2>
+                    </div>
+                    <div class="text-right text-white">
+                        <div class="text-sm font-bold">Apex Logistics</div>
+                        <div class="text-[10px] text-amber-500 uppercase tracking-widest">Premium Access</div>
+                    </div>
+                </div>
+                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white border border-slate-200 p-5 rounded-xl shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-bold text-slate-800"><i class="fas fa-bolt text-blue-500 mr-2"></i>Tech Architecture</h3>
+                            <span class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-1 rounded">ACTIVE</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-3">KIG OS Dispatch App Build</p>
+                        <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full w-full"></div></div>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-200 p-5 rounded-xl shadow-sm relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-amber-200/50"><i class="fas fa-star text-6xl"></i></div>
+                        <h3 class="font-bold text-amber-900 relative z-10">Exclusive Family Offer</h3>
+                        <p class="text-xs text-amber-700 mb-3 relative z-10">Host your Q3 Retreat at Luxury Affairs HQ for Signature Access pricing.</p>
+                        <button class="relative z-10 w-full bg-amber-600 text-white text-xs font-bold py-2 rounded">Claim Discount</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+
+        function switchLayer(layerId) {
+            document.querySelectorAll('.layer').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.className = "flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 whitespace-nowrap transition-all";
+            });
+            document.getElementById('layer-' + layerId).classList.add('active');
+            document.getElementById('nav-' + layerId).className = "flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-amber-500 border-b-2 border-amber-500 bg-amber-900/20 whitespace-nowrap transition-all";
+        }
+
+        async function writeToFirebase(wing) {
+            const notif = document.getElementById('sys-notification');
+            notif.classList.remove('hidden');
+            notif.innerText = "TRANSMITTING TO FIREBASE VAULT...";
+            notif.className = "bg-amber-900/50 border border-amber-500 text-amber-400 p-3 rounded font-mono text-xs text-center animate-pulse sticky bottom-4";
+
+            if (window.kigDb) {
+                try {
+                    let collectionName = "";
+                    let payload = { timestamp: new Date() };
+
+                    if(wing === 'luxury') {
+                        collectionName = "luxury_affairs_ledger";
+                        payload.client = document.getElementById('lux-client').value || "Unnamed";
+                        payload.eventDate = document.getElementById('lux-date').value || "Not Set";
+                        payload.guestCount = document.getElementById('lux-guests').value || 0;
+                        payload.tableLayout = document.getElementById('lux-tables').value || "Pending";
+                        payload.tier = document.getElementById('lux-tier').value || "Pending";
+                        
+                        const rev = parseFloat(document.getElementById('lux-rev').value) || 0;
+                        const dep = parseFloat(document.getElementById('lux-dep').value) || 0;
+                        payload.totalRevenue = rev;
+                        payload.depositPaid = dep;
+                        payload.balanceDue = rev - dep;
+
+                    } else if (wing === 'kig') {
+                        collectionName = "kig_os_builds";
+                        payload.client = document.getElementById('kig-client').value || "Unnamed";
+                        payload.scope = document.getElementById('kig-type').value || "Pending";
+                        payload.phase = document.getElementById('kig-phase').value || "Pending";
+                        payload.launchDate = document.getElementById('kig-date').value || "Not Set";
+                        
+                        const fee = parseFloat(document.getElementById('kig-fee').value) || 0;
+                        const dep = parseFloat(document.getElementById('kig-dep').value) || 0;
+                        payload.totalFee = fee;
+                        payload.depositPaid = dep;
+                        payload.balanceDue = fee - dep;
+
+                    } else if (wing === 'tbe') {
+                        collectionName = "tbe_tax_shield";
+                        payload.client = document.getElementById('tbe-client').value || "Unnamed";
+                        payload.debt = parseFloat(document.getElementById('tbe-debt').value) || 0;
+                        payload.fee = parseFloat(document.getElementById('tbe-fee').value) || 0;
+                        payload.service = document.getElementById('tbe-service').value || "Pending";
+                        payload.urgency = document.getElementById('tbe-urgency').value || "Pending";
+                        payload.notes = document.getElementById('tbe-notes').value || "";
+                        
+                    } else if (wing === 'choice') {
+                        collectionName = "choice_inc_grants";
+                        payload.grantName = document.getElementById('choice-grant').value || "Unnamed";
+                        payload.targetAmount = parseFloat(document.getElementById('choice-amount').value) || 0;
+                        payload.deadline = document.getElementById('choice-date').value || "Not Set";
+                        payload.strategicFocus = document.getElementById('choice-focus').value || "Pending";
+                        payload.squad = document.getElementById('choice-squad').value || "Pending";
+
+                    } else if (wing === 'strategist') {
+                        collectionName = "strategist_audits";
+                        payload.venture = document.getElementById('strat-venture').value || "Unnamed";
+                        payload.industry = document.getElementById('strat-industry').value || "Unknown";
+                        payload.viabilityScore = document.getElementById('strat-score').value || 0;
+                        payload.analysis = document.getElementById('strat-notes').value || "";
+                    }
+
+                    await window.addDoc(window.collection(window.kigDb, collectionName), payload);
+                    
+                    notif.innerText = `DATA WRITTEN TO CLOUD COLLECTION: [${collectionName.toUpperCase()}]`;
+                    notif.className = "bg-emerald-900/50 border border-emerald-500 text-emerald-400 p-3 rounded font-mono text-xs text-center sticky bottom-4";
+                    
+                    // Clear forms associated with the wing to prevent double-submit
+                    if(wing === 'luxury') { document.querySelectorAll('#lux-client, #lux-date, #lux-guests, #lux-tables, #lux-tier, #lux-rev, #lux-dep').forEach(el => el.value = ''); }
+                    if(wing === 'kig') { document.querySelectorAll('#kig-client, #kig-type, #kig-phase, #kig-date, #kig-fee, #kig-dep').forEach(el => el.value = ''); }
+                    if(wing === 'tbe') { document.querySelectorAll('#tbe-client, #tbe-debt, #tbe-fee, #tbe-service, #tbe-urgency, #tbe-notes').forEach(el => el.value = ''); }
+                    if(wing === 'choice') { document.querySelectorAll('#choice-grant, #choice-amount, #choice-date, #choice-focus, #choice-squad').forEach(el => el.value = ''); }
+                    if(wing === 'strategist') { document.querySelectorAll('#strat-venture, #strat-industry, #strat-score, #strat-notes').forEach(el => el.value = ''); }
+
+                } catch (e) {
+                    notif.innerText = `FIREBASE ERROR: Ensure Firestore is set to Test Mode.`;
+                    notif.className = "bg-rose-900/50 border border-rose-500 text-rose-400 p-3 rounded font-mono text-xs text-center sticky bottom-4";
+                    console.error(e);
+                }
+            } else {
+                notif.innerText = "CRITICAL ERROR: FIREBASE NOT CONNECTED.";
+                notif.className = "bg-rose-900/50 border border-rose-500 text-rose-400 p-3 rounded font-mono text-xs text-center sticky bottom-4";
+            }
+
+            setTimeout(() => { notif.classList.add('hidden'); }, 5000);
+        }
+    </script>
+</body>
+</html>
