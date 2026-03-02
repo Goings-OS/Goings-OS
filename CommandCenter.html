@@ -4,20 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GOINGS OS | Master Command</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #050505; color: #e2e8f0; overflow-x: hidden; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         .grid-bg { background-image: linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 40px 40px; }
+        .glow-text { text-shadow: 0 0 20px rgba(245, 158, 11, 0.5); }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-fadeIn { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-slideUp { animation: slideUp 0.5s ease-out; }
     </style>
 </head>
 <body class="grid-bg h-screen flex flex-col">
@@ -30,13 +42,14 @@
             const [time, setTime] = useState(new Date());
             const [activeTab, setActiveTab] = useState('EXECUTION');
             const [activePillar, setActivePillar] = useState('LAEC');
-            const [userRole, setUserRole] = useState('COMMANDER'); 
+            const [userRole, setUserRole] = useState('COMMANDER'); // COMMANDER, TENANT, STAFF
 
             // Supreme Clock
             useEffect(() => {
                 const timer = setInterval(() => setTime(new Date()), 50);
                 return () => clearInterval(timer);
             }, []);
+
             const formatTime = (date) => {
                 const h = String(date.getHours()).padStart(2, '0');
                 const m = String(date.getMinutes()).padStart(2, '0');
@@ -46,17 +59,16 @@
             };
             const clock = formatTime(time);
 
-            // --- THE DYNAMIC FORM COMPONENT ---
+            // --- MODULE 1: THE DYNAMIC FORM (EXECUTION DECK) ---
             const LAECForm = () => {
                 const [isSaving, setIsSaving] = useState(false);
                 const [savedHash, setSavedHash] = useState(null);
 
-                // MASTER STATE: This holds the blank data and updates when you type
                 const initialFormState = {
                     firstName: '', lastName: '', phone: '', email: '', referral: '',
                     address: '', city: '', state: '', zip: '',
                     description: '', date: '', guests: '',
-                    package: '', addons: [], alcohol: '', hookah: '', setup: false
+                    package: '', alcohol: '', hookah: '', setup: false
                 };
                 const [formData, setFormData] = useState(initialFormState);
 
@@ -68,32 +80,21 @@
                     }));
                 };
 
-                const handleAddonChange = (e) => {
-                    const { value, checked } = e.target;
-                    setFormData(prev => {
-                        if (checked) return { ...prev, addons: [...prev.addons, value] };
-                        return { ...prev, addons: prev.addons.filter(item => item !== value) };
-                    });
-                };
-
                 const handleFirebaseSave = (e) => {
                     e.preventDefault();
                     setIsSaving(true);
                     
-                    // Simulated API Call to Firebase
+                    // Simulating API Latency
                     setTimeout(() => {
                         setIsSaving(false);
                         setSavedHash("FB_DOC_" + Math.random().toString(36).substring(2, 15).toUpperCase());
-                        
-                        // CLEAR THE FORM: Resets to blank for the next client
-                        setFormData(initialFormState);
-                        
+                        setFormData(initialFormState); // Clear form instantly
                     }, 1500);
                 };
 
                 if (savedHash) {
                     return (
-                        <div class="h-full flex flex-col items-center justify-center text-center space-y-6 animate-[zoomIn_0.5s_ease-out]">
+                        <div class="h-full flex flex-col items-center justify-center text-center space-y-6 animate-slideUp">
                             <div class="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center border-2 border-emerald-500">
                                 <i class="fa-solid fa-check text-4xl text-emerald-500"></i>
                             </div>
@@ -113,7 +114,7 @@
                 }
 
                 return (
-                    <form onSubmit={handleFirebaseSave} class="space-y-8 relative z-10 overflow-y-auto h-full pr-4 pb-12">
+                    <form onSubmit={handleFirebaseSave} class="space-y-8 relative z-10 overflow-y-auto h-full pr-4 pb-12 animate-fadeIn">
                         <div class="flex justify-between items-center border-b border-white/10 pb-4 sticky top-0 bg-slate-900/90 backdrop-blur z-20">
                             <h2 class="text-2xl font-black text-white uppercase tracking-tighter">Luxury Affairs <span class="text-amber-500">Intake Engine</span></h2>
                         </div>
@@ -187,6 +188,166 @@
                 );
             };
 
+            // --- MODULE 2: SCOUT ENGINE (FUNNEL BUILDER) ---
+            const ScoutEngine = () => {
+                const [url, setUrl] = useState('');
+                const [scanning, setScanning] = useState(false);
+                const [complete, setComplete] = useState(false);
+
+                const executeScout = () => {
+                    setScanning(true);
+                    setTimeout(() => { setScanning(false); setComplete(true); }, 3000);
+                };
+
+                return (
+                    <div class="p-6 h-full flex flex-col items-center justify-center animate-fadeIn max-w-4xl mx-auto w-full">
+                        {!complete ? (
+                            <div class="text-center w-full space-y-8 animate-slideUp">
+                                <i class="fa-solid fa-crosshairs text-6xl text-amber-500 mb-4 animate-pulse"></i>
+                                <h2 class="text-4xl font-black text-white uppercase tracking-tighter">Sovereign <span class="text-amber-500">Scout Engine</span></h2>
+                                <p class="text-slate-400 text-sm max-w-md mx-auto">Drop a logistics competitor or prospect URL below. Victory will scrape their data and generate a custom $8,500 Sovereign Tenant Portal.</p>
+                                
+                                <div class="relative w-full max-w-2xl mx-auto">
+                                    <div class="absolute -inset-1 bg-amber-500 rounded-2xl blur opacity-20"></div>
+                                    <div class="relative bg-slate-900 border border-white/10 rounded-2xl p-2 flex items-center shadow-2xl">
+                                        <i class="fa-solid fa-globe text-slate-500 ml-4"></i>
+                                        <input type="text" placeholder="https://coastal-logistics.com" onChange={(e)=>setUrl(e.target.value)} class="w-full bg-transparent p-4 text-white font-mono text-sm outline-none" />
+                                        <button onClick={executeScout} disabled={!url || scanning} class="bg-amber-500 text-black px-8 py-4 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-amber-400 disabled:opacity-50 flex items-center gap-2 transition-all">
+                                            {scanning ? <i class="fa-solid fa-spinner fa-spin"></i> : <i class="fa-solid fa-bolt"></i>}
+                                            {scanning ? 'Scraping Target...' : 'Deploy Scout'}
+                                        </button>
+                                    </div>
+                                    {scanning && <div class="mt-4 text-[10px] text-amber-500 font-mono uppercase tracking-widest animate-pulse">&gt; Extracting NAICS codes & Pain points...</div>}
+                                </div>
+                            </div>
+                        ) : (
+                            <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-8 animate-slideUp">
+                                <div class="bg-slate-900 border border-white/10 p-8 rounded-3xl">
+                                    <h3 class="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-6 border-b border-white/5 pb-2">Commander Intelligence</h3>
+                                    <div class="space-y-4">
+                                        <div><p class="text-[9px] text-slate-500 uppercase">Target Detected</p><p class="text-xl font-black text-white">Coastal Logistics LLC</p></div>
+                                        <div><p class="text-[9px] text-slate-500 uppercase">Est. Revenue</p><p class="text-lg font-black text-emerald-500">$1.2M - $1.5M</p></div>
+                                        <div>
+                                            <p class="text-[9px] text-slate-500 uppercase mb-2">Pain Points Identified</p>
+                                            <ul class="text-xs text-slate-300 space-y-2">
+                                                <li><i class="fa-solid fa-triangle-exclamation text-red-500 mr-2"></i> No automated invoicing system</li>
+                                                <li><i class="fa-solid fa-triangle-exclamation text-red-500 mr-2"></i> Paper-based driver intake</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <button class="w-full mt-8 bg-black border border-amber-500 text-amber-500 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest">Generate Sales Link</button>
+                                </div>
+                                <div class="bg-white p-8 rounded-3xl relative overflow-hidden">
+                                    <div class="absolute top-0 right-0 bg-red-500 text-white text-[8px] font-black uppercase px-4 py-1 tracking-widest">Restricted Preview</div>
+                                    <h3 class="text-xl font-black text-slate-900 italic tracking-tighter mb-4">SOVEREIGN_TECH</h3>
+                                    <h2 class="text-3xl font-black text-slate-900 leading-tight">Your Infrastructure is Ready, <span class="text-amber-600">Coastal.</span></h2>
+                                    <p class="text-slate-500 text-xs mt-4">We've identified your data leaks. Deploy your $8,500 automated system below.</p>
+                                    <div class="mt-8 bg-slate-100 p-4 rounded-xl flex items-center justify-between">
+                                        <span class="font-black text-slate-900">Total Build Fee</span>
+                                        <span class="font-black text-amber-600 text-xl">$8,500</span>
+                                    </div>
+                                    <button onClick={()=>setComplete(false)} class="text-[10px] text-slate-400 font-bold uppercase mt-8 hover:text-slate-900 underline">Reset Scout</button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            };
+
+            // --- MODULE 3: INTELLIGENCE RADAR ---
+            const IntelligenceRadar = () => {
+                const hunters = [
+                    { name: 'SBA/SAM.gov Sniper', desc: 'Tracking Federal UEI & Grants', icon: 'fa-building-columns', color: 'text-blue-500', status: 'ACTIVE' },
+                    { name: '757 Real Estate/Tax Lien', desc: 'Pre-Auction Asset Radar', icon: 'fa-house-circle-exclamation', color: 'text-red-500', status: 'SCANNING' },
+                    { name: 'Port of VA Freight Pulse', desc: 'Drayage Contract Monitor', icon: 'fa-ship', color: 'text-sky-400', status: 'ACTIVE' },
+                    { name: 'SCC Genesis Radar', desc: 'New LLC Registrations (VA)', icon: 'fa-file-signature', color: 'text-emerald-500', status: 'SCANNING' },
+                    { name: 'Competitor Venue AI', desc: 'Price & Calendar Scraper', icon: 'fa-chess-knight', color: 'text-amber-500', status: 'ACTIVE' },
+                    { name: 'FCRA / Metro 2 Monitor', desc: 'Federal Loophole Tracker', icon: 'fa-gavel', color: 'text-purple-500', status: 'STANDBY' }
+                ];
+
+                return (
+                    <div class="p-6 h-full flex flex-col gap-6 animate-fadeIn">
+                        <div class="bg-black border border-emerald-500/30 rounded-3xl p-6 relative overflow-hidden flex flex-col md:flex-row justify-between items-center shadow-[0_0_40px_rgba(16,185,129,0.1)]">
+                            <div class="relative z-10 space-y-2">
+                                <h2 class="text-2xl font-black text-emerald-500 uppercase tracking-tighter flex items-center gap-3">
+                                    <i class="fa-solid fa-radar flex w-4 h-4 animate-ping bg-emerald-500 rounded-full"></i> 757 God View Active
+                                </h2>
+                                <p class="text-[10px] text-slate-400 font-mono uppercase">Tracking 11 Sovereign Hunters across Hampton Roads</p>
+                            </div>
+                            <div class="relative z-10 flex gap-4 mt-4 md:mt-0">
+                                <div class="text-right">
+                                    <p class="text-[9px] text-slate-500 uppercase font-black">Capital Detected (24h)</p>
+                                    <p class="text-xl font-mono text-white">$142,500</p>
+                                </div>
+                                <div class="text-right border-l border-white/10 pl-4">
+                                    <p class="text-[9px] text-slate-500 uppercase font-black">Active API Keys</p>
+                                    <p class="text-xl font-mono text-emerald-500">106 / 106</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-1 overflow-y-auto pr-2 pb-20">
+                            {hunters.map((hunter, idx) => (
+                                <div key={idx} class="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative group hover:border-emerald-500/50 transition-colors">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class={`w-12 h-12 rounded-xl bg-black flex items-center justify-center border border-white/5 shadow-inner`}>
+                                            <i class={`fa-solid ${hunter.icon} text-xl ${hunter.color}`}></i>
+                                        </div>
+                                        <span class={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded ${hunter.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-500' : hunter.status === 'SCANNING' ? 'bg-amber-500/20 text-amber-500 animate-pulse' : 'bg-slate-800 text-slate-500'}`}>
+                                            {hunter.status}
+                                        </span>
+                                    </div>
+                                    <h3 class="text-sm font-black text-white uppercase tracking-tight">{hunter.name}</h3>
+                                    <p class="text-[10px] text-slate-500 font-mono mt-1">{hunter.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            };
+
+            // --- MODULE 4 & 5: ROLE BASED VIEWS (THE IRON WALL) ---
+            const TenantView = () => (
+                <div class="flex-1 p-8 flex flex-col items-center justify-center animate-fadeIn">
+                    <div class="bg-slate-900 border border-white/10 p-12 rounded-[3rem] max-w-2xl w-full text-center space-y-8 shadow-2xl">
+                        <i class="fa-solid fa-truck-fast text-5xl text-blue-500"></i>
+                        <div>
+                            <h2 class="text-3xl font-black text-white uppercase tracking-tighter">Tenant Portal: <span class="text-blue-500">Coastal Logistics</span></h2>
+                            <p class="text-slate-400 mt-2 text-sm">Welcome to your restricted Sovereign Infrastructure dashboard.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-left">
+                            <div class="bg-black p-4 rounded-xl border border-white/5"><p class="text-[10px] text-slate-500 uppercase">Status</p><p class="text-emerald-500 font-black">Active & Compliant</p></div>
+                            <div class="bg-black p-4 rounded-xl border border-white/5"><p class="text-[10px] text-slate-500 uppercase">Documents Generated</p><p class="text-white font-black">14 / 50 (This Month)</p></div>
+                        </div>
+                        <button class="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest transition-all">Generate New 1099-C Strike</button>
+                        <p class="text-[9px] text-slate-600 font-mono uppercase">Iron Wall Security: You cannot view Goings OS Master Data.</p>
+                    </div>
+                </div>
+            );
+
+            const StaffView = () => (
+                <div class="flex-1 p-8 flex flex-col items-center justify-center animate-fadeIn">
+                    <div class="bg-slate-900 border border-white/10 p-12 rounded-[3rem] max-w-md w-full space-y-8 shadow-2xl">
+                        <div class="text-center">
+                            <i class="fa-solid fa-broom text-4xl text-emerald-500 mb-4"></i>
+                            <h2 class="text-2xl font-black text-white uppercase tracking-tighter">Luxury Affairs <span class="text-emerald-500">Operations</span></h2>
+                            <p class="text-slate-400 mt-2 text-xs">Sanitized Room Readiness Portal</p>
+                        </div>
+                        <div class="space-y-4">
+                            <label class="flex items-center gap-4 bg-black p-4 rounded-xl border border-white/5 cursor-pointer hover:border-emerald-500/50">
+                                <input type="checkbox" class="w-5 h-5 accent-emerald-500" />
+                                <span class="text-sm font-bold text-slate-300">Floors Swept & Mopped</span>
+                            </label>
+                            <label class="flex items-center gap-4 bg-black p-4 rounded-xl border border-white/5 cursor-pointer hover:border-emerald-500/50">
+                                <input type="checkbox" class="w-5 h-5 accent-emerald-500" />
+                                <span class="text-sm font-bold text-slate-300">Restrooms Sanitized & Restocked</span>
+                            </label>
+                        </div>
+                        <button class="w-full bg-emerald-600 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest">Sign Off & Timestamp</button>
+                    </div>
+                </div>
+            );
+
             // --- MASTER HEADER ---
             const Header = () => (
                 <header class="border-b border-white/10 bg-black/50 backdrop-blur-xl p-4 md:p-6 sticky top-0 z-50">
@@ -206,6 +367,7 @@
                                 <select value={userRole} onChange={(e) => setUserRole(e.target.value)} class="bg-transparent text-xs font-black uppercase tracking-widest text-white outline-none cursor-pointer py-2 pl-2 pr-6">
                                     <option value="COMMANDER" class="text-black">Commander View (God Mode)</option>
                                     <option value="TENANT" class="text-black">Tenant View (Client)</option>
+                                    <option value="STAFF" class="text-black">Staff View (Clean Team)</option>
                                 </select>
                             </div>
 
@@ -218,6 +380,21 @@
                             </div>
                         </div>
                     </div>
+
+                    {/* Master Navigation Tabs (Only visible to Commander) */}
+                    {userRole === 'COMMANDER' && (
+                        <div class="flex gap-2 mt-6 overflow-x-auto pb-2 border-b border-white/5">
+                            <button onClick={() => setActiveTab('EXECUTION')} class={`px-6 py-3 rounded-t-xl font-black uppercase text-xs tracking-widest transition-all ${activeTab === 'EXECUTION' ? 'bg-amber-500 text-black' : 'bg-slate-900 text-slate-500 hover:text-white'}`}>
+                                <i class="fa-solid fa-bolt mr-2"></i> Execution Deck
+                            </button>
+                            <button onClick={() => setActiveTab('SCOUT')} class={`px-6 py-3 rounded-t-xl font-black uppercase text-xs tracking-widest transition-all ${activeTab === 'SCOUT' ? 'bg-blue-500 text-white' : 'bg-slate-900 text-slate-500 hover:text-white'}`}>
+                                <i class="fa-solid fa-crosshairs mr-2"></i> Sovereign Scout
+                            </button>
+                            <button onClick={() => setActiveTab('RADAR')} class={`px-6 py-3 rounded-t-xl font-black uppercase text-xs tracking-widest transition-all ${activeTab === 'RADAR' ? 'bg-emerald-500 text-black' : 'bg-slate-900 text-slate-500 hover:text-white'}`}>
+                                <i class="fa-solid fa-satellite-dish mr-2"></i> Intelligence Radar
+                            </button>
+                        </div>
+                    )}
                 </header>
             );
 
@@ -225,22 +402,28 @@
                 <div class="flex flex-col h-full overflow-hidden">
                     <Header />
                     <main class="flex-1 overflow-hidden">
-                        <div class="p-6 grid grid-cols-1 xl:grid-cols-12 gap-6 animate-fadeIn h-full">
-                            <div class="xl:col-span-3 space-y-4">
-                                <h2 class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Sovereign Pillars</h2>
-                                <div onClick={() => setActivePillar('LAEC')} class={`p-5 rounded-2xl cursor-pointer border transition-all ${activePillar === 'LAEC' ? 'bg-amber-500/10 border-amber-500' : 'bg-slate-900 border-white/5'}`}>
-                                    <div class="flex justify-between items-center mb-2"><i class={`fa-solid fa-building text-xl ${activePillar === 'LAEC' ? 'text-amber-500' : 'text-slate-500'}`}></i></div>
-                                    <h3 class="font-black text-white uppercase text-sm">Luxury Affairs</h3>
-                                    <p class="text-[10px] text-slate-400 mt-1 uppercase">HQ / Event Venue Intake</p>
+                        {userRole === 'TENANT' ? <TenantView /> : 
+                         userRole === 'STAFF' ? <StaffView /> : 
+                         (
+                            activeTab === 'EXECUTION' ? (
+                                <div class="p-6 grid grid-cols-1 xl:grid-cols-12 gap-6 animate-fadeIn h-full">
+                                    <div class="xl:col-span-3 space-y-4">
+                                        <h2 class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Sovereign Pillars</h2>
+                                        <div onClick={() => setActivePillar('LAEC')} class={`p-5 rounded-2xl cursor-pointer border transition-all ${activePillar === 'LAEC' ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.1)]' : 'bg-slate-900 border-white/5'}`}>
+                                            <div class="flex justify-between items-center mb-2"><i class={`fa-solid fa-building text-xl ${activePillar === 'LAEC' ? 'text-amber-500' : 'text-slate-500'}`}></i></div>
+                                            <h3 class="font-black text-white uppercase text-sm">Luxury Affairs</h3>
+                                            <p class="text-[10px] text-slate-400 mt-1 uppercase">HQ / Event Venue Intake</p>
+                                        </div>
+                                        <div class="p-5 rounded-2xl border bg-slate-900 border-white/5 opacity-50"><h3 class="font-black text-white uppercase text-sm">Keep It Goings</h3></div>
+                                        <div class="p-5 rounded-2xl border bg-slate-900 border-white/5 opacity-50"><h3 class="font-black text-white uppercase text-sm">Choice Inc.</h3></div>
+                                        <div class="p-5 rounded-2xl border bg-slate-900 border-white/5 opacity-50"><h3 class="font-black text-white uppercase text-sm">TBE Tax Shield</h3></div>
+                                    </div>
+                                    <div class="xl:col-span-9 bg-slate-900/50 border border-white/5 rounded-[2rem] p-8 relative overflow-hidden h-full">
+                                        {activePillar === 'LAEC' ? <LAECForm /> : <div class="flex items-center justify-center h-full text-slate-500 uppercase font-black tracking-widest">Awaiting Module</div>}
+                                    </div>
                                 </div>
-                                <div class="p-5 rounded-2xl border bg-slate-900 border-white/5 opacity-50"><h3 class="font-black text-white uppercase text-sm">Keep It Goings</h3></div>
-                                <div class="p-5 rounded-2xl border bg-slate-900 border-white/5 opacity-50"><h3 class="font-black text-white uppercase text-sm">Choice Inc.</h3></div>
-                                <div class="p-5 rounded-2xl border bg-slate-900 border-white/5 opacity-50"><h3 class="font-black text-white uppercase text-sm">TBE Tax Shield</h3></div>
-                            </div>
-                            <div class="xl:col-span-9 bg-slate-900/50 border border-white/5 rounded-[2rem] p-8 relative overflow-hidden h-full">
-                                {activePillar === 'LAEC' ? <LAECForm /> : <div class="flex items-center justify-center h-full text-slate-500 uppercase font-black tracking-widest">Awaiting Module</div>}
-                            </div>
-                        </div>
+                            ) : activeTab === 'SCOUT' ? <ScoutEngine /> : <IntelligenceRadar />
+                         )}
                     </main>
                 </div>
             );
