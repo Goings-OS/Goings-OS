@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOINGS OS | Supreme Command</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome for Guaranteed Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #e2e8f0; overflow-x: hidden; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .grid-bg { background-image: linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 40px 40px; }
+        .glow-text { text-shadow: 0 0 20px rgba(245, 158, 11, 0.5); }
+        .radar-sweep { position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent 70%, rgba(16, 185, 129, 0.2) 100%); transform-origin: 0 0; animation: sweep 4s linear infinite; pointer-events: none; }
+        @keyframes sweep { to { transform: rotate(360deg); } }
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
+    </style>
+</head>
+<body class="grid-bg h-screen flex flex-col">
+    <div id="root" class="h-full flex flex-col"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const App = () => {
+            const [time, setTime] = useState(new Date());
+            const [activeTab, setActiveTab] = useState('EXECUTION');
+            const [activePillar, setActivePillar] = useState('LAEC');
+
+            // The Supreme Clock Logic (Millisecond precision illusion for high-tech feel)
+            useEffect(() => {
+                const timer = setInterval(() => setTime(new Date()), 50);
+                return () => clearInterval(timer);
+            }, []);
+
+            const formatTime = (date) => {
+                const h = String(date.getHours()).padStart(2, '0');
+                const m = String(date.getMinutes()).padStart(2, '0');
+                const s = String(date.getSeconds()).padStart(2, '0');
+                const ms = String(date.getMilliseconds()).padStart(3, '0').substring(0,2);
+                return { main: `${h}:${m}:${s}`, ms: ms };
+            };
+
+            const clock = formatTime(time);
+
+            // --- COMPONENTS ---
+
+            const Header = () => (
+                <header class="border-b border-white/10 bg-black/50 backdrop-blur-xl p-4 md:p-6 sticky top-0 z-50">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 bg-amber-500 rounded-xl flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.3)]">
+                                <i class="fa-solid fa-crown text-black text-3xl"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter glow-text">GOINGS <span class="text-amber-500">OS</span></h1>
+                                <p class="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-[0.3em] flex items-center gap-2 mt-1">
+                                    <i class="fa-solid fa-shield-halved text-emerald-500"></i> Commander: Terrence & Tanita
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* The Supreme Clock */}
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col items-end shadow-inner">
+                            <p class="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1">System Time (EST)</p>
+                            <div class="flex items-baseline gap-1 font-mono text-amber-500">
+                                <span class="text-4xl font-black">{clock.main}</span>
+                                <span class="text-xl text-amber-500/50">:{clock.ms}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Master Navigation Tabs */}
+                    <div class="flex gap-2 mt-6 overflow-x-auto pb-2 border-b border-white/5">
+                        <button onClick={() => setActiveTab('EXECUTION')} class={`px-6 py-3 rounded-t-xl font-black uppercase text-xs tracking-widest transition-all ${activeTab === 'EXECUTION' ? 'bg-amber-500 text-black' : 'bg-slate-900 text-slate-500 hover:text-white'}`}>
+                            <i class="fa-solid fa-bolt mr-2"></i> Execution Deck
+                        </button>
+                        <button onClick={() => setActiveTab('RADAR')} class={`px-6 py-3 rounded-t-xl font-black uppercase text-xs tracking-widest transition-all ${activeTab === 'RADAR' ? 'bg-emerald-500 text-black' : 'bg-slate-900 text-slate-500 hover:text-white'}`}>
+                            <i class="fa-solid fa-satellite-dish mr-2"></i> Intelligence Radar
+                        </button>
+                    </div>
+                </header>
+            );
+
+            const ExecutionDeck = () => (
+                <div class="p-6 grid grid-cols-1 xl:grid-cols-12 gap-6 animate-fadeIn h-full">
+                    {/* LEFT COL: The 4 Pillars Selector */}
+                    <div class="xl:col-span-3 space-y-4">
+                        <h2 class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Sovereign Pillars</h2>
+                        
+                        <div onClick={() => setActivePillar('LAEC')} class={`p-5 rounded-2xl cursor-pointer border transition-all ${activePillar === 'LAEC' ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.1)]' : 'bg-slate-900 border-white/5 hover:border-white/20'}`}>
+                            <div class="flex justify-between items-center mb-2">
+                                <i class={`fa-solid fa-building text-xl ${activePillar === 'LAEC' ? 'text-amber-500' : 'text-slate-500'}`}></i>
+                                {activePillar === 'LAEC' && <span class="flex w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>}
+                            </div>
+                            <h3 class="font-black text-white uppercase text-sm">Luxury Affairs</h3>
+                            <p class="text-[10px] text-slate-400 mt-1 uppercase">HQ / Event Venue Intake</p>
+                        </div>
+
+                        <div onClick={() => setActivePillar('KIG')} class={`p-5 rounded-2xl cursor-pointer border transition-all ${activePillar === 'KIG' ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.1)]' : 'bg-slate-900 border-white/5 hover:border-white/20'}`}>
+                            <div class="flex justify-between items-center mb-2">
+                                <i class={`fa-solid fa-truck-fast text-xl ${activePillar === 'KIG' ? 'text-amber-500' : 'text-slate-500'}`}></i>
+                            </div>
+                            <h3 class="font-black text-white uppercase text-sm">Keep It Goings</h3>
+                            <p class="text-[10px] text-slate-400 mt-1 uppercase">Logistics Tenant Provisioning</p>
+                        </div>
+
+                        <div onClick={() => setActivePillar('TBE')} class={`p-5 rounded-2xl cursor-pointer border transition-all ${activePillar === 'TBE' ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.1)]' : 'bg-slate-900 border-white/5 hover:border-white/20'}`}>
+                            <div class="flex justify-between items-center mb-2">
+                                <i class={`fa-solid fa-scale-balanced text-xl ${activePillar === 'TBE' ? 'text-amber-500' : 'text-slate-500'}`}></i>
+                            </div>
+                            <h3 class="font-black text-white uppercase text-sm">TBE Tax Shield</h3>
+                            <p class="text-[10px] text-slate-400 mt-1 uppercase">Forensic Audit & Resolution</p>
+                        </div>
+
+                        <div onClick={() => setActivePillar('CHOICE')} class={`p-5 rounded-2xl cursor-pointer border transition-all ${activePillar === 'CHOICE' ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.1)]' : 'bg-slate-900 border-white/5 hover:border-white/20'}`}>
+                            <div class="flex justify-between items-center mb-2">
+                                <i class={`fa-solid fa-hand-holding-dollar text-xl ${activePillar === 'CHOICE' ? 'text-amber-500' : 'text-slate-500'}`}></i>
+                            </div>
+                            <h3 class="font-black text-white uppercase text-sm">Choice Inc.</h3>
+                            <p class="text-[10px] text-slate-400 mt-1 uppercase">Project 350 / $80k Legacy Fund</p>
+                        </div>
+                    </div>
+
+                    {/* RIGHT COL: The Active Workspace (Paperless Intake) */}
+                    <div class="xl:col-span-9 bg-slate-900/50 border border-white/5 rounded-[2rem] p-8 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                            <i class="fa-solid fa-fingerprint text-[200px] text-white"></i>
+                        </div>
+
+                        {activePillar === 'LAEC' && (
+                            <div class="space-y-8 relative z-10">
+                                <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                                    <h2 class="text-2xl font-black text-white uppercase tracking-tighter">Sovereign <span class="text-amber-500">Closing Engine</span></h2>
+                                    <span class="bg-amber-500 text-black px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest">Paperless Lock Active</span>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="space-y-4">
+                                        <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-800 pb-2">Client Identity</h3>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="text-[9px] uppercase font-bold text-slate-500">First Name</label>
+                                                <input type="text" value="Malcolm" class="w-full bg-black border border-slate-800 p-3 rounded-lg text-white font-mono text-sm" readOnly/>
+                                            </div>
+                                            <div>
+                                                <label class="text-[9px] uppercase font-bold text-slate-500">Last Name</label>
+                                                <input type="text" value="Harris" class="w-full bg-black border border-slate-800 p-3 rounded-lg text-white font-mono text-sm" readOnly/>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="text-[9px] uppercase font-bold text-slate-500">Email (Required for E-Sign)</label>
+                                            <input type="text" value="malcolm@example.com" class="w-full bg-black border border-amber-500/50 p-3 rounded-lg text-white font-mono text-sm" readOnly/>
+                                        </div>
+                                        <div>
+                                            <label class="text-[9px] uppercase font-bold text-slate-500">Phone</label>
+                                            <input type="text" value="(757) 338-2499" class="w-full bg-black border border-slate-800 p-3 rounded-lg text-white font-mono text-sm" readOnly/>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-4">
+                                        <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-800 pb-2">Event Parameters</h3>
+                                        <div>
+                                            <label class="text-[9px] uppercase font-bold text-slate-500">Description</label>
+                                            <input type="text" value="40th Bday Party" class="w-full bg-black border border-slate-800 p-3 rounded-lg text-white font-mono text-sm" readOnly/>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="text-[9px] uppercase font-bold text-slate-500">Date</label>
+                                                <input type="text" value="03-28-2026" class="w-full bg-black border border-slate-800 p-3 rounded-lg text-white font-mono text-sm" readOnly/>
+                                            </div>
+                                            <div>
+                                                <label class="text-[9px] uppercase font-bold text-slate-500">Guests</label>
+                                                <input type="text" value="50-75" class="w-full bg-black border border-slate-800 p-3 rounded-lg text-white font-mono text-sm" readOnly/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-black/50 border border-slate-800 rounded-xl p-6">
+                                    <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-800 pb-2 mb-4">Financial Ledger & Compliance</h3>
+                                    
+                                    <label class="flex items-center gap-4 p-4 border border-amber-500 bg-amber-500/5 rounded-lg mb-4">
+                                        <div class="w-4 h-4 rounded-full border-4 border-amber-500 bg-black"></div>
+                                        <div class="flex-1">
+                                            <p class="text-xs font-bold text-white">Weekend - Night (Fri, Sat or Sun) 4PM-Midnight</p>
+                                        </div>
+                                        <p class="text-sm font-black text-amber-500">$1,500.00</p>
+                                    </label>
+
+                                    <div class="space-y-3 mt-4">
+                                        <label class="flex items-center gap-3">
+                                            <i class="fa-solid fa-square-check text-amber-500"></i>
+                                            <span class="text-xs text-slate-300">Serving Alcohol (ABC License Verified)</span>
+                                        </label>
+                                        <label class="flex items-center gap-3">
+                                            <i class="fa-solid fa-square text-slate-600"></i>
+                                            <span class="text-xs text-slate-300">Hookah Service (+$100.00 Fee)</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <button class="w-full py-5 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl text-black font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:scale-[1.01] transition-transform">
+                                    Capture Thumb-Sign & Close Ledger
+                                </button>
+                            </div>
+                        )}
+                        
+                        {activePillar !== 'LAEC' && (
+                            <div class="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
+                                <i class="fa-solid fa-lock text-4xl text-slate-600"></i>
+                                <div>
+                                    <h2 class="text-xl font-black text-white uppercase tracking-widest">{activePillar} Vault Locked</h2>
+                                    <p class="text-xs text-slate-500 uppercase mt-2">Awaiting Commander execution parameters.</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+
+            const IntelligenceRadar = () => {
+                const hunters = [
+                    { name: 'SBA/SAM.gov Sniper', desc: 'Tracking Federal UEI & Grants', icon: 'fa-building-columns', color: 'text-blue-500', status: 'ACTIVE' },
+                    { name: '757 Real Estate/Tax Lien', desc: 'Pre-Auction Asset Radar', icon: 'fa-house-circle-exclamation', color: 'text-red-500', status: 'SCANNING' },
+                    { name: 'Port of VA Freight Pulse', desc: 'Drayage Contract Monitor', icon: 'fa-ship', color: 'text-sky-400', status: 'ACTIVE' },
+                    { name: 'SCC Genesis Radar', desc: 'New LLC Registrations (VA)', icon: 'fa-file-signature', color: 'text-emerald-500', status: 'SCANNING' },
+                    { name: 'Competitor Venue AI', desc: 'Price & Calendar Scraper', icon: 'fa-chess-knight', color: 'text-amber-500', status: 'ACTIVE' },
+                    { name: 'FCRA / Metro 2 Monitor', desc: 'Federal Loophole Tracker', icon: 'fa-gavel', color: 'text-purple-500', status: 'STANDBY' }
+                ];
+
+                return (
+                    <div class="p-6 h-full flex flex-col gap-6 animate-fadeIn">
+                        
+                        {/* God View Map Header */}
+                        <div class="bg-black border border-emerald-500/30 rounded-3xl p-6 relative overflow-hidden flex flex-col md:flex-row justify-between items-center shadow-[0_0_40px_rgba(16,185,129,0.1)]">
+                            <div class="relative z-10 space-y-2">
+                                <h2 class="text-2xl font-black text-emerald-500 uppercase tracking-tighter flex items-center gap-3">
+                                    <i class="fa-solid fa-radar flex w-4 h-4 animate-ping bg-emerald-500 rounded-full"></i> 757 God View Active
+                                </h2>
+                                <p class="text-[10px] text-slate-400 font-mono uppercase">Tracking 11 Sovereign Hunters across Hampton Roads</p>
+                            </div>
+                            <div class="relative z-10 flex gap-4 mt-4 md:mt-0">
+                                <div class="text-right">
+                                    <p class="text-[9px] text-slate-500 uppercase font-black">Capital Detected (24h)</p>
+                                    <p class="text-xl font-mono text-white">$142,500</p>
+                                </div>
+                                <div class="text-right border-l border-white/10 pl-4">
+                                    <p class="text-[9px] text-slate-500 uppercase font-black">Active API Keys</p>
+                                    <p class="text-xl font-mono text-emerald-500">106 / 106</p>
+                                </div>
+                            </div>
+                            
+                            {/* Fake Radar BG */}
+                            <div class="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
+                                <div class="w-full h-full border border-emerald-500/50 rounded-full absolute -top-[50%] -left-[50%] w-[200%] h-[200%]"></div>
+                                <div class="w-[150%] h-[150%] border border-emerald-500/30 rounded-full absolute -top-[25%] -left-[25%]"></div>
+                                <div class="w-full h-px bg-emerald-500/50 absolute top-1/2"></div>
+                                <div class="w-px h-full bg-emerald-500/50 absolute left-1/2"></div>
+                            </div>
+                        </div>
+
+                        {/* The Hunter Grid */}
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-1 overflow-y-auto pr-2 pb-20">
+                            {hunters.map((hunter, idx) => (
+                                <div key={idx} class="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative group hover:border-emerald-500/50 transition-colors">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class={`w-12 h-12 rounded-xl bg-black flex items-center justify-center border border-white/5 shadow-inner`}>
+                                            <i class={`fa-solid ${hunter.icon} text-xl ${hunter.color}`}></i>
+                                        </div>
+                                        <span class={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded ${hunter.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-500' : hunter.status === 'SCANNING' ? 'bg-amber-500/20 text-amber-500 animate-pulse' : 'bg-slate-800 text-slate-500'}`}>
+                                            {hunter.status}
+                                        </span>
+                                    </div>
+                                    <h3 class="text-sm font-black text-white uppercase tracking-tight">{hunter.name}</h3>
+                                    <p class="text-[10px] text-slate-500 font-mono mt-1">{hunter.desc}</p>
+                                    
+                                    {/* Mock Terminal Output */}
+                                    <div class="mt-4 bg-black rounded-lg p-3 border border-white/5 font-mono text-[8px] text-slate-400 h-16 overflow-hidden relative">
+                                        <div class="animate-[slideUp_5s_linear_infinite]">
+                                            <p class="text-emerald-500">&gt; Initiating scrape sequence...</p>
+                                            <p>&gt; Bypassing localized caching...</p>
+                                            <p>&gt; Extracting target data points.</p>
+                                            <p>&gt; Matching NAICS / Tax ID logic.</p>
+                                            <p class="text-amber-500">&gt; 3 Targets acquired.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div class="flex flex-col h-full overflow-hidden">
+                    <Header />
+                    <main class="flex-1 overflow-hidden">
+                        {activeTab === 'EXECUTION' ? <ExecutionDeck /> : <IntelligenceRadar />}
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
