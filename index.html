@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Goings OS | Sovereign Command V8</title>
+    <title>Goings OS | Sovereign Command V11</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <!-- FIREBASE SDK INJECTIONS (COMMANDER'S KEYS SECURED) -->
+    <!-- FIREBASE SDK INJECTIONS (DATABASE + STORAGE) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
         // COMMANDER GOINGS: EXTRACTED FIREBASE DNA
         const firebaseConfig = {
@@ -23,14 +24,25 @@
             measurementId: "G-X3XGBVQP31"
         };
 
-        // Initialize Firebase
+        // Initialize Firebase Vault & Filing Cabinet
         try {
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
+            const storage = getStorage(app);
+            
+            // Map to Global Window for UI access
             window.kigDb = db; 
+            window.kigStorage = storage;
             window.addDoc = addDoc;
             window.collection = collection;
-            console.log("Sovereign Firebase Vault Connected.");
+            window.onSnapshot = onSnapshot;
+            window.query = query;
+            window.orderBy = orderBy;
+            window.storageRef = ref;
+            window.uploadBytes = uploadBytes;
+            window.getDownloadURL = getDownloadURL;
+            
+            console.log("Sovereign Vault & Storage Connected.");
         } catch(e) {
             console.error("Firebase Connection Failed: ", e);
         }
@@ -52,14 +64,18 @@
         body { background-color: #020617; color: #cbd5e1; -webkit-tap-highlight-color: transparent; }
         .glass-panel { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(245, 158, 11, 0.15); }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 10px; }
         .layer { display: none; animation: fadeIn 0.3s ease-in-out; }
         .layer.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .glow-gold { box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
         input, select, textarea { background: #0f172a !important; color: white !important; border: 1px solid #334155 !important; }
-        input:focus, select:focus, textarea:focus { border-color: #f59e0b !important; outline: none !important; box-shadow: 0 0 5px rgba(245, 158, 11, 0.5) !important; }
+        .ledger-card { transition: all 0.3s ease; border-left: 4px solid transparent; }
+        .ledger-card:hover { transform: translateX(5px); background: rgba(30, 41, 59, 0.5); }
+        
+        /* Custom File Input Styling for iPads and Desktop */
+        input[type="file"]::file-selector-button { background: #1e293b; color: #f59e0b; border: 1px solid #f59e0b; padding: 0.5rem 1rem; border-radius: 0.25rem; cursor: pointer; transition: all 0.2s; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin-right: 1rem;}
+        input[type="file"]::file-selector-button:hover { background: #f59e0b; color: #0f172a; }
         ::-webkit-calendar-picker-indicator { filter: invert(1) sepia(100%) saturate(500%) hue-rotate(350deg); cursor: pointer; }
     </style>
 </head>
@@ -90,8 +106,11 @@
         <button onclick="switchLayer('tactical')" id="nav-tactical" class="flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 whitespace-nowrap transition-all">
             <i class="fas fa-bolt mr-2"></i>Tactical Wings
         </button>
+        <button onclick="switchLayer('ledger')" id="nav-ledger" class="flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 whitespace-nowrap transition-all">
+            <i class="fas fa-folder-open mr-2"></i>Vault Ledger
+        </button>
         <button onclick="switchLayer('radar')" id="nav-radar" class="flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 whitespace-nowrap transition-all">
-            <i class="fas fa-radar mr-2"></i>J.A.R.V.I.S. Radar
+            <i class="fas fa-radar mr-2"></i>Radar
         </button>
         <button onclick="switchLayer('portal')" id="nav-portal" class="flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 whitespace-nowrap transition-all">
             <i class="fas fa-laptop-house mr-2"></i>Client Portal
@@ -101,7 +120,7 @@
     <!-- MAIN WORKSPACE -->
     <main class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950">
         
-        <!-- LAYER 1: THE GOD VIEW -->
+        <!-- LAYER 1: GOD VIEW (V8 FULL RESTORATION) -->
         <div id="layer-god-view" class="layer active max-w-6xl mx-auto space-y-4 md:space-y-6">
             <h2 class="text-xl font-black text-white uppercase tracking-widest border-l-4 border-amber-500 pl-3">Empire Status</h2>
             
@@ -131,11 +150,11 @@
                      <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">API Bridge Integrity</h3>
                      <div class="flex items-center gap-3 mb-2">
                          <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                         <span class="text-xs font-mono text-slate-300">Firebase: SECURE & ONLINE</span>
+                         <span class="text-xs font-mono text-slate-300">Firebase DB: SECURE</span>
                      </div>
                      <div class="flex items-center gap-3 mb-2">
-                         <div class="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></div>
-                         <span class="text-xs font-mono text-slate-300">GHL Intercept: ACTIVE</span>
+                         <div class="w-3 h-3 rounded-full bg-purple-500 animate-pulse"></div>
+                         <span class="text-xs font-mono text-slate-300">Storage Vault: ONLINE</span>
                      </div>
                      <div class="flex items-center gap-3">
                          <div class="w-3 h-3 rounded-full bg-amber-500 animate-pulse"></div>
@@ -190,13 +209,15 @@
             </div>
         </div>
 
-        <!-- LAYER 2: TACTICAL WINGS (V8 ENTERPRISE UPGRADE) -->
+        <!-- LAYER 2: TACTICAL WINGS (V8 + V10 FUSION) -->
         <div id="layer-tactical" class="layer max-w-6xl mx-auto space-y-6">
-            <h2 class="text-xl font-black text-white uppercase tracking-widest border-l-4 border-amber-500 pl-3">Enterprise Operations & CRM</h2>
+            <div class="flex justify-between items-end mb-2">
+                <h2 class="text-xl font-black text-white uppercase tracking-widest border-l-4 border-amber-500 pl-3">Enterprise Operations & CRM</h2>
+            </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
-                <!-- TBE SHIELD (TANITA'S FORENSIC CRM) -->
+                <!-- 1. TBE SHIELD (TANITA'S FORENSIC CRM + FILE UPLOAD) -->
                 <div class="glass-panel p-5 rounded-xl border-t-4 border-emerald-500 lg:col-span-2">
                     <h3 class="text-emerald-400 font-bold text-sm mb-4 uppercase tracking-widest"><i class="fas fa-shield-alt mr-2"></i>TBE Tax Shield & Forensic Ledger</h3>
                     
@@ -231,10 +252,16 @@
 
                     <input type="text" id="tbe-notes" placeholder="Strategic Notes / Next Action (e.g., Requesting 2024 W2s)..." class="w-full rounded p-3 text-sm mb-4">
                     
-                    <button onclick="writeToFirebase('tbe')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95">LOCK LEDGER & DEPLOY SHIELD</button>
+                    <!-- TBE FILE UPLOAD -->
+                    <div class="bg-slate-900/50 border border-emerald-900/50 p-4 rounded mb-4">
+                        <label class="text-[10px] text-emerald-500 font-bold uppercase block mb-2"><i class="fas fa-paperclip mr-1"></i>Attach Document / IRS Notice</label>
+                        <input type="file" id="tbe-file" accept="image/*,.pdf" class="w-full text-sm text-slate-400">
+                    </div>
+                    
+                    <button onclick="executeSovereignSync('tbe')" id="btn-tbe" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95">LOCK LEDGER & SECURE DOCUMENTS</button>
                 </div>
 
-                <!-- LUXURY AFFAIRS (ROBUST) -->
+                <!-- 2. LUXURY AFFAIRS (ROBUST + FILE UPLOAD) -->
                 <div class="glass-panel p-5 rounded-xl border-t-4 border-purple-500 flex flex-col h-full">
                     <h3 class="text-purple-400 font-bold text-sm mb-4 uppercase tracking-widest"><i class="fas fa-building mr-2"></i>Luxury Affairs HQ CRM</h3>
                     
@@ -274,10 +301,16 @@
                         </div>
                     </div>
 
-                    <button onclick="writeToFirebase('luxury')" class="mt-auto w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(168,85,247,0.4)] active:scale-95">LOCK VENUE & SYNC VAULT</button>
+                    <!-- LUXURY FILE UPLOAD -->
+                    <div class="bg-slate-900/50 border border-purple-900/50 p-4 rounded mb-4">
+                        <label class="text-[10px] text-purple-400 font-bold uppercase block mb-2"><i class="fas fa-paperclip mr-1"></i>Attach Contract / ID</label>
+                        <input type="file" id="lux-file" accept="image/*,.pdf" class="w-full text-sm text-slate-400">
+                    </div>
+
+                    <button onclick="executeSovereignSync('luxury')" id="btn-luxury" class="mt-auto w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(168,85,247,0.4)] active:scale-95">LOCK VENUE & UPLOAD</button>
                 </div>
 
-                <!-- KIG OS ENGINE (ROBUST) -->
+                <!-- 3. KIG OS ENGINE (ROBUST) -->
                 <div class="glass-panel p-5 rounded-xl border-t-4 border-blue-500 flex flex-col h-full">
                     <h3 class="text-blue-400 font-bold text-sm mb-4 uppercase tracking-widest"><i class="fas fa-bolt mr-2"></i>KIG OS Tech Build Pipeline</h3>
                     
@@ -315,11 +348,17 @@
                             <input type="number" id="kig-dep" placeholder="0.00" class="w-full rounded p-3 text-sm text-amber-400 font-bold">
                         </div>
                     </div>
+                    
+                    <!-- KIG FILE UPLOAD -->
+                    <div class="bg-slate-900/50 border border-blue-900/50 p-4 rounded mb-4">
+                        <label class="text-[10px] text-blue-400 font-bold uppercase block mb-2"><i class="fas fa-paperclip mr-1"></i>Attach Blueprints / Scope</label>
+                        <input type="file" id="kig-file" accept="image/*,.pdf" class="w-full text-sm text-slate-400">
+                    </div>
 
-                    <button onclick="writeToFirebase('kig')" class="mt-auto w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] active:scale-95">UPDATE PIPELINE</button>
+                    <button onclick="executeSovereignSync('kig')" id="btn-kig" class="mt-auto w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] active:scale-95">UPDATE PIPELINE</button>
                 </div>
 
-                <!-- CHOICE INC. LEGACY ENGINE -->
+                <!-- 4. CHOICE INC. LEGACY ENGINE -->
                 <div class="glass-panel p-5 rounded-xl border-t-4 border-amber-500 lg:col-span-2">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-8 h-8 rounded bg-amber-900/50 flex items-center justify-center border border-amber-500"><i class="fas fa-globe text-amber-400"></i></div>
@@ -356,10 +395,16 @@
                         </select>
                     </div>
 
-                    <button onclick="writeToFirebase('choice')" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-900 font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] active:scale-95">DEPLOY GRANT SCOUT & LOG TO VAULT</button>
+                    <!-- CHOICE FILE UPLOAD -->
+                    <div class="bg-slate-900/50 border border-amber-900/50 p-4 rounded mb-4">
+                        <label class="text-[10px] text-amber-400 font-bold uppercase block mb-2"><i class="fas fa-paperclip mr-1"></i>Attach Grant Application / PDF</label>
+                        <input type="file" id="choice-file" accept="image/*,.pdf" class="w-full text-sm text-slate-400">
+                    </div>
+
+                    <button onclick="executeSovereignSync('choice')" id="btn-choice" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-900 font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] active:scale-95">DEPLOY GRANT SCOUT & LOG</button>
                 </div>
 
-                <!-- THE 5TH GEM: BUSINESS STRATEGIST -->
+                <!-- 5. THE BUSINESS STRATEGIST -->
                 <div class="glass-panel p-5 rounded-xl border-t-4 border-rose-500 lg:col-span-2">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-8 h-8 rounded bg-rose-900/50 flex items-center justify-center border border-rose-500"><i class="fas fa-chess-knight text-rose-400"></i></div>
@@ -390,17 +435,44 @@
                         </div>
                     </div>
 
-                    <button onclick="writeToFirebase('strategist')" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(244,63,94,0.4)] active:scale-95">LOG AUDIT TO VAULT</button>
+                    <!-- STRATEGIST FILE UPLOAD -->
+                    <div class="bg-slate-900/50 border border-rose-900/50 p-4 rounded mb-4">
+                        <label class="text-[10px] text-rose-400 font-bold uppercase block mb-2"><i class="fas fa-paperclip mr-1"></i>Attach Prospectus / P&L</label>
+                        <input type="file" id="strat-file" accept="image/*,.pdf" class="w-full text-sm text-slate-400">
+                    </div>
+
+                    <button onclick="executeSovereignSync('strategist')" id="btn-strategist" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(244,63,94,0.4)] active:scale-95">LOG AUDIT TO VAULT</button>
                 </div>
 
             </div>
             
-            <div id="sys-notification" class="hidden bg-emerald-900/50 border border-emerald-500 text-emerald-400 p-3 rounded font-mono text-xs text-center sticky bottom-4">
-                DATA SYNCED TO FIREBASE VAULT SUCCESSFULLY.
+            <div id="sys-notification" class="hidden text-center font-mono text-xs p-3 rounded bg-amber-900/30 text-amber-500 border border-amber-500/50 animate-pulse sticky bottom-4 z-50 shadow-2xl">
+                UPLOADING TO VAULT... PLEASE HOLD.
             </div>
         </div>
 
-        <!-- LAYER 3: 757 RADAR -->
+        <!-- LAYER 3: VAULT LEDGER (Unified Intelligence) -->
+        <div id="layer-ledger" class="layer max-w-6xl mx-auto space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-l-4 border-amber-500 pl-3">
+                <div>
+                    <h2 class="text-xl font-black text-white uppercase tracking-widest">Sovereign Document Ledger</h2>
+                    <p class="text-[10px] text-slate-400 font-mono">Live Submissions & Attached Files Across 5 Pillars</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="fetchLedger('all')" class="text-[10px] font-bold px-3 py-1 rounded bg-slate-800 border border-amber-500/30 text-amber-500 hover:bg-slate-700">All</button>
+                    <button onclick="fetchLedger('tbe')" class="text-[10px] font-bold px-3 py-1 rounded bg-slate-800 border border-emerald-500/30 text-emerald-500 hover:bg-slate-700">TBE Shield</button>
+                    <button onclick="fetchLedger('luxury')" class="text-[10px] font-bold px-3 py-1 rounded bg-slate-800 border border-purple-500/30 text-purple-500 hover:bg-slate-700">Events</button>
+                    <button onclick="fetchLedger('kig')" class="text-[10px] font-bold px-3 py-1 rounded bg-slate-800 border border-blue-500/30 text-blue-400 hover:bg-slate-700">Tech Builds</button>
+                    <button onclick="fetchLedger('choice')" class="text-[10px] font-bold px-3 py-1 rounded bg-slate-800 border border-amber-600/30 text-amber-400 hover:bg-slate-700">Grants</button>
+                </div>
+            </div>
+
+            <div id="ledger-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-[400px]">
+                <div class="text-center py-20 text-slate-500 animate-pulse font-mono text-sm col-span-full">Initializing Vault Connection...</div>
+            </div>
+        </div>
+
+        <!-- LAYER 4: 757 RADAR (V8 RESTORATION) -->
         <div id="layer-radar" class="layer max-w-6xl mx-auto space-y-6">
             <h2 class="text-xl font-black text-white uppercase tracking-widest border-l-4 border-amber-500 pl-3">J.A.R.V.I.S. Omni-Radar</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -428,7 +500,7 @@
             </div>
         </div>
 
-        <!-- LAYER 4: PORTAL -->
+        <!-- LAYER 5: CLIENT PORTAL (V8 RESTORATION) -->
         <div id="layer-portal" class="layer max-w-4xl mx-auto space-y-6">
             <div class="flex justify-between items-end">
                 <h2 class="text-xl font-black text-white uppercase tracking-widest border-l-4 border-amber-500 pl-3">Client View (Portal)</h2>
@@ -458,7 +530,7 @@
                         <div class="absolute -right-4 -top-4 text-amber-200/50"><i class="fas fa-star text-6xl"></i></div>
                         <h3 class="font-bold text-amber-900 relative z-10">Exclusive Family Offer</h3>
                         <p class="text-xs text-amber-700 mb-3 relative z-10">Host your Q3 Retreat at Luxury Affairs HQ for Signature Access pricing.</p>
-                        <button class="relative z-10 w-full bg-amber-600 text-white text-xs font-bold py-2 rounded">Claim Discount</button>
+                        <button class="relative z-10 w-full bg-amber-600 text-white text-xs font-bold py-2 rounded shadow-md">Claim Discount</button>
                     </div>
                 </div>
             </div>
@@ -476,94 +548,231 @@
             });
             document.getElementById('layer-' + layerId).classList.add('active');
             document.getElementById('nav-' + layerId).className = "flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-amber-500 border-b-2 border-amber-500 bg-amber-900/20 whitespace-nowrap transition-all";
+            
+            if(layerId === 'ledger') fetchLedger('all');
         }
 
-        async function writeToFirebase(wing) {
-            const notif = document.getElementById('sys-notification');
-            notif.classList.remove('hidden');
-            notif.innerText = "TRANSMITTING TO FIREBASE VAULT...";
-            notif.className = "bg-amber-900/50 border border-amber-500 text-amber-400 p-3 rounded font-mono text-xs text-center animate-pulse sticky bottom-4";
-
-            if (window.kigDb) {
-                try {
-                    let collectionName = "";
-                    let payload = { timestamp: new Date() };
-
-                    if(wing === 'luxury') {
-                        collectionName = "luxury_affairs_ledger";
-                        payload.client = document.getElementById('lux-client').value || "Unnamed";
-                        payload.eventDate = document.getElementById('lux-date').value || "Not Set";
-                        payload.guestCount = document.getElementById('lux-guests').value || 0;
-                        payload.tableLayout = document.getElementById('lux-tables').value || "Pending";
-                        payload.tier = document.getElementById('lux-tier').value || "Pending";
-                        
-                        const rev = parseFloat(document.getElementById('lux-rev').value) || 0;
-                        const dep = parseFloat(document.getElementById('lux-dep').value) || 0;
-                        payload.totalRevenue = rev;
-                        payload.depositPaid = dep;
-                        payload.balanceDue = rev - dep;
-
-                    } else if (wing === 'kig') {
-                        collectionName = "kig_os_builds";
-                        payload.client = document.getElementById('kig-client').value || "Unnamed";
-                        payload.scope = document.getElementById('kig-type').value || "Pending";
-                        payload.phase = document.getElementById('kig-phase').value || "Pending";
-                        payload.launchDate = document.getElementById('kig-date').value || "Not Set";
-                        
-                        const fee = parseFloat(document.getElementById('kig-fee').value) || 0;
-                        const dep = parseFloat(document.getElementById('kig-dep').value) || 0;
-                        payload.totalFee = fee;
-                        payload.depositPaid = dep;
-                        payload.balanceDue = fee - dep;
-
-                    } else if (wing === 'tbe') {
-                        collectionName = "tbe_tax_shield";
-                        payload.client = document.getElementById('tbe-client').value || "Unnamed";
-                        payload.debt = parseFloat(document.getElementById('tbe-debt').value) || 0;
-                        payload.fee = parseFloat(document.getElementById('tbe-fee').value) || 0;
-                        payload.service = document.getElementById('tbe-service').value || "Pending";
-                        payload.urgency = document.getElementById('tbe-urgency').value || "Pending";
-                        payload.notes = document.getElementById('tbe-notes').value || "";
-                        
-                    } else if (wing === 'choice') {
-                        collectionName = "choice_inc_grants";
-                        payload.grantName = document.getElementById('choice-grant').value || "Unnamed";
-                        payload.targetAmount = parseFloat(document.getElementById('choice-amount').value) || 0;
-                        payload.deadline = document.getElementById('choice-date').value || "Not Set";
-                        payload.strategicFocus = document.getElementById('choice-focus').value || "Pending";
-                        payload.squad = document.getElementById('choice-squad').value || "Pending";
-
-                    } else if (wing === 'strategist') {
-                        collectionName = "strategist_audits";
-                        payload.venture = document.getElementById('strat-venture').value || "Unnamed";
-                        payload.industry = document.getElementById('strat-industry').value || "Unknown";
-                        payload.viabilityScore = document.getElementById('strat-score').value || 0;
-                        payload.analysis = document.getElementById('strat-notes').value || "";
-                    }
-
-                    await window.addDoc(window.collection(window.kigDb, collectionName), payload);
-                    
-                    notif.innerText = `DATA WRITTEN TO CLOUD COLLECTION: [${collectionName.toUpperCase()}]`;
-                    notif.className = "bg-emerald-900/50 border border-emerald-500 text-emerald-400 p-3 rounded font-mono text-xs text-center sticky bottom-4";
-                    
-                    // Clear forms associated with the wing to prevent double-submit
-                    if(wing === 'luxury') { document.querySelectorAll('#lux-client, #lux-date, #lux-guests, #lux-tables, #lux-tier, #lux-rev, #lux-dep').forEach(el => el.value = ''); }
-                    if(wing === 'kig') { document.querySelectorAll('#kig-client, #kig-type, #kig-phase, #kig-date, #kig-fee, #kig-dep').forEach(el => el.value = ''); }
-                    if(wing === 'tbe') { document.querySelectorAll('#tbe-client, #tbe-debt, #tbe-fee, #tbe-service, #tbe-urgency, #tbe-notes').forEach(el => el.value = ''); }
-                    if(wing === 'choice') { document.querySelectorAll('#choice-grant, #choice-amount, #choice-date, #choice-focus, #choice-squad').forEach(el => el.value = ''); }
-                    if(wing === 'strategist') { document.querySelectorAll('#strat-venture, #strat-industry, #strat-score, #strat-notes').forEach(el => el.value = ''); }
-
-                } catch (e) {
-                    notif.innerText = `FIREBASE ERROR: Ensure Firestore is set to Test Mode.`;
-                    notif.className = "bg-rose-900/50 border border-rose-500 text-rose-400 p-3 rounded font-mono text-xs text-center sticky bottom-4";
-                    console.error(e);
-                }
-            } else {
-                notif.innerText = "CRITICAL ERROR: FIREBASE NOT CONNECTED.";
-                notif.className = "bg-rose-900/50 border border-rose-500 text-rose-400 p-3 rounded font-mono text-xs text-center sticky bottom-4";
+        // V11: MASTER SYNC & UPLOAD (Handles all 5 Wings)
+        async function executeSovereignSync(wing) {
+            if (!window.kigDb) {
+                alert("CRITICAL ERROR: Firebase not connected. Ensure config keys are placed at the top of the file.");
+                return;
             }
 
-            setTimeout(() => { notif.classList.add('hidden'); }, 5000);
+            const statusBox = document.getElementById('sys-notification');
+            const btn = document.getElementById(`btn-${wing}`);
+            
+            statusBox.classList.remove('hidden');
+            statusBox.innerText = "UPLOADING TO VAULT... PLEASE HOLD.";
+            statusBox.className = "text-center font-mono text-xs p-3 rounded bg-amber-900/30 text-amber-500 border border-amber-500/50 animate-pulse sticky bottom-4 z-50 shadow-2xl";
+            
+            if(btn) { btn.disabled = true; btn.classList.add('opacity-50'); }
+
+            try {
+                let collectionName = "";
+                let payload = { timestamp: new Date() };
+                let fileInput = document.getElementById(`${wing}-file`);
+                let documentUrl = null;
+
+                // 1. FILE UPLOAD LOGIC (If a file is selected)
+                if (fileInput && fileInput.files.length > 0) {
+                    if (!window.kigStorage) throw new Error("Storage not enabled.");
+                    statusBox.innerText = "UPLOADING DOCUMENT TO SECURE STORAGE...";
+                    const file = fileInput.files[0];
+                    const fileName = `client_docs/${wing}_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+                    const storageReference = window.storageRef(window.kigStorage, fileName);
+                    
+                    await window.uploadBytes(storageReference, file);
+                    documentUrl = await window.getDownloadURL(storageReference);
+                }
+
+                // 2. GATHER EXACT FIELD DATA BASED ON WING
+                statusBox.innerText = "SYNCING LEDGER DATA...";
+                
+                if (wing === 'luxury') {
+                    collectionName = "luxury_affairs_ledger";
+                    payload.type = "LUXURY";
+                    payload.client = document.getElementById('lux-client').value || "Unnamed";
+                    payload.date = document.getElementById('lux-date').value || "Not Set";
+                    payload.guests = document.getElementById('lux-guests').value || 0;
+                    payload.tableLayout = document.getElementById('lux-tables').value || "Pending";
+                    payload.tier = document.getElementById('lux-tier').value || "Pending";
+                    payload.revenue = parseFloat(document.getElementById('lux-rev').value) || 0;
+                    payload.deposit = parseFloat(document.getElementById('lux-dep').value) || 0;
+
+                } else if (wing === 'kig') {
+                    collectionName = "kig_os_builds";
+                    payload.type = "KIG_OS";
+                    payload.client = document.getElementById('kig-client').value || "Unnamed";
+                    payload.scope = document.getElementById('kig-type').value || "Pending";
+                    payload.phase = document.getElementById('kig-phase').value || "Pending";
+                    payload.launchDate = document.getElementById('kig-date').value || "Not Set";
+                    payload.fee = parseFloat(document.getElementById('kig-fee').value) || 0;
+                    payload.deposit = parseFloat(document.getElementById('kig-dep').value) || 0;
+
+                } else if (wing === 'tbe') {
+                    collectionName = "tbe_tax_shield";
+                    payload.type = "TBE";
+                    payload.client = document.getElementById('tbe-client').value || "Unnamed";
+                    payload.debt = parseFloat(document.getElementById('tbe-debt').value) || 0;
+                    payload.fee = parseFloat(document.getElementById('tbe-fee').value) || 0;
+                    payload.service = document.getElementById('tbe-service').value || "Pending";
+                    payload.urgency = document.getElementById('tbe-urgency').value || "Pending";
+                    payload.notes = document.getElementById('tbe-notes').value || "";
+                    
+                } else if (wing === 'choice') {
+                    collectionName = "choice_inc_grants";
+                    payload.type = "CHOICE";
+                    payload.grantName = document.getElementById('choice-grant').value || "Unnamed";
+                    payload.targetAmount = parseFloat(document.getElementById('choice-amount').value) || 0;
+                    payload.deadline = document.getElementById('choice-date').value || "Not Set";
+                    payload.strategicFocus = document.getElementById('choice-focus').value || "Pending";
+                    payload.squad = document.getElementById('choice-squad').value || "Pending";
+
+                } else if (wing === 'strategist') {
+                    collectionName = "strategist_audits";
+                    payload.type = "STRATEGIST";
+                    payload.venture = document.getElementById('strat-venture').value || "Unnamed";
+                    payload.industry = document.getElementById('strat-industry').value || "Unknown";
+                    payload.viabilityScore = document.getElementById('strat-score').value || 0;
+                    payload.analysis = document.getElementById('strat-notes').value || "";
+                }
+
+                // Attach document URL if uploaded
+                if (documentUrl) { payload.documentUrl = documentUrl; }
+
+                // 3. WRITE TO DATABASE
+                await window.addDoc(window.collection(window.kigDb, collectionName), payload);
+                
+                statusBox.className = "text-center font-mono text-xs p-3 rounded bg-emerald-900/30 text-emerald-500 border border-emerald-500/50 sticky bottom-4 z-50 shadow-2xl";
+                statusBox.innerText = `SUCCESS: [${collectionName.toUpperCase()}] UPDATED & SECURED.`;
+                
+                // Clear forms based on wing
+                const inputsToClear = document.querySelectorAll(`#layer-tactical input[id^='${wing}-'], #layer-tactical select[id^='${wing}-'], #layer-tactical textarea[id^='${wing}-'], #layer-tactical input[id^='lux-'], #layer-tactical select[id^='lux-']`);
+                inputsToClear.forEach(i => i.value = '');
+
+            } catch (error) {
+                console.error(error);
+                statusBox.className = "text-center font-mono text-xs p-3 rounded bg-rose-900/30 text-rose-500 border border-rose-500/50 sticky bottom-4 z-50 shadow-2xl";
+                statusBox.innerText = `ERROR: ${error.message || "Ensure Firebase Storage/DB is in Test Mode."}`;
+            }
+
+            // Reset UI
+            setTimeout(() => {
+                statusBox.classList.add('hidden');
+                if(btn) { btn.disabled = false; btn.classList.remove('opacity-50'); }
+            }, 4000);
+        }
+
+        // V11 LEDGER FETCHING (Handles all 5 Wings)
+        function fetchLedger(filter) {
+            const container = document.getElementById('ledger-container');
+            container.innerHTML = '<div class="text-center py-10 font-mono text-amber-500 animate-pulse col-span-full">Syncing Cloud Ledger...</div>';
+            
+            let targetCollections = [];
+            if(filter === 'all') targetCollections = ['tbe_tax_shield', 'luxury_affairs_ledger', 'kig_os_builds', 'choice_inc_grants', 'strategist_audits'];
+            else if(filter === 'tbe') targetCollections = ['tbe_tax_shield'];
+            else if(filter === 'luxury') targetCollections = ['luxury_affairs_ledger'];
+            else if(filter === 'kig') targetCollections = ['kig_os_builds'];
+            else if(filter === 'choice') targetCollections = ['choice_inc_grants'];
+
+            let allData = [];
+
+            targetCollections.forEach(colName => {
+                const q = window.query(window.collection(window.kigDb, colName), window.orderBy("timestamp", "desc"));
+                window.onSnapshot(q, (snapshot) => {
+                    allData = allData.filter(item => !snapshot.docChanges().some(change => change.doc.id === item.id));
+                    snapshot.forEach(doc => { allData.push({ id: doc.id, ...doc.data() }); });
+                    renderLedger(allData);
+                });
+            });
+        }
+
+        // V11 DYNAMIC RENDERING 
+        function renderLedger(data) {
+            const container = document.getElementById('ledger-container');
+            if(data.length === 0) {
+                container.innerHTML = '<div class="text-center py-20 text-slate-600 font-mono col-span-full">Vault empty. No data found.</div>';
+                return;
+            }
+
+            data.sort((a,b) => b.timestamp?.seconds - a.timestamp?.seconds);
+
+            container.innerHTML = data.map(item => {
+                let borderClass = 'border-slate-500';
+                let textClass = 'text-slate-500';
+                let detailsHTML = '';
+
+                // Dynamic UI construction based on wing
+                if(item.type === 'TBE') {
+                    borderClass = 'border-emerald-500'; textClass = 'text-emerald-500';
+                    detailsHTML = `
+                        <div><span class="text-[9px] text-slate-500 uppercase block">IRS Debt</span><span class="text-rose-400 font-mono">$${item.debt}</span></div>
+                        <div><span class="text-[9px] text-slate-500 uppercase block">Fee</span><span class="text-emerald-400 font-mono">$${item.fee}</span></div>
+                        <div class="col-span-2"><span class="text-[9px] text-slate-500 uppercase block">Service</span><span class="text-slate-200 text-xs">${item.service} (${item.urgency})</span></div>
+                        <div class="col-span-2"><p class="text-xs text-slate-300 italic">Notes: ${item.notes || 'None'}</p></div>
+                    `;
+                } else if (item.type === 'LUXURY') {
+                    borderClass = 'border-purple-500'; textClass = 'text-purple-500';
+                    detailsHTML = `
+                        <div><span class="text-[9px] text-slate-500 uppercase block">Event Date</span><span class="text-amber-500 font-mono">${item.date}</span></div>
+                        <div><span class="text-[9px] text-slate-500 uppercase block">Guests</span><span class="text-slate-200 text-xs">${item.guests}</span></div>
+                        <div><span class="text-[9px] text-slate-500 uppercase block">Total Fee</span><span class="text-emerald-400 font-mono">$${item.revenue}</span></div>
+                        <div><span class="text-[9px] text-slate-500 uppercase block">Deposit</span><span class="text-amber-400 font-mono">$${item.deposit}</span></div>
+                        <div class="col-span-2"><span class="text-[9px] text-slate-500 uppercase block">Layout</span><span class="text-slate-200 text-xs">${item.tableLayout} (${item.tier})</span></div>
+                    `;
+                } else if (item.type === 'KIG_OS') {
+                    borderClass = 'border-blue-500'; textClass = 'text-blue-500';
+                    detailsHTML = `
+                        <div><span class="text-[9px] text-slate-500 uppercase block">Launch</span><span class="text-amber-500 font-mono">${item.launchDate}</span></div>
+                        <div><span class="text-[9px] text-slate-500 uppercase block">Fee</span><span class="text-emerald-400 font-mono">$${item.fee}</span></div>
+                        <div class="col-span-2"><span class="text-[9px] text-slate-500 uppercase block">Scope</span><span class="text-slate-200 text-xs">${item.scope}</span></div>
+                        <div class="col-span-2"><span class="text-[9px] text-slate-500 uppercase block">Phase</span><span class="text-blue-300 text-xs font-bold">${item.phase}</span></div>
+                    `;
+                } else if (item.type === 'CHOICE') {
+                    borderClass = 'border-amber-500'; textClass = 'text-amber-500';
+                    detailsHTML = `
+                        <div><span class="text-[9px] text-slate-500 uppercase block">Target Amt</span><span class="text-emerald-400 font-mono">$${item.targetAmount}</span></div>
+                        <div><span class="text-[9px] text-slate-500 uppercase block">Deadline</span><span class="text-rose-400 font-mono">${item.deadline}</span></div>
+                        <div class="col-span-2"><span class="text-[9px] text-slate-500 uppercase block">Focus</span><span class="text-slate-200 text-xs">${item.strategicFocus}</span></div>
+                        <div class="col-span-2"><span class="text-[9px] text-slate-500 uppercase block">Squad</span><span class="text-amber-300 text-xs font-bold">${item.squad}</span></div>
+                    `;
+                } else if (item.type === 'STRATEGY') {
+                    borderClass = 'border-rose-500'; textClass = 'text-rose-500';
+                    detailsHTML = `
+                        <div><span class="text-[9px] text-slate-500 uppercase block">Industry</span><span class="text-slate-200 text-xs">${item.industry}</span></div>
+                        <div><span class="text-[9px] text-slate-500 uppercase block">Score</span><span class="text-amber-500 font-bold text-lg">${item.viabilityScore}/100</span></div>
+                        <div class="col-span-2"><p class="text-xs text-slate-300 italic">Analysis: ${item.analysis || 'None'}</p></div>
+                    `;
+                }
+
+                return `
+                <div class="glass-panel p-4 rounded-lg border-t-4 ${borderClass} ledger-card flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <span class="text-[10px] font-bold uppercase tracking-widest ${textClass}">${item.type} LOG</span>
+                                <h3 class="text-white font-bold text-lg">${item.client || item.grantName || item.venture || 'Unnamed Target'}</h3>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] text-slate-500 font-mono">${item.timestamp ? new Date(item.timestamp.seconds * 1000).toLocaleDateString() : 'Recent'}</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mt-3 py-3 border-t border-slate-800/50">
+                            ${detailsHTML}
+                        </div>
+                    </div>
+                    
+                    ${item.documentUrl ? `
+                        <div class="mt-4 pt-3 border-t border-slate-800">
+                            <a href="${item.documentUrl}" target="_blank" class="inline-flex items-center gap-2 text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-cyan-400 px-3 py-2 rounded transition-colors w-full justify-center shadow-lg">
+                                <i class="fas fa-file-pdf"></i> View Secured Document
+                            </a>
+                        </div>
+                    ` : `<div class="mt-4 pt-3 border-t border-slate-800 text-[9px] text-slate-600 font-mono"><i class="fas fa-times-circle mr-1"></i>No document attached</div>`}
+                </div>
+                `;
+            }).join('');
         }
     </script>
 </body>
