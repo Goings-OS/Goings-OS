@@ -1,0 +1,31 @@
+{
+    "protocol": "Sovereign Industrial Intake",
+    "version": "2026.1",
+    "questions": [
+        "Who owns your customer data right now?",
+        "Do you have a master offline backup?",
+        "Can you shut down your software today and keep your clients?",
+        "Are your API keys vaulted?",
+        "What is your 'Plan B' if your CRM crashes?",
+        "What is your Daily Magic Number?",
+        "How many hours a week do you spend on manual data entry?",
+        "Do you miss leads while working?",
+        "How long for a 12-month report?",
+        "Is your pricing elastic?",
+        "Do you have an AI receptionist active 24/7?",
+        "Does your website 'score' leads?",
+        "Are appointments synced to your ledger?",
+        "Can you trigger an invoice with voice?",
+        "How many human handshakes to close a deal?",
+        "Do you only get 'Gold' lead alerts?",
+        "Can you see net worth and daily yield on one screen?",
+        "Are health goals integrated?",
+        "Do you have a 'Digital Twin' for FAQs?",
+        "How much is automated vs. manual?",
+        "If leads 10x tomorrow, would you break?",
+        "Do you have a CHOICE impact trigger?",
+        "Are you scaling locally or globally?",
+        "What task do you wish to never do again?",
+        "Are you ready to be the Landlord of your own Digital Infrastructure?"
+    ]
+}
