@@ -1,779 +1,174 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Goings OS | Sovereign Command V11</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Victory GHL Core Dashboard</title>
+  <style>
+    :root {
+      --ocean-navy: #07162C; --luxury-gold: #FACC15; --executive-white: #FFFFFF; --slate-dark: #1E293B;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--ocean-navy); color: var(--executive-white); padding: 20px; }
+    .mainframe { max-width: 1200px; margin: 0 auto; }
+    header { border-bottom: 2px solid var(--luxury-gold); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    h2 span { color: var(--luxury-gold); }
+    .clearance-badge { background-color: #EF4444; font-weight: bold; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .card { background-color: var(--slate-dark); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 15px; }
+    .card-title { color: var(--luxury-gold); text-transform: uppercase; font-size: 0.85rem; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+    .data-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; }
+    .label { color: #94A3B8; }
     
-    <!-- FIREBASE SDK INJECTIONS (DATABASE + STORAGE) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+    .terminal-card { background-color: #0B132B; border: 1px solid var(--luxury-gold); border-radius: 6px; padding: 15px; margin-bottom: 20px; }
+    .terminal-log { background-color: #020617; height: 180px; border-radius: 4px; padding: 10px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; margin-bottom: 10px; }
+    .system-msg { color: #34D399; margin-bottom: 5px; }
+    .user-msg { color: var(--luxury-gold); margin-bottom: 5px; }
+    .ai-msg { color: var(--executive-white); margin-bottom: 10px; padding-left: 8px; border-left: 2px solid var(--luxury-gold); line-height: 1.4; }
+    
+    .input-line { display: flex; gap: 10px; }
+    .terminal-input { flex: 1; background-color: #1E293B; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 8px; color: white; font-size: 0.85rem; font-family: monospace; }
+    .submit-btn { background-color: var(--luxury-gold); color: var(--ocean-navy); font-weight: bold; border: none; border-radius: 4px; padding: 0 15px; cursor: pointer; }
+    
+    /* Search Bar Component Custom Styles */
+    .search-input { background-color: #0F172A; border: 1px solid rgba(250, 204, 21, 0.4); border-radius: 4px; padding: 4px 8px; color: white; font-size: 0.75rem; width: 200px; }
+    .search-input:focus { outline: none; border-color: var(--luxury-gold); }
 
-        // COMMANDER GOINGS: EXTRACTED FIREBASE DNA
-        const firebaseConfig = {
-            apiKey: "AIzaSyBk_1eJFpKmHs_tXArWmr4ka88TIqnC7VQ",
-            authDomain: "goings-os-command.firebaseapp.com",
-            projectId: "goings-os-command",
-            storageBucket: "goings-os-command.firebasestorage.app",
-            messagingSenderId: "618999325541",
-            appId: "1:618999325541:web:f3a8cdh830e713d25d176c",
-            measurementId: "G-X3XGBVQP31"
-        };
-
-        // Initialize Firebase Vault & Filing Cabinet
-        try {
-            const app = initializeApp(firebaseConfig);
-            const db = getFirestore(app);
-            const storage = getStorage(app);
-            
-            // Map to Global Window for UI access
-            window.kigDb = db; 
-            window.kigStorage = storage;
-            window.addDoc = addDoc;
-            window.collection = collection;
-            window.onSnapshot = onSnapshot;
-            window.query = query;
-            window.orderBy = orderBy;
-            window.storageRef = ref;
-            window.uploadBytes = uploadBytes;
-            window.getDownloadURL = getDownloadURL;
-            
-            console.log("Sovereign Vault & Storage Connected.");
-        } catch(e) {
-            console.error("Firebase Connection Failed: ", e);
-        }
-    </script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        slate: { 950: '#020617', 900: '#0f172a', 800: '#1e293b' },
-                        amber: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706', 900: '#78350f' }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { background-color: #020617; color: #cbd5e1; -webkit-tap-highlight-color: transparent; }
-        .glass-panel { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(245, 158, 11, 0.15); }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 10px; }
-        .layer { display: none; animation: fadeIn 0.3s ease-in-out; }
-        .layer.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .glow-gold { box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
-        input, select, textarea { background: #0f172a !important; color: white !important; border: 1px solid #334155 !important; }
-        .ledger-card { transition: all 0.3s ease; border-left: 4px solid transparent; }
-        .ledger-card:hover { transform: translateX(5px); background: rgba(30, 41, 59, 0.5); }
-        
-        /* Custom File Input Styling for iPads and Desktop */
-        input[type="file"]::file-selector-button { background: #1e293b; color: #f59e0b; border: 1px solid #f59e0b; padding: 0.5rem 1rem; border-radius: 0.25rem; cursor: pointer; transition: all 0.2s; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin-right: 1rem;}
-        input[type="file"]::file-selector-button:hover { background: #f59e0b; color: #0f172a; }
-        ::-webkit-calendar-picker-indicator { filter: invert(1) sepia(100%) saturate(500%) hue-rotate(350deg); cursor: pointer; }
-    </style>
+    table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 0.8rem; text-align: left; }
+    th { background-color: #0F172A; color: var(--luxury-gold); padding: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    td { padding: 6px; border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .vault-link { color: #60A5FA; text-decoration: none; font-weight: bold; }
+  </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden font-sans selection:bg-amber-500/30">
+<body>
 
-    <!-- GLOBAL HEADER -->
-    <header class="p-3 md:p-4 glass-panel flex justify-between items-center z-50 shrink-0 border-b-2 border-amber-500">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 md:w-12 md:h-12 bg-slate-900 rounded border border-amber-500 flex items-center justify-center overflow-hidden glow-gold">
-                <i class="fas fa-crown text-amber-500 text-lg md:text-xl"></i>
-            </div>
-            <div>
-                <h1 class="text-base md:text-lg font-black tracking-widest text-white uppercase">GOINGS <span class="text-amber-500">OS</span></h1>
-                <p class="text-[9px] md:text-[10px] font-mono text-slate-400">COMMANDER: TERRENCE & TANITA</p>
-            </div>
-        </div>
-        <div class="text-right">
-            <div id="clock" class="text-amber-500 font-mono font-bold text-xs md:text-sm tracking-wider">00:00:00</div>
-            <div class="text-[8px] md:text-[9px] text-emerald-500 font-mono uppercase tracking-widest animate-pulse"><i class="fas fa-network-wired"></i> Vault Sync Active</div>
-        </div>
+  <div class="mainframe">
+    <header>
+      <h2><?= SYSTEM_NAME ?> <span>Sovereign Interface</span></h2>
+      <div class="clearance-badge">LEVEL 11 // DIAMOND ELITE</div>
     </header>
 
-    <!-- LAYER NAVIGATION -->
-    <nav class="flex overflow-x-auto bg-slate-900 border-b border-slate-800 shrink-0 custom-scrollbar">
-        <button onclick="switchLayer('god-view')" id="nav-god-view" class="flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-amber-500 border-b-2 border-amber-500 bg-amber-900/20 whitespace-nowrap transition-all">
-            <i class="fas fa-eye mr-2"></i>God View
-        </button>
-        <button onclick="switchLayer('tactical')" id="nav-tactical" class="flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 whitespace-nowrap transition-all">
-            <i class="fas fa-bolt mr-2"></i>Tactical Wings
-        </button>
-        <button onclick="switchLayer('ledger')" id="nav-ledger" class="flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 whitespace-nowrap transition-all">
-            <i class="fas fa-folder-open mr-2"></i>Vault Ledger
-        </button>
-        <button onclick="switchLayer('radar')" id="nav-radar" class="flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 whitespace-nowrap transition-all">
-            <i class="fas fa-radar mr-2"></i>Radar
-        </button>
-        <button onclick="switchLayer('portal')" id="nav-portal" class="flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 whitespace-nowrap transition-all">
-            <i class="fas fa-laptop-house mr-2"></i>Client Portal
-        </button>
-    </nav>
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">System Properties Mappings</div>
+        <div class="data-row"><span class="label">Commander:</span><span style="font-weight:bold;"><?= architect ?></span></div>
+        <div class="data-row"><span class="label">GHL Location ID:</span><span style="font-family:monospace; color:var(--luxury-gold);"><?= locationId ?></span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Connected Storage Core</div>
+        <div class="data-row"><span class="label">System Concurrency State:</span><span style="color:#34D399;">Active Balance Pulse</span></div>
+        <div class="data-row"><span class="label">Gravity Sweep Drag Friction:</span><span style="color:#34D399;">0.00% (Zero Gravity)</span></div>
+      </div>
+    </div>
 
-    <!-- MAIN WORKSPACE -->
-    <main class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950">
-        
-        <!-- LAYER 1: GOD VIEW (V8 FULL RESTORATION) -->
-        <div id="layer-god-view" class="layer active max-w-6xl mx-auto space-y-4 md:space-y-6">
-            <h2 class="text-xl font-black text-white uppercase tracking-widest border-l-4 border-amber-500 pl-3">Empire Status</h2>
-            
-            <!-- Top Row: Core Metrics -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="glass-panel p-5 rounded-xl glow-gold relative overflow-hidden">
-                    <div class="absolute -right-4 -top-4 text-amber-500/10"><i class="fas fa-chart-line text-8xl"></i></div>
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Global Revenue (MTD)</h3>
-                    <div class="text-3xl md:text-4xl font-black text-emerald-400 font-mono mb-2">$14,250</div>
-                    <div class="w-full bg-slate-800 rounded-full h-2 mb-1"><div class="bg-emerald-500 h-2 rounded-full w-[85%]"></div></div>
-                    <div class="text-[10px] text-slate-500 font-mono flex justify-between"><span>Nut: $5,000</span><span class="text-amber-500">+185% Target</span></div>
-                </div>
-                <div class="glass-panel p-5 rounded-xl relative overflow-hidden">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Choice Inc. Ops</h3>
-                    <div class="space-y-3">
-                        <div>
-                            <div class="flex justify-between text-[10px] font-bold text-amber-500 mb-1"><span>SQUAD A: Body & Soul</span><span>80%</span></div>
-                            <div class="w-full bg-slate-800 rounded-full h-1"><div class="bg-amber-500 h-1 rounded-full w-[80%]"></div></div>
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-[10px] font-bold text-blue-400 mb-1"><span>SQUAD B: Production</span><span>45%</span></div>
-                            <div class="w-full bg-slate-800 rounded-full h-1"><div class="bg-blue-400 h-1 rounded-full w-[45%]"></div></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="glass-panel p-5 rounded-xl relative overflow-hidden">
-                     <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">API Bridge Integrity</h3>
-                     <div class="flex items-center gap-3 mb-2">
-                         <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                         <span class="text-xs font-mono text-slate-300">Firebase DB: SECURE</span>
-                     </div>
-                     <div class="flex items-center gap-3 mb-2">
-                         <div class="w-3 h-3 rounded-full bg-purple-500 animate-pulse"></div>
-                         <span class="text-xs font-mono text-slate-300">Storage Vault: ONLINE</span>
-                     </div>
-                     <div class="flex items-center gap-3">
-                         <div class="w-3 h-3 rounded-full bg-amber-500 animate-pulse"></div>
-                         <span class="text-xs font-mono text-slate-300">Radar Engines: SCANNING</span>
-                     </div>
-                </div>
-            </div>
+    <div class="terminal-card">
+      <div class="card-title">🛡️ Commander's Neural Command Terminal</div>
+      <div class="terminal-log" id="terminalLog">
+        <div class="system-msg">[SYSTEM INITIALIZED] Clean slate micro-port open, Architect Goings. Ready for instruction loop.</div>
+      </div>
+      <div class="input-line">
+        <input type="text" id="cmdInput" class="terminal-input" placeholder="Issue execution directive or talk to your agent council..." onkeydown="if(event.key === 'Enter') sendCommand()">
+        <button class="submit-btn" onclick="sendCommand()">EXECUTE</button>
+      </div>
+    </div>
 
-            <!-- Bottom Row: SWOT & PMP Intelligence -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Conglomerate SWOT -->
-                <div class="glass-panel p-5 rounded-xl md:col-span-2 relative overflow-hidden">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4"><i class="fas fa-crosshairs mr-2"></i>Conglomerate S.W.O.T. Analysis</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div class="bg-emerald-950/30 border border-emerald-900/50 p-3 rounded">
-                            <span class="text-[10px] text-emerald-500 font-bold uppercase block mb-1">Strengths</span>
-                            <p class="text-[11px] text-slate-300 font-mono">Automated Infrastructure, 5-Pillar Synergy, TBE Tax Validation, $20k/Day Baseline Framework.</p>
-                        </div>
-                        <div class="bg-rose-950/30 border border-rose-900/50 p-3 rounded">
-                            <span class="text-[10px] text-rose-500 font-bold uppercase block mb-1">Weaknesses</span>
-                            <p class="text-[11px] text-slate-300 font-mono">Dependency on manual intake triggers in field (Mitigating via AppSheet integration).</p>
-                        </div>
-                        <div class="bg-blue-950/30 border border-blue-900/50 p-3 rounded">
-                            <span class="text-[10px] text-blue-500 font-bold uppercase block mb-1">Opportunities</span>
-                            <p class="text-[11px] text-slate-300 font-mono">757 Market Void, Corporate Grants, AA Model High-Ticket Scaling, Fleet Logistics Domination.</p>
-                        </div>
-                        <div class="bg-amber-950/30 border border-amber-900/50 p-3 rounded">
-                            <span class="text-[10px] text-amber-500 font-bold uppercase block mb-1">Threats</span>
-                            <p class="text-[11px] text-slate-300 font-mono">Compliance shifts (TCPA/HIPAA), Venue scheduling conflicts, Local competitor imitation.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PMP Signal Boosting -->
-                <div class="glass-panel p-5 rounded-xl relative overflow-hidden">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4"><i class="fas fa-satellite-dish mr-2"></i>PMP Signal Boosting</h3>
-                    <div class="space-y-4">
-                        <div class="border-b border-slate-800 pb-2">
-                            <div class="flex justify-between text-[10px] font-bold text-slate-300 mb-1"><span>GMB Portsmouth Dominance</span><span class="text-emerald-400">Active</span></div>
-                            <p class="text-[10px] font-mono text-slate-500">Automated reputation loop & local SEO indexing running.</p>
-                        </div>
-                        <div class="border-b border-slate-800 pb-2">
-                            <div class="flex justify-between text-[10px] font-bold text-slate-300 mb-1"><span>Norfolk Takeover Cruise</span><span class="text-amber-400">Staging</span></div>
-                            <p class="text-[10px] font-mono text-slate-500">TravelJoy integration 80% complete. VIP Tier open.</p>
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-[10px] font-bold text-slate-300 mb-1"><span>AppSheet Fleet Engine</span><span class="text-blue-400">Deployed</span></div>
-                            <p class="text-[10px] font-mono text-slate-500">Awaiting initial telemetry from first logistics client.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="grid">
+      <div class="card" style="grid-column: span 2;">
+        <div class="card-title">
+          <span>📋 Live Oasis Master Manifest</span>
+          <input type="text" id="radarSearch" class="search-input" placeholder="🔍 Search client radar..." oninput="executeClientRadarSearch()">
         </div>
+        <table id="manifestTable">
+          <thead><tr><th>Time</th><th>Client Identity</th><th>Originating Intake Form</th><th>Asset Vault</th></tr></thead>
+          <tbody id="manifestBody"><tr><td colspan="4" style="color:#94A3B8; text-align:center;">Scraping spreadsheet ledger entries...</td></tr></tbody>
+        </table>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">🧹 Autonomous Friction Logs</div>
+        <table id="frictionTable">
+          <thead><tr><th>Time</th><th>Module</th><th>Resolved Exception Trace</th></tr></thead>
+          <tbody id="frictionBody"><tr><td colspan="3" style="color:#94A3B8; text-align:center;">Checking system health logs...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-        <!-- LAYER 2: TACTICAL WINGS (V8 + V10 FUSION) -->
-        <div id="layer-tactical" class="layer max-w-6xl mx-auto space-y-6">
-            <div class="flex justify-between items-end mb-2">
-                <h2 class="text-xl font-black text-white uppercase tracking-widest border-l-4 border-amber-500 pl-3">Enterprise Operations & CRM</h2>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
-                <!-- 1. TBE SHIELD (TANITA'S FORENSIC CRM + FILE UPLOAD) -->
-                <div class="glass-panel p-5 rounded-xl border-t-4 border-emerald-500 lg:col-span-2">
-                    <h3 class="text-emerald-400 font-bold text-sm mb-4 uppercase tracking-widest"><i class="fas fa-shield-alt mr-2"></i>TBE Tax Shield & Forensic Ledger</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
-                        <input type="text" id="tbe-client" placeholder="Client / Entity Name" class="w-full rounded p-3 text-sm md:col-span-2">
-                        <div class="relative">
-                            <span class="absolute text-[9px] text-rose-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Total IRS Debt ($)</span>
-                            <input type="number" id="tbe-debt" placeholder="0.00" class="w-full rounded p-3 text-sm text-rose-400">
-                        </div>
-                        <div class="relative">
-                            <span class="absolute text-[9px] text-emerald-400 -top-2 left-2 bg-slate-900 px-1 font-bold">TBE Retainer Fee ($)</span>
-                            <input type="number" id="tbe-fee" placeholder="0.00" class="w-full rounded p-3 text-sm text-emerald-400 font-bold">
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                        <select id="tbe-service" class="w-full rounded p-3 text-sm">
-                            <option value="" disabled selected>Select Primary Service...</option>
-                            <option value="Income Tax Preparation">Income Tax Preparation</option>
-                            <option value="Corporate Bookkeeping">Corporate Bookkeeping</option>
-                            <option value="IRS Representation (In Person)">IRS Representation (In Person)</option>
-                            <option value="IRS Representation (Phone)">IRS Representation (Phone)</option>
-                            <option value="Offer In Compromise (OIC)">Offer In Compromise (OIC)</option>
-                            <option value="Penalty Abatement">Penalty Abatement</option>
-                        </select>
-                        <select id="tbe-urgency" class="w-full rounded p-3 text-sm">
-                            <option value="Standard Operations">Urgency: Standard Operations</option>
-                            <option value="High (Impending Levy/Lien)">Urgency: High (Impending Levy/Lien)</option>
-                            <option value="Critical (Active Audit)">Urgency: Critical (Active Audit)</option>
-                        </select>
-                    </div>
+  <script>
+    // Automatically scrape and populate the tables the exact millisecond the browser loads
+    window.onload = function() {
+      loadSpreadsheetDataRows();
+    };
 
-                    <input type="text" id="tbe-notes" placeholder="Strategic Notes / Next Action (e.g., Requesting 2024 W2s)..." class="w-full rounded p-3 text-sm mb-4">
-                    
-                    <!-- TBE FILE UPLOAD -->
-                    <div class="bg-slate-900/50 border border-emerald-900/50 p-4 rounded mb-4">
-                        <label class="text-[10px] text-emerald-500 font-bold uppercase block mb-2"><i class="fas fa-paperclip mr-1"></i>Attach Document / IRS Notice</label>
-                        <input type="file" id="tbe-file" accept="image/*,.pdf" class="w-full text-sm text-slate-400">
-                    </div>
-                    
-                    <button onclick="executeSovereignSync('tbe')" id="btn-tbe" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95">LOCK LEDGER & SECURE DOCUMENTS</button>
-                </div>
-
-                <!-- 2. LUXURY AFFAIRS (ROBUST + FILE UPLOAD) -->
-                <div class="glass-panel p-5 rounded-xl border-t-4 border-purple-500 flex flex-col h-full">
-                    <h3 class="text-purple-400 font-bold text-sm mb-4 uppercase tracking-widest"><i class="fas fa-building mr-2"></i>Luxury Affairs HQ CRM</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                        <input type="text" id="lux-client" placeholder="Client Name / Event Title" class="w-full rounded p-3 text-sm md:col-span-2">
-                        
-                        <div class="relative">
-                            <span class="absolute text-[9px] text-purple-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Event Date</span>
-                            <input type="date" id="lux-date" class="w-full rounded p-3 text-sm">
-                        </div>
-                        <input type="number" id="lux-guests" placeholder="Guest Count (e.g., 75)" class="w-full rounded p-3 text-sm">
-                        
-                        <select id="lux-tables" class="w-full rounded p-3 text-sm">
-                            <option value="" disabled selected>Table Layout Requirements...</option>
-                            <option value="10 Round / 2 Rectangle">10 Round / 2 Rectangle</option>
-                            <option value="8 Round / 4 Rectangle">8 Round / 4 Rectangle</option>
-                            <option value="Standing Room / Cocktail">Standing Room / Cocktail</option>
-                            <option value="Custom Floorplan Required">Custom Floorplan Required</option>
-                        </select>
-                        
-                        <select id="lux-tier" class="w-full rounded p-3 text-sm">
-                            <option value="" disabled selected>Select Access Tier...</option>
-                            <option value="Gold Access (Repast/Weekday)">Gold Access (Repast/Weekday)</option>
-                            <option value="Platinum Access (Standard Weekend)">Platinum Access (Standard Weekend)</option>
-                            <option value="Signature Access (Full Service)">Signature Access (Full Service)</option>
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 bg-purple-900/10 p-3 rounded border border-purple-500/20">
-                        <div class="relative">
-                            <span class="absolute text-[9px] text-emerald-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Total Venue Fee ($)</span>
-                            <input type="number" id="lux-rev" placeholder="0.00" class="w-full rounded p-3 text-sm text-emerald-400 font-bold">
-                        </div>
-                        <div class="relative">
-                            <span class="absolute text-[9px] text-amber-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Deposit Paid ($)</span>
-                            <input type="number" id="lux-dep" placeholder="0.00" class="w-full rounded p-3 text-sm text-amber-400 font-bold">
-                        </div>
-                    </div>
-
-                    <!-- LUXURY FILE UPLOAD -->
-                    <div class="bg-slate-900/50 border border-purple-900/50 p-4 rounded mb-4">
-                        <label class="text-[10px] text-purple-400 font-bold uppercase block mb-2"><i class="fas fa-paperclip mr-1"></i>Attach Contract / ID</label>
-                        <input type="file" id="lux-file" accept="image/*,.pdf" class="w-full text-sm text-slate-400">
-                    </div>
-
-                    <button onclick="executeSovereignSync('luxury')" id="btn-luxury" class="mt-auto w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(168,85,247,0.4)] active:scale-95">LOCK VENUE & UPLOAD</button>
-                </div>
-
-                <!-- 3. KIG OS ENGINE (ROBUST) -->
-                <div class="glass-panel p-5 rounded-xl border-t-4 border-blue-500 flex flex-col h-full">
-                    <h3 class="text-blue-400 font-bold text-sm mb-4 uppercase tracking-widest"><i class="fas fa-bolt mr-2"></i>KIG OS Tech Build Pipeline</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                        <input type="text" id="kig-client" placeholder="Business Name / Client" class="w-full rounded p-3 text-sm md:col-span-2">
-                        
-                        <select id="kig-type" class="w-full rounded p-3 text-sm">
-                            <option value="" disabled selected>Tech Architecture Scope...</option>
-                            <option value="AppSheet Custom CRM">AppSheet Custom CRM</option>
-                            <option value="Sovereign Command Dashboard">Sovereign Command Dashboard</option>
-                            <option value="API Database Bridge">API Database Bridge</option>
-                            <option value="Full Cloud Enterprise Suite">Full Cloud Enterprise Suite</option>
-                        </select>
-
-                        <select id="kig-phase" class="w-full rounded p-3 text-sm">
-                            <option value="Phase 1: Discovery & Blueprint">Phase 1: Discovery & Blueprint</option>
-                            <option value="Phase 2: Database Architecture">Phase 2: Database Architecture</option>
-                            <option value="Phase 3: Frontend Development">Phase 3: Frontend Development</option>
-                            <option value="Phase 4: Testing & Deployment">Phase 4: Testing & Deployment</option>
-                        </select>
-                        
-                        <div class="relative md:col-span-2">
-                            <span class="absolute text-[9px] text-blue-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Target Launch Date</span>
-                            <input type="date" id="kig-date" class="w-full rounded p-3 text-sm">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 bg-blue-900/10 p-3 rounded border border-blue-500/20">
-                        <div class="relative">
-                            <span class="absolute text-[9px] text-emerald-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Total Setup Fee ($)</span>
-                            <input type="number" id="kig-fee" placeholder="8500" class="w-full rounded p-3 text-sm text-emerald-400 font-bold">
-                        </div>
-                        <div class="relative">
-                            <span class="absolute text-[9px] text-amber-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Deposit Paid ($)</span>
-                            <input type="number" id="kig-dep" placeholder="0.00" class="w-full rounded p-3 text-sm text-amber-400 font-bold">
-                        </div>
-                    </div>
-                    
-                    <!-- KIG FILE UPLOAD -->
-                    <div class="bg-slate-900/50 border border-blue-900/50 p-4 rounded mb-4">
-                        <label class="text-[10px] text-blue-400 font-bold uppercase block mb-2"><i class="fas fa-paperclip mr-1"></i>Attach Blueprints / Scope</label>
-                        <input type="file" id="kig-file" accept="image/*,.pdf" class="w-full text-sm text-slate-400">
-                    </div>
-
-                    <button onclick="executeSovereignSync('kig')" id="btn-kig" class="mt-auto w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] active:scale-95">UPDATE PIPELINE</button>
-                </div>
-
-                <!-- 4. CHOICE INC. LEGACY ENGINE -->
-                <div class="glass-panel p-5 rounded-xl border-t-4 border-amber-500 lg:col-span-2">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 rounded bg-amber-900/50 flex items-center justify-center border border-amber-500"><i class="fas fa-globe text-amber-400"></i></div>
-                        <div>
-                            <h3 class="text-amber-400 font-bold text-sm uppercase tracking-widest">Choice Inc. Legacy (Grant Hunter)</h3>
-                            <p class="text-[10px] text-slate-400 font-mono">Philanthropic Capital & Project 350 Deployment</p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-                        <input type="text" id="choice-grant" placeholder="Grant Name / Funding Target" class="w-full rounded p-3 text-sm md:col-span-2">
-                        <div class="relative">
-                            <span class="absolute text-[9px] text-emerald-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Target Amount ($)</span>
-                            <input type="number" id="choice-amount" placeholder="0.00" class="w-full rounded p-3 text-sm text-emerald-400 font-bold">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                        <div class="relative">
-                            <span class="absolute text-[9px] text-amber-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Submission Deadline</span>
-                            <input type="date" id="choice-date" class="w-full rounded p-3 text-sm">
-                        </div>
-                        <select id="choice-focus" class="w-full rounded p-3 text-sm">
-                            <option value="" disabled selected>Strategic Focus...</option>
-                            <option value="Project 350 (Youth Education)">Project 350 (Youth Education/Events)</option>
-                            <option value="Community Infrastructure">Community Infrastructure (757)</option>
-                            <option value="Corporate Sponsorship">Corporate Sponsorship Alignment</option>
-                        </select>
-                        <select id="choice-squad" class="w-full rounded p-3 text-sm">
-                            <option value="" disabled selected>Assign Squad...</option>
-                            <option value="Squad A (Body & Soul)">Squad A (Body & Soul / Logistics)</option>
-                            <option value="Squad B (Production)">Squad B (Production / Execution)</option>
-                            <option value="Executive Command">Executive Command (Architects Only)</option>
-                        </select>
-                    </div>
-
-                    <!-- CHOICE FILE UPLOAD -->
-                    <div class="bg-slate-900/50 border border-amber-900/50 p-4 rounded mb-4">
-                        <label class="text-[10px] text-amber-400 font-bold uppercase block mb-2"><i class="fas fa-paperclip mr-1"></i>Attach Grant Application / PDF</label>
-                        <input type="file" id="choice-file" accept="image/*,.pdf" class="w-full text-sm text-slate-400">
-                    </div>
-
-                    <button onclick="executeSovereignSync('choice')" id="btn-choice" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-900 font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] active:scale-95">DEPLOY GRANT SCOUT & LOG</button>
-                </div>
-
-                <!-- 5. THE BUSINESS STRATEGIST -->
-                <div class="glass-panel p-5 rounded-xl border-t-4 border-rose-500 lg:col-span-2">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 rounded bg-rose-900/50 flex items-center justify-center border border-rose-500"><i class="fas fa-chess-knight text-rose-400"></i></div>
-                        <div>
-                            <h3 class="text-rose-400 font-bold text-sm uppercase tracking-widest">The Business Strategist</h3>
-                            <p class="text-[10px] text-slate-400 font-mono">Viability Audits & Empire Scaling</p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-                        <input type="text" id="strat-venture" placeholder="Venture / Concept Name" class="w-full rounded p-3 text-sm md:col-span-2">
-                        <select id="strat-industry" class="w-full rounded p-3 text-sm">
-                            <option value="" disabled selected>Industry Niche...</option>
-                            <option value="Logistics & Transport">Logistics & Transport</option>
-                            <option value="Healthcare & Homecare">Healthcare & Homecare</option>
-                            <option value="Retail & E-commerce">Retail & E-commerce</option>
-                            <option value="Service & Consulting">Service & Consulting</option>
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-                        <div class="relative md:col-span-1">
-                            <span class="absolute text-[9px] text-amber-400 -top-2 left-2 bg-slate-900 px-1 font-bold">Viability Score (1-100)</span>
-                            <input type="number" id="strat-score" placeholder="e.g., 85" class="w-full rounded p-3 text-sm text-center font-bold text-amber-400 text-lg">
-                        </div>
-                        <div class="md:col-span-3">
-                            <textarea id="strat-notes" rows="2" placeholder="Blindspots detected & scaling recommendation..." class="w-full rounded p-3 text-sm custom-scrollbar"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- STRATEGIST FILE UPLOAD -->
-                    <div class="bg-slate-900/50 border border-rose-900/50 p-4 rounded mb-4">
-                        <label class="text-[10px] text-rose-400 font-bold uppercase block mb-2"><i class="fas fa-paperclip mr-1"></i>Attach Prospectus / P&L</label>
-                        <input type="file" id="strat-file" accept="image/*,.pdf" class="w-full text-sm text-slate-400">
-                    </div>
-
-                    <button onclick="executeSovereignSync('strategist')" id="btn-strategist" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded text-sm transition-all shadow-[0_0_15px_rgba(244,63,94,0.4)] active:scale-95">LOG AUDIT TO VAULT</button>
-                </div>
-
-            </div>
-            
-            <div id="sys-notification" class="hidden text-center font-mono text-xs p-3 rounded bg-amber-900/30 text-amber-500 border border-amber-500/50 animate-pulse sticky bottom-4 z-50 shadow-2xl">
-                UPLOADING TO VAULT... PLEASE HOLD.
-            </div>
-        </div>
-
-        <!-- LAYER 3: VAULT LEDGER (Unified Intelligence) -->
-        <div id="layer-ledger" class="layer max-w-6xl mx-auto space-y-6">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-l-4 border-amber-500 pl-3">
-                <div>
-                    <h2 class="text-xl font-black text-white uppercase tracking-widest">Sovereign Document Ledger</h2>
-                    <p class="text-[10px] text-slate-400 font-mono">Live Submissions & Attached Files Across 5 Pillars</p>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="fetchLedger('all')" class="text-[10px] font-bold px-3 py-1 rounded bg-slate-800 border border-amber-500/30 text-amber-500 hover:bg-slate-700">All</button>
-                    <button onclick="fetchLedger('tbe')" class="text-[10px] font-bold px-3 py-1 rounded bg-slate-800 border border-emerald-500/30 text-emerald-500 hover:bg-slate-700">TBE Shield</button>
-                    <button onclick="fetchLedger('luxury')" class="text-[10px] font-bold px-3 py-1 rounded bg-slate-800 border border-purple-500/30 text-purple-500 hover:bg-slate-700">Events</button>
-                    <button onclick="fetchLedger('kig')" class="text-[10px] font-bold px-3 py-1 rounded bg-slate-800 border border-blue-500/30 text-blue-400 hover:bg-slate-700">Tech Builds</button>
-                    <button onclick="fetchLedger('choice')" class="text-[10px] font-bold px-3 py-1 rounded bg-slate-800 border border-amber-600/30 text-amber-400 hover:bg-slate-700">Grants</button>
-                </div>
-            </div>
-
-            <div id="ledger-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-[400px]">
-                <div class="text-center py-20 text-slate-500 animate-pulse font-mono text-sm col-span-full">Initializing Vault Connection...</div>
-            </div>
-        </div>
-
-        <!-- LAYER 4: 757 RADAR (V8 RESTORATION) -->
-        <div id="layer-radar" class="layer max-w-6xl mx-auto space-y-6">
-            <h2 class="text-xl font-black text-white uppercase tracking-widest border-l-4 border-amber-500 pl-3">J.A.R.V.I.S. Omni-Radar</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="glass-panel p-5 rounded-xl hover:border-amber-500 transition-all cursor-pointer">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[10px] font-bold bg-amber-900/50 text-amber-400 px-2 py-1 rounded">ZONING</span>
-                        <span class="text-[10px] text-slate-500 font-mono">Chesapeake</span>
-                    </div>
-                    <p class="text-sm text-slate-300">New commercial development approved on Victory Blvd. Logistics fleet expanding.</p>
-                </div>
-                <div class="glass-panel p-5 rounded-xl hover:border-emerald-500 transition-all cursor-pointer">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[10px] font-bold bg-emerald-900/50 text-emerald-400 px-2 py-1 rounded">GRANT</span>
-                        <span class="text-[10px] text-slate-500 font-mono">Norfolk</span>
-                    </div>
-                    <p class="text-sm text-slate-300">Downtown small business innovation grant ($50k pool) opens next Tuesday. Choice Inc. target identified.</p>
-                </div>
-                <div class="glass-panel p-5 rounded-xl hover:border-blue-500 transition-all cursor-pointer">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[10px] font-bold bg-blue-900/50 text-blue-400 px-2 py-1 rounded">CORPORATE</span>
-                        <span class="text-[10px] text-slate-500 font-mono">Va Beach</span>
-                    </div>
-                    <p class="text-sm text-slate-300">Tech firm relocating 50 employees to Town Center. Potential KIG OS installation leads.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- LAYER 5: CLIENT PORTAL (V8 RESTORATION) -->
-        <div id="layer-portal" class="layer max-w-4xl mx-auto space-y-6">
-            <div class="flex justify-between items-end">
-                <h2 class="text-xl font-black text-white uppercase tracking-widest border-l-4 border-amber-500 pl-3">Client View (Portal)</h2>
-                <div class="text-[10px] bg-slate-800 px-2 py-1 rounded font-mono text-slate-400">Viewing as: Apex Logistics</div>
-            </div>
-            <div class="bg-slate-50 rounded-2xl overflow-hidden shadow-2xl text-slate-900">
-                <div class="bg-slate-950 p-6 flex justify-between items-center border-b border-amber-500">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-crown text-amber-500 text-2xl"></i>
-                        <h2 class="text-xl font-black text-white tracking-widest">KIG <span class="text-amber-500 font-light">SOVEREIGN</span></h2>
-                    </div>
-                    <div class="text-right text-white">
-                        <div class="text-sm font-bold">Apex Logistics</div>
-                        <div class="text-[10px] text-amber-500 uppercase tracking-widest">Premium Access</div>
-                    </div>
-                </div>
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white border border-slate-200 p-5 rounded-xl shadow-sm">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-bold text-slate-800"><i class="fas fa-bolt text-blue-500 mr-2"></i>Tech Architecture</h3>
-                            <span class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-1 rounded">ACTIVE</span>
-                        </div>
-                        <p class="text-xs text-slate-500 mb-3">KIG OS Dispatch App Build</p>
-                        <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full w-full"></div></div>
-                    </div>
-                    <div class="bg-amber-50 border border-amber-200 p-5 rounded-xl shadow-sm relative overflow-hidden">
-                        <div class="absolute -right-4 -top-4 text-amber-200/50"><i class="fas fa-star text-6xl"></i></div>
-                        <h3 class="font-bold text-amber-900 relative z-10">Exclusive Family Offer</h3>
-                        <p class="text-xs text-amber-700 mb-3 relative z-10">Host your Q3 Retreat at Luxury Affairs HQ for Signature Access pricing.</p>
-                        <button class="relative z-10 w-full bg-amber-600 text-white text-xs font-bold py-2 rounded shadow-md">Claim Discount</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <script>
-        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
-
-        function switchLayer(layerId) {
-            document.querySelectorAll('.layer').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('nav button').forEach(btn => {
-                btn.className = "flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 whitespace-nowrap transition-all";
-            });
-            document.getElementById('layer-' + layerId).classList.add('active');
-            document.getElementById('nav-' + layerId).className = "flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest text-amber-500 border-b-2 border-amber-500 bg-amber-900/20 whitespace-nowrap transition-all";
-            
-            if(layerId === 'ledger') fetchLedger('all');
+    function loadSpreadsheetDataRows() {
+      google.script.run.withSuccessHandler(function(rows) {
+        const tbody = document.getElementById('manifestBody');
+        if (rows.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94A3B8;">No records committed to manifest yet.</td></tr>';
+          return;
         }
+        tbody.innerHTML = '';
+        rows.forEach(r => {
+          tbody.innerHTML += `<tr><td>${r.timestamp}</td><td style="font-weight:bold;">${r.name}</td><td>${r.form}</td><td><a class="vault-link" href="${r.folder}" target="_blank">View Folder ➔</a></td></tr>`;
+        });
+      }).getLiveManifestRows();
 
-        // V11: MASTER SYNC & UPLOAD (Handles all 5 Wings)
-        async function executeSovereignSync(wing) {
-            if (!window.kigDb) {
-                alert("CRITICAL ERROR: Firebase not connected. Ensure config keys are placed at the top of the file.");
-                return;
-            }
-
-            const statusBox = document.getElementById('sys-notification');
-            const btn = document.getElementById(`btn-${wing}`);
-            
-            statusBox.classList.remove('hidden');
-            statusBox.innerText = "UPLOADING TO VAULT... PLEASE HOLD.";
-            statusBox.className = "text-center font-mono text-xs p-3 rounded bg-amber-900/30 text-amber-500 border border-amber-500/50 animate-pulse sticky bottom-4 z-50 shadow-2xl";
-            
-            if(btn) { btn.disabled = true; btn.classList.add('opacity-50'); }
-
-            try {
-                let collectionName = "";
-                let payload = { timestamp: new Date() };
-                let fileInput = document.getElementById(`${wing}-file`);
-                let documentUrl = null;
-
-                // 1. FILE UPLOAD LOGIC (If a file is selected)
-                if (fileInput && fileInput.files.length > 0) {
-                    if (!window.kigStorage) throw new Error("Storage not enabled.");
-                    statusBox.innerText = "UPLOADING DOCUMENT TO SECURE STORAGE...";
-                    const file = fileInput.files[0];
-                    const fileName = `client_docs/${wing}_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
-                    const storageReference = window.storageRef(window.kigStorage, fileName);
-                    
-                    await window.uploadBytes(storageReference, file);
-                    documentUrl = await window.getDownloadURL(storageReference);
-                }
-
-                // 2. GATHER EXACT FIELD DATA BASED ON WING
-                statusBox.innerText = "SYNCING LEDGER DATA...";
-                
-                if (wing === 'luxury') {
-                    collectionName = "luxury_affairs_ledger";
-                    payload.type = "LUXURY";
-                    payload.client = document.getElementById('lux-client').value || "Unnamed";
-                    payload.date = document.getElementById('lux-date').value || "Not Set";
-                    payload.guests = document.getElementById('lux-guests').value || 0;
-                    payload.tableLayout = document.getElementById('lux-tables').value || "Pending";
-                    payload.tier = document.getElementById('lux-tier').value || "Pending";
-                    payload.revenue = parseFloat(document.getElementById('lux-rev').value) || 0;
-                    payload.deposit = parseFloat(document.getElementById('lux-dep').value) || 0;
-
-                } else if (wing === 'kig') {
-                    collectionName = "kig_os_builds";
-                    payload.type = "KIG_OS";
-                    payload.client = document.getElementById('kig-client').value || "Unnamed";
-                    payload.scope = document.getElementById('kig-type').value || "Pending";
-                    payload.phase = document.getElementById('kig-phase').value || "Pending";
-                    payload.launchDate = document.getElementById('kig-date').value || "Not Set";
-                    payload.fee = parseFloat(document.getElementById('kig-fee').value) || 0;
-                    payload.deposit = parseFloat(document.getElementById('kig-dep').value) || 0;
-
-                } else if (wing === 'tbe') {
-                    collectionName = "tbe_tax_shield";
-                    payload.type = "TBE";
-                    payload.client = document.getElementById('tbe-client').value || "Unnamed";
-                    payload.debt = parseFloat(document.getElementById('tbe-debt').value) || 0;
-                    payload.fee = parseFloat(document.getElementById('tbe-fee').value) || 0;
-                    payload.service = document.getElementById('tbe-service').value || "Pending";
-                    payload.urgency = document.getElementById('tbe-urgency').value || "Pending";
-                    payload.notes = document.getElementById('tbe-notes').value || "";
-                    
-                } else if (wing === 'choice') {
-                    collectionName = "choice_inc_grants";
-                    payload.type = "CHOICE";
-                    payload.grantName = document.getElementById('choice-grant').value || "Unnamed";
-                    payload.targetAmount = parseFloat(document.getElementById('choice-amount').value) || 0;
-                    payload.deadline = document.getElementById('choice-date').value || "Not Set";
-                    payload.strategicFocus = document.getElementById('choice-focus').value || "Pending";
-                    payload.squad = document.getElementById('choice-squad').value || "Pending";
-
-                } else if (wing === 'strategist') {
-                    collectionName = "strategist_audits";
-                    payload.type = "STRATEGIST";
-                    payload.venture = document.getElementById('strat-venture').value || "Unnamed";
-                    payload.industry = document.getElementById('strat-industry').value || "Unknown";
-                    payload.viabilityScore = document.getElementById('strat-score').value || 0;
-                    payload.analysis = document.getElementById('strat-notes').value || "";
-                }
-
-                // Attach document URL if uploaded
-                if (documentUrl) { payload.documentUrl = documentUrl; }
-
-                // 3. WRITE TO DATABASE
-                await window.addDoc(window.collection(window.kigDb, collectionName), payload);
-                
-                statusBox.className = "text-center font-mono text-xs p-3 rounded bg-emerald-900/30 text-emerald-500 border border-emerald-500/50 sticky bottom-4 z-50 shadow-2xl";
-                statusBox.innerText = `SUCCESS: [${collectionName.toUpperCase()}] UPDATED & SECURED.`;
-                
-                // Clear forms based on wing
-                const inputsToClear = document.querySelectorAll(`#layer-tactical input[id^='${wing}-'], #layer-tactical select[id^='${wing}-'], #layer-tactical textarea[id^='${wing}-'], #layer-tactical input[id^='lux-'], #layer-tactical select[id^='lux-']`);
-                inputsToClear.forEach(i => i.value = '');
-
-            } catch (error) {
-                console.error(error);
-                statusBox.className = "text-center font-mono text-xs p-3 rounded bg-rose-900/30 text-rose-500 border border-rose-500/50 sticky bottom-4 z-50 shadow-2xl";
-                statusBox.innerText = `ERROR: ${error.message || "Ensure Firebase Storage/DB is in Test Mode."}`;
-            }
-
-            // Reset UI
-            setTimeout(() => {
-                statusBox.classList.add('hidden');
-                if(btn) { btn.disabled = false; btn.classList.remove('opacity-50'); }
-            }, 4000);
+      google.script.run.withSuccessHandler(function(logs) {
+        const tbody = document.getElementById('frictionBody');
+        if (logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#34D399;">Ecosystem Clean. Zero Friction Detected.</td></tr>';
+          return;
         }
+        tbody.innerHTML = '';
+        logs.forEach(l => {
+          tbody.innerHTML += `<tr><td>${l.timestamp}</td><td style="color:#FACC15;">${l.layer}</td><td style="color:#EF4444; max-width:180px; overflow:hidden;">${l.error}</td></tr>`;
+        });
+      }).getLiveFrictionRows();
+    }
 
-        // V11 LEDGER FETCHING (Handles all 5 Wings)
-        function fetchLedger(filter) {
-            const container = document.getElementById('ledger-container');
-            container.innerHTML = '<div class="text-center py-10 font-mono text-amber-500 animate-pulse col-span-full">Syncing Cloud Ledger...</div>';
-            
-            let targetCollections = [];
-            if(filter === 'all') targetCollections = ['tbe_tax_shield', 'luxury_affairs_ledger', 'kig_os_builds', 'choice_inc_grants', 'strategist_audits'];
-            else if(filter === 'tbe') targetCollections = ['tbe_tax_shield'];
-            else if(filter === 'luxury') targetCollections = ['luxury_affairs_ledger'];
-            else if(filter === 'kig') targetCollections = ['kig_os_builds'];
-            else if(filter === 'choice') targetCollections = ['choice_inc_grants'];
+    // CLIENT RADAR INTERACTIVE SEARCH FUNCTION
+    function executeClientRadarSearch() {
+      const query = document.getElementById('radarSearch').value.trim();
+      const tbody = document.getElementById('manifestBody');
+      
+      if (query === '') {
+        loadSpreadsheetDataRows(); // If search box is empty, fallback to standard display rows
+        return;
+      }
 
-            let allData = [];
-
-            targetCollections.forEach(colName => {
-                const q = window.query(window.collection(window.kigDb, colName), window.orderBy("timestamp", "desc"));
-                window.onSnapshot(q, (snapshot) => {
-                    allData = allData.filter(item => !snapshot.docChanges().some(change => change.doc.id === item.id));
-                    snapshot.forEach(doc => { allData.push({ id: doc.id, ...doc.data() }); });
-                    renderLedger(allData);
-                });
-            });
+      // Fire your server-side database search engine instantly
+      google.script.run.withSuccessHandler(function(results) {
+        if (results.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#EF4444; font-weight:bold;">No matching client files isolated in database tracking ranges.</td></tr>';
+          return;
         }
+        tbody.innerHTML = '';
+        results.forEach(r => {
+          tbody.innerHTML += `<tr><td>${r.timestamp}</td><td style="font-weight:bold; color:var(--luxury-gold);">${r.name}</td><td>${r.form}</td><td><a class="vault-link" href="${r.folder}" target="_blank">View Folder ➔</a></td></tr>`;
+        });
+      }).searchClientsInManifest(query);
+    }
 
-        // V11 DYNAMIC RENDERING 
-        function renderLedger(data) {
-            const container = document.getElementById('ledger-container');
-            if(data.length === 0) {
-                container.innerHTML = '<div class="text-center py-20 text-slate-600 font-mono col-span-full">Vault empty. No data found.</div>';
-                return;
-            }
+    function sendCommand() {
+      const inputField = document.getElementById('cmdInput');
+      const command = inputField.value.trim();
+      if (command === '') return;
 
-            data.sort((a,b) => b.timestamp?.seconds - a.timestamp?.seconds);
+      const log = document.getElementById('terminalLog');
+      log.innerHTML += `<div class="user-msg">👉 Commander: ${command}</div>`;
+      log.innerHTML += `<div class="system-msg">⚡ Dispatching semantic task metrics to core...</div>`;
+      inputField.value = '';
+      log.scrollTop = log.scrollHeight;
 
-            container.innerHTML = data.map(item => {
-                let borderClass = 'border-slate-500';
-                let textClass = 'text-slate-500';
-                let detailsHTML = '';
-
-                // Dynamic UI construction based on wing
-                if(item.type === 'TBE') {
-                    borderClass = 'border-emerald-500'; textClass = 'text-emerald-500';
-                    detailsHTML = `
-                        <div><span class="text-[9px] text-slate-500 uppercase block">IRS Debt</span><span class="text-rose-400 font-mono">$${item.debt}</span></div>
-                        <div><span class="text-[9px] text-slate-500 uppercase block">Fee</span><span class="text-emerald-400 font-mono">$${item.fee}</span></div>
-                        <div class="col-span-2"><span class="text-[9px] text-slate-500 uppercase block">Service</span><span class="text-slate-200 text-xs">${item.service} (${item.urgency})</span></div>
-                        <div class="col-span-2"><p class="text-xs text-slate-300 italic">Notes: ${item.notes || 'None'}</p></div>
-                    `;
-                } else if (item.type === 'LUXURY') {
-                    borderClass = 'border-purple-500'; textClass = 'text-purple-500';
-                    detailsHTML = `
-                        <div><span class="text-[9px] text-slate-500 uppercase block">Event Date</span><span class="text-amber-500 font-mono">${item.date}</span></div>
-                        <div><span class="text-[9px] text-slate-500 uppercase block">Guests</span><span class="text-slate-200 text-xs">${item.guests}</span></div>
-                        <div><span class="text-[9px] text-slate-500 uppercase block">Total Fee</span><span class="text-emerald-400 font-mono">$${item.revenue}</span></div>
-                        <div><span class="text-[9px] text-slate-500 uppercase block">Deposit</span><span class="text-amber-400 font-mono">$${item.deposit}</span></div>
-                        <div class="col-span-2"><span class="text-[9px] text-slate-500 uppercase block">Layout</span><span class="text-slate-200 text-xs">${item.tableLayout} (${item.tier})</span></div>
-                    `;
-                } else if (item.type === 'KIG_OS') {
-                    borderClass = 'border-blue-500'; textClass = 'text-blue-500';
-                    detailsHTML = `
-                        <div><span class="text-[9px] text-slate-500 uppercase block">Launch</span><span class="text-amber-500 font-mono">${item.launchDate}</span></div>
-                        <div><span class="text-[9px] text-slate-500 uppercase block">Fee</span><span class="text-emerald-400 font-mono">$${item.fee}</span></div>
-                        <div class="col-span-2"><span class="text-[9px] text-slate-500 uppercase block">Scope</span><span class="text-slate-200 text-xs">${item.scope}</span></div>
-                        <div class="col-span-2"><span class="text-[9px] text-slate-500 uppercase block">Phase</span><span class="text-blue-300 text-xs font-bold">${item.phase}</span></div>
-                    `;
-                } else if (item.type === 'CHOICE') {
-                    borderClass = 'border-amber-500'; textClass = 'text-amber-500';
-                    detailsHTML = `
-                        <div><span class="text-[9px] text-slate-500 uppercase block">Target Amt</span><span class="text-emerald-400 font-mono">$${item.targetAmount}</span></div>
-                        <div><span class="text-[9px] text-slate-500 uppercase block">Deadline</span><span class="text-rose-400 font-mono">${item.deadline}</span></div>
-                        <div class="col-span-2"><span class="text-[9px] text-slate-500 uppercase block">Focus</span><span class="text-slate-200 text-xs">${item.strategicFocus}</span></div>
-                        <div class="col-span-2"><span class="text-[9px] text-slate-500 uppercase block">Squad</span><span class="text-amber-300 text-xs font-bold">${item.squad}</span></div>
-                    `;
-                } else if (item.type === 'STRATEGY') {
-                    borderClass = 'border-rose-500'; textClass = 'text-rose-500';
-                    detailsHTML = `
-                        <div><span class="text-[9px] text-slate-500 uppercase block">Industry</span><span class="text-slate-200 text-xs">${item.industry}</span></div>
-                        <div><span class="text-[9px] text-slate-500 uppercase block">Score</span><span class="text-amber-500 font-bold text-lg">${item.viabilityScore}/100</span></div>
-                        <div class="col-span-2"><p class="text-xs text-slate-300 italic">Analysis: ${item.analysis || 'None'}</p></div>
-                    `;
-                }
-
-                return `
-                <div class="glass-panel p-4 rounded-lg border-t-4 ${borderClass} ledger-card flex flex-col justify-between">
-                    <div>
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <span class="text-[10px] font-bold uppercase tracking-widest ${textClass}">${item.type} LOG</span>
-                                <h3 class="text-white font-bold text-lg">${item.client || item.grantName || item.venture || 'Unnamed Target'}</h3>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[10px] text-slate-500 font-mono">${item.timestamp ? new Date(item.timestamp.seconds * 1000).toLocaleDateString() : 'Recent'}</span>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3 mt-3 py-3 border-t border-slate-800/50">
-                            ${detailsHTML}
-                        </div>
-                    </div>
-                    
-                    ${item.documentUrl ? `
-                        <div class="mt-4 pt-3 border-t border-slate-800">
-                            <a href="${item.documentUrl}" target="_blank" class="inline-flex items-center gap-2 text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-cyan-400 px-3 py-2 rounded transition-colors w-full justify-center shadow-lg">
-                                <i class="fas fa-file-pdf"></i> View Secured Document
-                            </a>
-                        </div>
-                    ` : `<div class="mt-4 pt-3 border-t border-slate-800 text-[9px] text-slate-600 font-mono"><i class="fas fa-times-circle mr-1"></i>No document attached</div>`}
-                </div>
-                `;
-            }).join('');
-        }
-    </script>
+      google.script.run
+        .withSuccessHandler(function(response) {
+          log.innerHTML += `<div class="ai-msg">🔮 Victory GHL: ${response.replace(/\n/g, '<br>')}</div>`;
+          log.scrollTop = log.scrollHeight;
+          loadSpreadsheetDataRows(); // Refresh tracking tables on command executions
+        })
+        .processCommandFromCenter(command);
+    }
+  </script>
 </body>
 </html>
