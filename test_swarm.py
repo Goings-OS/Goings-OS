@@ -106,5 +106,40 @@ class TestSwarmManager(unittest.TestCase):
         self.assertIsNone(row_comm)
 
 
+class TestMemoryBank(unittest.TestCase):
+    """Verifies dual-layer stateful memory operations: caching: and database routing rules."""
+
+    def setUp(self):
+        from core_nodes.memory_bank import PersistentMemoryBank
+        self.memory = PersistentMemoryBank()
+
+    def test_store_and_retrieve_context(self):
+        """Validates storing and retrieving context records from the relational cache."""
+        meta = {"category": "test_memories", "session_id": "999-alpha"}
+        self.memory.store_context("TEST-KEY-1", "Test value data segment", meta, tenant="Goings OS")
+
+        retrieved = self.memory.retrieve_context({"session_id": "999-alpha"}, tenant="Goings OS")
+        self.assertEqual(len(retrieved), 1)
+        self.assertEqual(retrieved[0]["context_key"], "TEST-KEY-1")
+        self.assertEqual(retrieved[0]["context_value"], "Test value data segment")
+        self.assertEqual(retrieved[0]["metadata"]["category"], "test_memories")
+
+    def test_memory_tenant_isolation(self):
+        """Verifies that Choice-related memory records are routed to choice_legacy_vault.db only."""
+        meta = {"category": "humanitarian_grants", "allocation": 10000.00}
+        
+        # Store context with Choice Inc tenant context
+        self.memory.store_context("CHOICE-GRANT-TEST-KEY", "Grant disbursement details", meta, tenant="Choice Inc")
+
+        # Query from Choice Inc database
+        retrieved_hum = self.memory.retrieve_context({"category": "humanitarian_grants"}, tenant="Choice Inc")
+        self.assertEqual(len(retrieved_hum), 1)
+        self.assertEqual(retrieved_hum[0]["context_key"], "CHOICE-GRANT-TEST-KEY")
+
+        # Query from Goings OS database: should be empty
+        retrieved_comm = self.memory.retrieve_context({"category": "humanitarian_grants"}, tenant="Goings OS")
+        self.assertEqual(len(retrieved_comm), 0)
+
+
 if __name__ == "__main__":
     unittest.main()
