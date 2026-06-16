@@ -8,6 +8,7 @@ import os
 import sqlite3
 import sys
 import unittest
+import json
 
 # Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
 if sys.platform == "win32":
@@ -371,6 +372,89 @@ class TestComplianceRouter(unittest.TestCase):
         self.assertEqual(records[0]["context_key"], f"COMPLIANCE_ROUTING_{task_id}")
         self.assertEqual(records[0]["context_value"], "Status: APPROVED")
         self.assertTrue(records[0]["metadata"]["is_compliant"])
+
+
+class TestNegotiatorNode(unittest.TestCase):
+    """Verifies autonomous negotiation, tool registry management, and key-filtering logs."""
+
+    def setUp(self):
+        from core_nodes.negotiator_node import NegotiatorNode, CredentialVault
+        self.vault = CredentialVault()
+        self.vault.store_credential("TEST_API_KEY", "secret_pass_token_999")
+        self.vault.store_credential("SENSITIVE_RESP", "response_secret_hash_888")
+        
+        self.node = NegotiatorNode(vault=self.vault)
+        
+        # Clear database records for cleaner isolation queries
+        for db in [self.node.memory_bank.db_path, self.node.memory_bank.humanitarian_db]:
+            if os.path.exists(db):
+                import sqlite3
+                conn = sqlite3.connect(db)
+                conn.execute("DELETE FROM session_memory_cache WHERE context_key LIKE 'NEGOTIATION_%'")
+                conn.commit()
+                conn.close()
+
+        def dummy_handler(payload):
+            key = payload.get("auth_key")
+            if key != "secret_pass_token_999":
+                raise ValueError("Unauthorized client")
+            return {
+                "status": "success",
+                "secret_token": "response_secret_hash_888",
+                "data": "Authorized data output"
+            }
+            
+        self.node.register_tool("dummy_endpoint", dummy_handler)
+
+    def test_tool_registration(self):
+        """Verifies registered integration tools exist with matching details."""
+        self.assertIn("dummy_endpoint", self.node.tools)
+        self.assertIsNotNone(self.node.tools["dummy_endpoint"]["handler"])
+
+    def test_execute_negotiation_success(self):
+        """Verifies a successful negotiation run and parsed redacted payload output."""
+        payload = {"auth_key": "vault://TEST_API_KEY", "sync_type": "full"}
+        res = self.node.execute_negotiation("Sync database", "dummy_endpoint", payload)
+        
+        self.assertTrue(res["success"])
+        self.assertEqual(res["response"]["secret_token"], "[REDACTED_SECURE_VALUE]")
+        self.assertEqual(res["response"]["status"], "success")
+
+    def test_execute_negotiation_failure(self):
+        """Checks exception tracking for failed or unauthorized negotiation runs."""
+        payload = {"auth_key": "wrong_key", "sync_type": "incremental"}
+        res = self.node.execute_negotiation("Sync database", "dummy_endpoint", payload)
+        
+        self.assertFalse(res["success"])
+        self.assertIsNone(res["response"])
+        self.assertEqual(res["error"], "Unauthorized client")
+
+    def test_credential_redaction(self):
+        """Validates that no plain-text credentials leak into logged request or response payloads."""
+        payload = {"auth_key": "vault://TEST_API_KEY", "client_password": "super_secret_value"}
+        
+        # Register the raw client password in the vault so the string scanner can catch it
+        self.vault.store_credential("PASSWORD", "super_secret_value")
+        
+        res = self.node.execute_negotiation("Sync database", "dummy_endpoint", payload)
+        self.assertTrue(res["success"])
+
+        # Verify the logged payload has redacted keys
+        records = self.node.memory_bank.retrieve_context({"objective": "Sync database"}, tenant="Goings OS")
+        self.assertEqual(len(records), 1)
+        
+        metadata = records[0]["metadata"]
+        # Verify request parameters are sanitized
+        self.assertEqual(metadata["request_payload"]["auth_key"], "[REDACTED_SECURE_VALUE]")
+        self.assertEqual(metadata["request_payload"]["client_password"], "[REDACTED_SECURE_VALUE]")
+        # Verify response parameters are sanitized
+        self.assertEqual(metadata["response_payload"]["secret_token"], "[REDACTED_SECURE_VALUE]")
+        
+        # Ensure raw key strings do not exist in plain-text metadata representation
+        metadata_str = json.dumps(metadata)
+        self.assertNotIn("secret_pass_token_999", metadata_str)
+        self.assertNotIn("response_secret_hash_888", metadata_str)
+        self.assertNotIn("super_secret_value", metadata_str)
 
 
 if __name__ == "__main__":
