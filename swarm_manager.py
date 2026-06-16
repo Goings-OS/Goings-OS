@@ -2,6 +2,8 @@ import os
 import sys
 import sqlite3
 import time
+import json
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 # Import all 10 engine modules
 from core_nodes.memory_bank import PersistentMemoryBank
@@ -357,17 +359,233 @@ class Orchestrator:
         return "FAILURE"
 
 
+class OrchestratorAPIHandler(BaseHTTPRequestHandler):
+    """Processes HTTP requests from the web interface, exposing Swarm state and records."""
+    orchestrator_instance = None
+    log_messages = []
+
+    @classmethod
+    def add_log(cls, msg):
+        timestamp = time.strftime("%H:%M:%S", time.localtime())
+        cls.log_messages.append(f"[{timestamp}] {msg}")
+        if len(cls.log_messages) > 50:
+            cls.log_messages.pop(0)
+
+    def _set_headers(self, status=200):
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
+
+    def do_OPTIONS(self):
+        self._set_headers(200)
+
+    def do_GET(self):
+        if self.path == "/api/status":
+            try:
+                # Ensure core monitor presence
+                if self.orchestrator_instance.health_monitor is None:
+                    self.orchestrator_instance.initialize_swarm()
+                
+                health = self.orchestrator_instance.check_swarm_heartbeat()
+                status_data = []
+                for engine in self.orchestrator_instance.nodes_to_monitor():
+                    status_data.append({
+                        "id": engine,
+                        "name": engine.replace("_", " ").title(),
+                        "healthy": health.get(engine) in ("HEALTHY", "RECOVERED"),
+                        "status": health.get(engine, "UNKNOWN")
+                    })
+                
+                self._set_headers(200)
+                payload = json.dumps({"engines": status_data})
+                self.wfile.write(payload.encode("utf-8"))
+            except Exception as e:
+                self._set_headers(500)
+                self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+                
+        elif self.path == "/api/logs":
+            try:
+                tasks = []
+                errors = []
+                
+                # Check health monitor presence
+                if self.orchestrator_instance.health_monitor is None:
+                    self.orchestrator_instance.initialize_swarm()
+
+                # Read commercial task logs
+                if os.path.exists(self.orchestrator_instance.db_path):
+                    try:
+                        conn = sqlite3.connect(self.orchestrator_instance.db_path, timeout=5.0)
+                        cursor = conn.cursor()
+                        cursor.execute("SELECT timestamp, task_id, intent, agent_gem, status, output FROM swarm_task_logs ORDER BY id DESC LIMIT 10")
+                        for row in cursor.fetchall():
+                            tasks.append({
+                                "timestamp": row[0],
+                                "task_id": row[1],
+                                "intent": row[2],
+                                "agent": row[3],
+                                "status": row[4],
+                                "output": row[5],
+                                "tenant": "Goings OS"
+                            })
+                        conn.close()
+                    except Exception as e:
+                        self.add_log(f"Commercial DB log read failure: {str(e)}")
+
+                # Read humanitarian task logs
+                if os.path.exists(self.orchestrator_instance.humanitarian_db):
+                    try:
+                        conn = sqlite3.connect(self.orchestrator_instance.humanitarian_db, timeout=5.0)
+                        cursor = conn.cursor()
+                        cursor.execute("SELECT timestamp, task_id, intent, agent_gem, status, output FROM swarm_task_logs ORDER BY id DESC LIMIT 10")
+                        for row in cursor.fetchall():
+                            tasks.append({
+                                "timestamp": row[0],
+                                "task_id": row[1],
+                                "intent": row[2],
+                                "agent": row[3],
+                                "status": row[4],
+                                "output": row[5],
+                                "tenant": "Choice Inc"
+                            })
+                        conn.close()
+                    except Exception as e:
+                        self.add_log(f"Humanitarian DB log read failure: {str(e)}")
+
+                # Read error log database
+                if os.path.exists(self.orchestrator_instance.error_log_db):
+                    try:
+                        conn = sqlite3.connect(self.orchestrator_instance.error_log_db, timeout=5.0)
+                        cursor = conn.cursor()
+                        cursor.execute("SELECT timestamp, engine_id, error_message FROM initialization_errors ORDER BY id DESC LIMIT 10")
+                        for row in cursor.fetchall():
+                            errors.append({
+                                "timestamp": row[0],
+                                "engine_id": row[1],
+                                "message": row[2]
+                            })
+                        conn.close()
+                    except Exception as e:
+                        self.add_log(f"Error DB log read failure: {str(e)}")
+
+                # Sort consolidated tasks by timestamp descending
+                tasks.sort(key=lambda x: x["timestamp"], reverse=True)
+
+                self._set_headers(200)
+                payload = json.dumps({
+                    "tasks": tasks[:15],
+                    "errors": errors,
+                    "server_logs": self.log_messages
+                })
+                self.wfile.write(payload.encode("utf-8"))
+            except Exception as e:
+                self._set_headers(500)
+                self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+        else:
+            self._set_headers(404)
+            self.wfile.write(json.dumps({"error": "Endpoint not found"}).encode("utf-8"))
+
+    def do_POST(self):
+        content_length = int(self.headers.get("Content-Length", 0))
+        post_data = self.rfile.read(content_length)
+        
+        try:
+            data = json.loads(post_data.decode("utf-8"))
+        except Exception:
+            self._set_headers(400)
+            self.wfile.write(json.dumps({"error": "Malformed JSON payload"}).encode("utf-8"))
+            return
+
+        if self.path == "/api/task":
+            try:
+                intent = data.get("intent", "Execute default routine")
+                task_id = f"TASK-{int(time.time())}-WEB"
+                self.add_log(f"Dispatching task {task_id}: {intent}")
+
+                # Ensure orchestrator presence
+                if self.orchestrator_instance.health_monitor is None:
+                    self.orchestrator_instance.initialize_swarm()
+
+                node = self.orchestrator_instance.add_task(task_id, intent)
+                result = self.orchestrator_instance.process_task_execution_loop(node)
+                
+                self._set_headers(200)
+                self.wfile.write(json.dumps({
+                    "task_id": task_id,
+                    "intent": intent,
+                    "status": node.status,
+                    "output": node.output,
+                    "result": result
+                }).encode("utf-8"))
+                self.add_log(f"Task {task_id} completed: status {node.status}")
+            except Exception as e:
+                self._set_headers(500)
+                self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+
+        elif self.path == "/api/voice":
+            try:
+                # Ensure orchestrator presence
+                if self.orchestrator_instance.health_monitor is None:
+                    self.orchestrator_instance.initialize_swarm()
+
+                mode = data.get("mode", "default")
+                self.add_log(f"Simulating Voice Ingest: mode {mode}")
+                
+                # Check active Live Stream Bridge session
+                if not self.orchestrator_instance.live_bridge.is_active:
+                    self.orchestrator_instance.live_bridge.initialize_session(f"WEB-{int(time.time())}")
+
+                # Select audio bytes
+                if mode == "sync":
+                    audio_bytes = b"\x00\x01\x02" * 41  # 123 bytes
+                else:
+                    audio_bytes = b"\x00\x01" * 10
+
+                intent = self.orchestrator_instance.live_bridge.stream_audio_inbound(audio_bytes)
+                response_text = f"Simulated vocal speech processed: {intent}: under Private Governor supervision."
+                self.orchestrator_instance.live_bridge.stream_audio_outbound(response_text)
+
+                self._set_headers(200)
+                self.wfile.write(json.dumps({
+                    "intent": intent,
+                    "response_text": response_text,
+                    "bridge_status": "ACTIVE"
+                }).encode("utf-8"))
+                self.add_log(f"Voice Command processed: {intent}")
+            except Exception as e:
+                self._set_headers(500)
+                self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+        else:
+            self._set_headers(404)
+            self.wfile.write(json.dumps({"error": "Endpoint not found"}).encode("utf-8"))
+
+
+def start_api_server(orchestrator, port=8000):
+    """Launches concurrent ThreadingHTTPServer on specified port to interface with the web dashboard."""
+    OrchestratorAPIHandler.orchestrator_instance = orchestrator
+    server_address = ("", port)
+    httpd = ThreadingHTTPServer(server_address, OrchestratorAPIHandler)
+    print(f"\n🚀 [API SERVER] Goings OS Orchestrator API listening on http://127.0.0.1:{port}")
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        print("\nStopping API server...")
+        httpd.server_close()
+
+
 if __name__ == "__main__":
     print("==========================================================")
     print(" INITIALIZING GOINGS OS SWARM MANAGER COGNITIVE NODE       ")
     print("==========================================================")
     
     orchestrator = Orchestrator()
+    success = orchestrator.initialize_swarm()
     
-    # Run a test task representing a standard operational sync
-    test_node = orchestrator.add_task("TASK-9988-ALPHA", "Synchronize transaction pipeline outputs")
-    result_status = orchestrator.process_task_execution_loop(test_node)
-    
-    print(f"\nFinal State Result: {result_status}")
-    print(f"Final Compliant Output: '{test_node.output}'")
-    print("==========================================================")
+    if success:
+        # Launch API Server
+        start_api_server(orchestrator, port=8000)
+    else:
+        print("❌ Swarm initialization failed: API server will not start.")
