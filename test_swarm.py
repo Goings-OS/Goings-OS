@@ -642,5 +642,82 @@ class TestSelfHealing(unittest.TestCase):
         self.assertEqual(records_goings[0]["context_value"], "Status: LOCKED: Emergency shutdown engaged")
 
 
+class TestOffGridProtocol(unittest.TestCase):
+    """Verifies heartbeats, local queueing during blackout, tenant isolation, and satellite flushes."""
+
+    def setUp(self):
+        from core_nodes.off_grid_protocol import OffGridController
+        self.controller = OffGridController()
+        
+        # Clear queue databases
+        for db in [self.controller.local_queue.commercial_db, self.controller.local_queue.humanitarian_db]:
+            if os.path.exists(db):
+                import sqlite3
+                conn = sqlite3.connect(db)
+                conn.execute("DELETE FROM off_grid_queue")
+                conn.commit()
+                conn.close()
+
+    def test_heartbeat_check(self):
+        """Verifies connection heartbeat properties."""
+        self.assertTrue(self.controller.check_heartbeat())
+        self.controller.network_connected = False
+        self.assertFalse(self.controller.check_heartbeat())
+
+    def test_satellite_sync(self):
+        """Checks high-latency sat-comm batch sync."""
+        states = [{"id": 1, "data": "state1"}, {"id": 2, "data": "state2"}]
+        # Set short latency for fast test runs
+        self.controller.sat_comm.latency_ms = 10.0
+        success = self.controller.sat_comm.batch_sync(states)
+        self.assertTrue(success)
+
+    def test_enqueue_dequeue_isolation(self):
+        """Validates database isolation of offline queues between commercial and humanitarian tenants."""
+        payload_com = {"leads_count": 12, "benchmark": "weekly_revenue"}
+        payload_choice = {"grant_id": "CHOICE-2026-99", "allocation": 7500.00}
+
+        # Enqueue commercial and philanthropic tasks
+        self.controller.local_queue.enqueue_payload("TASK-COMM-01", payload_com, tenant="Goings OS")
+        self.controller.local_queue.enqueue_payload("TASK-HUM-01", payload_choice, tenant="Choice Inc")
+
+        # Verify isolation: commercial queue should only have Goings OS tasks
+        com_items = self.controller.local_queue.dequeue_payloads(tenant="Goings OS")
+        self.assertEqual(len(com_items), 1)
+        self.assertEqual(com_items[0]["task_id"], "TASK-COMM-01")
+        self.assertEqual(com_items[0]["payload"]["benchmark"], "weekly_revenue")
+
+        # Verify isolation: humanitarian queue should only have Choice Inc tasks
+        hum_items = self.controller.local_queue.dequeue_payloads(tenant="Choice Inc")
+        self.assertEqual(len(hum_items), 1)
+        self.assertEqual(hum_items[0]["task_id"], "TASK-HUM-01")
+        self.assertEqual(hum_items[0]["payload"]["grant_id"], "CHOICE-2026-99")
+
+    def test_autonomous_failover_and_flush(self):
+        """Verifies automatic failover queueing during blackout and automatic flushing upon reconnect."""
+        self.controller.sat_comm.latency_ms = 5.0
+        
+        # 1. Trigger network blackout
+        self.controller.autonomous_switch(False)
+        self.assertFalse(self.controller.check_heartbeat())
+
+        # 2. Send payload (should be queued offline)
+        payload = {"data": "sync_packet"}
+        res = self.controller.send_payload("TASK-OFF-01", payload, tenant="Goings OS")
+        self.assertEqual(res["status"], "QUEUED_OFFLINE")
+
+        # Verify database queue has 1 item
+        com_items_before = self.controller.local_queue.dequeue_payloads(tenant="Goings OS")
+        self.assertEqual(len(com_items_before), 1)
+
+        # 3. Restore connection (should trigger auto-flush)
+        self.controller.autonomous_switch(True)
+        self.assertTrue(self.controller.check_heartbeat())
+
+        # Verify database queue is now empty
+        com_items_after = self.controller.local_queue.dequeue_payloads(tenant="Goings OS")
+        self.assertEqual(len(com_items_after), 0)
+
+
 if __name__ == "__main__":
     unittest.main()
