@@ -719,5 +719,99 @@ class TestOffGridProtocol(unittest.TestCase):
         self.assertEqual(len(com_items_after), 0)
 
 
+class TestEventAutomation(unittest.TestCase):
+    """Verifies event topic listener registrations, parallel cascades, and transaction logs."""
+
+    def setUp(self):
+        from core_nodes.event_automation import EventAutomationEngine
+        self.engine = EventAutomationEngine()
+        
+        # Clean event log tables
+        for db in [self.engine.commercial_db, self.engine.humanitarian_db]:
+            if os.path.exists(db):
+                import sqlite3
+                conn = sqlite3.connect(db)
+                conn.execute("DELETE FROM event_history_log")
+                conn.commit()
+                conn.close()
+
+    def tearDown(self):
+        self.engine.shutdown()
+
+    def test_listener_registration(self):
+        """Verifies dynamic mapping of event triggers to callback routines."""
+        def dummy_listener(data):
+            pass
+            
+        self.engine.register_event_listener("contract_modified", dummy_listener)
+        self.assertIn("contract_modified", self.engine.listeners)
+        self.assertEqual(len(self.engine.listeners["contract_modified"]), 1)
+
+    def test_trigger_cascade_execution(self):
+        """Verifies parallel cascade dispatching and async callback resolution."""
+        shared_list = []
+        
+        def listener_one(data):
+            shared_list.append("one")
+            
+        def listener_two(data):
+            shared_list.append("two")
+
+        self.engine.register_event_listener("test_trigger", listener_one)
+        self.engine.register_event_listener("test_trigger", listener_two)
+
+        futures = self.engine.trigger_cascade("test_trigger", {"payload": "value"}, tenant="Goings OS")
+        self.assertEqual(len(futures), 2)
+        
+        # Wait for threads to resolve
+        import concurrent.futures
+        concurrent.futures.wait(futures)
+        
+        self.assertEqual(len(shared_list), 2)
+        self.assertIn("one", shared_list)
+        self.assertIn("two", shared_list)
+
+    def test_database_logging_and_isolation(self):
+        """Validates transaction-safe logging and multi-tenant database isolation of events."""
+        def commercial_callback(data):
+            pass
+            
+        def humanitarian_callback(data):
+            pass
+
+        self.engine.register_event_listener("com_event", commercial_callback)
+        self.engine.register_event_listener("choice_event", humanitarian_callback)
+
+        # 1. Trigger commercial cascade
+        futures_com = self.engine.trigger_cascade("com_event", {"order_id": 1001}, tenant="Goings OS")
+        import concurrent.futures
+        concurrent.futures.wait(futures_com)
+
+        # 2. Trigger Choice Inc cascade
+        futures_hum = self.engine.trigger_cascade("choice_event", {"donor_id": "CHOICE-50"}, tenant="Choice Inc")
+        concurrent.futures.wait(futures_hum)
+
+        # Verify commercial log
+        import sqlite3
+        conn_com = sqlite3.connect(self.engine.commercial_db)
+        rows_com = conn_com.execute("SELECT event_topic, listener_callback, status FROM event_history_log").fetchall()
+        conn_com.close()
+        
+        self.assertEqual(len(rows_com), 1)
+        self.assertEqual(rows_com[0][0], "com_event")
+        self.assertEqual(rows_com[0][1], "commercial_callback")
+        self.assertEqual(rows_com[0][2], "COMPLETED")
+
+        # Verify humanitarian log
+        conn_hum = sqlite3.connect(self.engine.humanitarian_db)
+        rows_hum = conn_hum.execute("SELECT event_topic, listener_callback, status FROM event_history_log").fetchall()
+        conn_hum.close()
+        
+        self.assertEqual(len(rows_hum), 1)
+        self.assertEqual(rows_hum[0][0], "choice_event")
+        self.assertEqual(rows_hum[0][1], "humanitarian_callback")
+        self.assertEqual(rows_hum[0][2], "COMPLETED")
+
+
 if __name__ == "__main__":
     unittest.main()
