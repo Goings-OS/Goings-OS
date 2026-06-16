@@ -457,5 +457,109 @@ class TestNegotiatorNode(unittest.TestCase):
         self.assertNotIn("super_secret_value", metadata_str)
 
 
+class TestSemanticCataloger(unittest.TestCase):
+    """Verifies recursive crawler indexing, MD5 content checks, and semantic similarity search queries."""
+
+    def setUp(self):
+        import tempfile
+        from core_nodes.semantic_cataloger import SemanticCataloger
+        
+        # Setup temporary directories and database
+        self.test_dir = tempfile.mkdtemp()
+        self.db_path = os.path.join(self.test_dir, "test_manifest.db")
+        self.cataloger = SemanticCataloger(db_path=self.db_path)
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.test_dir)
+
+    def test_database_initialization(self):
+        """Validates schema provisioning and WAL journal enforcement on catalog_manifest."""
+        self.assertTrue(os.path.exists(self.db_path))
+        
+        import sqlite3
+        conn = sqlite3.connect(self.db_path)
+        mode = conn.execute("PRAGMA journal_mode;").fetchone()[0]
+        conn.close()
+        self.assertEqual(mode.lower(), "wal")
+
+    def test_embedding_normalization_and_similarity(self):
+        """Verifies vector unit length and cosine similarity calculations."""
+        text = "This is a low-latency WebRTC live stream socket connection."
+        vector = self.cataloger.generate_embeddings(text)
+        self.assertEqual(len(vector), 128)
+        
+        # Verify L2 normalization
+        magnitude = sum(x * x for x in vector) ** 0.5
+        self.assertAlmostEqual(magnitude, 1.0, places=5)
+        
+        # Test similarity dot products
+        vec_query = self.cataloger.generate_embeddings("WebRTC stream socket")
+        vec_doc1 = self.cataloger.generate_embeddings("WebRTC stream socket capture connection")
+        vec_doc2 = self.cataloger.generate_embeddings("Completely unrelated financial ledger allocation")
+        
+        sim1 = sum(q * d for q, d in zip(vec_query, vec_doc1))
+        sim2 = sum(q * d for q, d in zip(vec_query, vec_doc2))
+        
+        # Matching document must score higher
+        self.assertGreater(sim1, sim2)
+
+    def test_incremental_workspace_indexing(self):
+        """Verifies file scanning, MD5 hash calculation, and incremental skips."""
+        file_path = os.path.join(self.test_dir, "test_document.md")
+        
+        # Create test document
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write("Keep It Goings Consulting: Private Governor integration.")
+            
+        # First index pass
+        self.cataloger.index_workspace(self.test_dir)
+        
+        import sqlite3
+        conn = sqlite3.connect(self.db_path)
+        rows_initial = conn.execute("SELECT file_path, content_hash FROM workspace_index").fetchall()
+        self.assertEqual(len(rows_initial), 1)
+        self.assertEqual(rows_initial[0][0], file_path)
+        initial_hash = rows_initial[0][1]
+        
+        # Modify file and re-index
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write("Keep It Goings Consulting: Private Governor integration: updated database line.")
+            
+        self.cataloger.index_workspace(self.test_dir)
+        rows_updated = conn.execute("SELECT file_path, content_hash FROM workspace_index").fetchall()
+        self.assertEqual(len(rows_updated), 1)
+        self.assertNotEqual(rows_updated[0][1], initial_hash)
+        conn.close()
+
+    def test_query_graph_retrieval(self):
+        """Validates sorted relevance scores and query result thresholds."""
+        # Create mock document records in manifest
+        import sqlite3
+        conn = sqlite3.connect(self.db_path)
+        
+        doc1_vector = self.cataloger.generate_embeddings("Orchestrator Task Loop Worker")
+        doc2_vector = self.cataloger.generate_embeddings("Choice Inc non-profit grant ledgers")
+        
+        conn.execute("""
+            INSERT INTO workspace_index (file_path, content_hash, content, embedding_json, last_indexed)
+            VALUES (?, ?, ?, ?, ?)
+        """, ("doc1.md", "hash1", "Orchestrator Task Loop Worker", json.dumps(doc1_vector), "2026-06-16"))
+        
+        conn.execute("""
+            INSERT INTO workspace_index (file_path, content_hash, content, embedding_json, last_indexed)
+            VALUES (?, ?, ?, ?, ?)
+        """, ("doc2.md", "hash2", "Choice Inc non-profit grant ledgers", json.dumps(doc2_vector), "2026-06-16"))
+        
+        conn.commit()
+        conn.close()
+        
+        # Query for Orchestrator matches
+        results = self.cataloger.query_graph("Worker task loop orchestrator", top_k=2)
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0]["file_path"], "doc1.md")
+        self.assertGreater(results[0]["similarity"], results[1]["similarity"])
+
+
 if __name__ == "__main__":
     unittest.main()
