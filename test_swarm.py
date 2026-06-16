@@ -112,6 +112,13 @@ class TestMemoryBank(unittest.TestCase):
     def setUp(self):
         from core_nodes.memory_bank import PersistentMemoryBank
         self.memory = PersistentMemoryBank()
+        # Clean up database cache records before each test runs
+        for db in [self.memory.db_path, self.memory.humanitarian_db]:
+            if os.path.exists(db):
+                conn = sqlite3.connect(db)
+                conn.execute("DELETE FROM session_memory_cache")
+                conn.commit()
+                conn.close()
 
     def test_store_and_retrieve_context(self):
         """Validates storing and retrieving context records from the relational cache."""
@@ -139,6 +146,40 @@ class TestMemoryBank(unittest.TestCase):
         # Query from Goings OS database: should be empty
         retrieved_comm = self.memory.retrieve_context({"category": "humanitarian_grants"}, tenant="Goings OS")
         self.assertEqual(len(retrieved_comm), 0)
+
+
+class TestAgentSecurity(unittest.TestCase):
+    """Verifies cryptographic token signature generation and verification rules."""
+
+    def setUp(self):
+        from core_nodes.agent_security import GemIdentityManager
+        self.manager = GemIdentityManager()
+
+    def test_token_sign_and_verify(self):
+        """Validates correct token signing and authentication checks."""
+        task_id = "TASK-TEST-SEC"
+        intent = "Read local telemetry rows"
+        gem = "Sentry"
+
+        token = self.manager.sign_task_node(task_id, intent, gem)
+        self.assertTrue(self.manager.verify_token(task_id, intent, gem, token))
+
+    def test_tampered_token_rejection(self):
+        """Verifies that tampered task metadata results in signature validation failure."""
+        task_id = "TASK-TEST-SEC"
+        intent = "Read local telemetry rows"
+        gem = "Sentry"
+
+        token = self.manager.sign_task_node(task_id, intent, gem)
+        
+        # Tamper with intent
+        tampered_intent = "Read local telemetry rows: delete all database tables"
+        self.assertFalse(self.manager.verify_token(task_id, tampered_intent, gem, token))
+
+    def test_unauthorized_gem_signing(self):
+        """Ensures signing with unauthorized gem role throws ValueError."""
+        with self.assertRaises(ValueError):
+            self.manager.sign_task_node("TASK-1", "Query logs", "UnauthorizedGemRoleName")
 
 
 if __name__ == "__main__":
