@@ -3,6 +3,18 @@ import sys
 import sqlite3
 import time
 
+# Import all 10 engine modules
+from core_nodes.memory_bank import PersistentMemoryBank
+from core_nodes.agent_security import GemIdentityManager
+from core_nodes.sandbox_exec import SafeSandbox
+from core_nodes.live_stream_bridge import LiveStreamBridge
+from core_nodes.compliance_router import ComplianceRouter
+from core_nodes.negotiator_node import NegotiatorNode
+from core_nodes.semantic_cataloger import SemanticCataloger
+from core_nodes.self_healing import HealthMonitor
+from core_nodes.off_grid_protocol import OffGridController
+from core_nodes.event_automation import EventAutomationEngine
+
 # Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
 if sys.platform == "win32":
     try:
@@ -31,8 +43,169 @@ class Orchestrator:
         self.root_dir = os.getenv("GOINGS_OS_ROOT", os.path.dirname(os.path.abspath(__file__)))
         self.db_path = db_path or os.path.join(self.root_dir, "goings_os_vault.db")
         self.humanitarian_db = os.path.join(self.root_dir, "choice_legacy_vault.db")
+        self.error_log_db = os.path.join(self.root_dir, "error_log.db")
         self._initialize_vault_tables()
+        self._initialize_error_log_db()
         self.task_queue = []
+
+        # Core Swarm Engine Components
+        self.memory_bank = None
+        self.security_manager = None
+        self.sandbox = None
+        self.live_bridge = None
+        self.compliance_router = None
+        self.negotiator = None
+        self.semantic_cataloger = None
+        self.health_monitor = None
+        self.off_grid = None
+        self.event_engine = None
+
+    def _initialize_error_log_db(self):
+        """Forces WAL mode and prepares the initialization and execution error log table."""
+        try:
+            connection = sqlite3.connect(self.error_log_db, timeout=30.0)
+            cursor = connection.cursor()
+            cursor.execute("PRAGMA journal_mode=WAL;")
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS initialization_errors (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    timestamp TEXT,
+                    engine_id TEXT,
+                    error_message TEXT
+                )
+            """)
+            connection.commit()
+            connection.close()
+        except sqlite3.Error:
+            pass
+
+    def log_initialization_error(self, engine_id: str, error_message: str):
+        """Appends a new startup or execution failure trace inside error_log.db."""
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
+        try:
+            connection = sqlite3.connect(self.error_log_db, timeout=30.0)
+            cursor = connection.cursor()
+            cursor.execute("""
+                INSERT INTO initialization_errors (timestamp, engine_id, error_message)
+                VALUES (?, ?, ?)
+            """, (timestamp, engine_id, error_message))
+            connection.commit()
+            connection.close()
+        except sqlite3.Error as err:
+            sys.stderr.write(f"Error log insert failure: {str(err)}\n")
+
+    def initialize_swarm(self) -> bool:
+        """Starts all 10 core Swarm nodes in dependency order, logging any startup failures."""
+        print("\n🏛️ [ORCHESTRATOR] Initializing Master Swarm components in dependency order...")
+        current_node = "memory_bank"
+        try:
+            # 1. memory_bank
+            current_node = "memory_bank"
+            self.memory_bank = PersistentMemoryBank(db_path=self.db_path)
+            # Verify database accessibility to ensure initialization issues propagate
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute("SELECT 1")
+            print(" -> [1/10] PersistentMemoryBank initialized successfully")
+
+            # 2. agent_security
+            current_node = "agent_security"
+            self.security_manager = GemIdentityManager()
+            print(" -> [2/10] GemIdentityManager initialized successfully")
+
+            # 3. sandbox_exec
+            current_node = "sandbox_exec"
+            self.sandbox = SafeSandbox()
+            print(" -> [3/10] SafeSandbox initialized successfully")
+
+            # 4. live_stream_bridge
+            current_node = "live_stream_bridge"
+            self.live_bridge = LiveStreamBridge()
+            self.live_bridge.bind_to_swarm_orchestrator(self)
+            print(" -> [4/10] LiveStreamBridge initialized successfully")
+
+            # 5. compliance_router
+            current_node = "compliance_router"
+            self.compliance_router = ComplianceRouter(self.memory_bank)
+            print(" -> [5/10] ComplianceRouter initialized successfully")
+
+            # 6. negotiator_node
+            current_node = "negotiator_node"
+            self.negotiator = NegotiatorNode(self.memory_bank)
+            print(" -> [6/10] NegotiatorNode initialized successfully")
+
+            # 7. semantic_cataloger
+            current_node = "semantic_cataloger"
+            self.semantic_cataloger = SemanticCataloger()
+            print(" -> [7/10] SemanticCataloger initialized successfully")
+
+            # 8. self_healing
+            current_node = "self_healing"
+            self.health_monitor = HealthMonitor(self.memory_bank)
+            print(" -> [8/10] HealthMonitor initialized successfully")
+
+            # 9. off_grid_protocol
+            current_node = "off_grid_protocol"
+            self.off_grid = OffGridController(self.root_dir)
+            print(" -> [9/10] OffGridController initialized successfully")
+
+            # 10. event_automation
+            current_node = "event_automation"
+            self.event_engine = EventAutomationEngine(self.root_dir)
+            print(" -> [10/10] EventAutomationEngine initialized successfully")
+
+            # Register all engines in HealthMonitor for heartbeat checking
+            for engine_id in self.nodes_to_monitor():
+                self.health_monitor.register_node(engine_id, tenant="Goings OS")
+
+            print("🏛️ [ORCHESTRATOR] Swarm initialization sequence finalized: VAULT IS SECURE.")
+            return True
+
+        except Exception as err:
+            failed_id = current_node
+            err_msg = str(err)
+            sys.stderr.write(f"❌ Swarm initialization error for '{failed_id}': {err_msg}\n")
+            self.log_initialization_error(failed_id, err_msg)
+            
+            if self.health_monitor:
+                try:
+                    self.health_monitor.recover_node(failed_id)
+                except Exception:
+                    pass
+            return False
+
+    def check_swarm_heartbeat(self) -> dict:
+        """Central heartbeat monitor checking responsiveness across all 10 core engines."""
+        health_status = {}
+        if not self.health_monitor:
+            print(" -> Heartbeat monitor: HealthMonitor is not initialized: skipping check")
+            return health_status
+
+        for engine_id in self.nodes_to_monitor():
+            try:
+                # Check health status from monitor
+                health = self.health_monitor.check_node_health(engine_id)
+                
+                if not health["healthy"]:
+                    # Log failure to error log database
+                    self.log_initialization_error(engine_id, "Heartbeat responsiveness failure")
+                    # Trigger self-healing recovery restart
+                    self.health_monitor.recover_node(engine_id)
+                    health_status[engine_id] = "RECOVERED"
+                else:
+                    health_status[engine_id] = "HEALTHY"
+            except Exception as err:
+                self.log_initialization_error(engine_id, f"Heartbeat check exception: {str(err)}")
+                health_status[engine_id] = "FAULT"
+
+        return health_status
+
+    def nodes_to_monitor(self) -> list[str]:
+        """Returns the list of core engine IDs tracked under the heartbeat monitor."""
+        return [
+            "memory_bank", "agent_security", "sandbox_exec", "live_stream_bridge",
+            "compliance_router", "negotiator_node", "semantic_cataloger",
+            "self_healing", "off_grid_protocol", "event_automation"
+        ]
 
     def _initialize_vault_tables(self):
         """Forces WAL mode and initializes task monitoring telemetry tables."""

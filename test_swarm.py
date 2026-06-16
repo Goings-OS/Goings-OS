@@ -813,5 +813,86 @@ class TestEventAutomation(unittest.TestCase):
         self.assertEqual(rows_hum[0][2], "COMPLETED")
 
 
+class TestMasterOrchestratorLink(unittest.TestCase):
+    """Verifies dependency-ordered initialization, central heartbeats, error logging, and recovery hooks."""
+
+    def setUp(self):
+        from swarm_manager import Orchestrator
+        self.orchestrator = Orchestrator()
+        
+        # Clear error logs database
+        if os.path.exists(self.orchestrator.error_log_db):
+            import sqlite3
+            conn = sqlite3.connect(self.orchestrator.error_log_db)
+            conn.execute("DELETE FROM initialization_errors")
+            conn.commit()
+            conn.close()
+
+    def test_swarm_dependency_initialization_success(self):
+        """Verifies successful dependency-ordered initialization of all 10 engines."""
+        success = self.orchestrator.initialize_swarm()
+        self.assertTrue(success)
+        
+        # Verify all 10 engine properties are initialized and not None
+        self.assertIsNotNone(self.orchestrator.memory_bank)
+        self.assertIsNotNone(self.orchestrator.security_manager)
+        self.assertIsNotNone(self.orchestrator.sandbox)
+        self.assertIsNotNone(self.orchestrator.live_bridge)
+        self.assertIsNotNone(self.orchestrator.compliance_router)
+        self.assertIsNotNone(self.orchestrator.negotiator)
+        self.assertIsNotNone(self.orchestrator.semantic_cataloger)
+        self.assertIsNotNone(self.orchestrator.health_monitor)
+        self.assertIsNotNone(self.orchestrator.off_grid)
+        self.assertIsNotNone(self.orchestrator.event_engine)
+
+    def test_swarm_initialization_failure_logging(self):
+        """Verifies startup failure logging to error_log.db on initialization exceptions."""
+        # Set invalid path to trigger SQLite initialization failure
+        self.orchestrator.db_path = "Z:\\invalid_directory\\invalid_file.db"
+        success = self.orchestrator.initialize_swarm()
+        self.assertFalse(success)
+        
+        # Query error logs from error_log.db
+        import sqlite3
+        conn = sqlite3.connect(self.orchestrator.error_log_db)
+        rows = conn.execute("SELECT engine_id, error_message FROM initialization_errors").fetchall()
+        conn.close()
+        
+        self.assertGreaterEqual(len(rows), 1)
+        self.assertEqual(rows[0][0], "memory_bank")
+        self.assertTrue(len(rows[0][1]) > 0)
+
+    def test_heartbeat_check_healthy(self):
+        """Checks heartbeat monitor outputs under normal running conditions."""
+        self.orchestrator.initialize_swarm()
+        health = self.orchestrator.check_swarm_heartbeat()
+        
+        # Confirm all 10 nodes are returned as HEALTHY
+        self.assertEqual(len(health), 10)
+        for engine_id in self.orchestrator.nodes_to_monitor():
+            self.assertEqual(health[engine_id], "HEALTHY")
+
+    def test_heartbeat_check_recovery_trigger(self):
+        """Checks that heartbeat faults trigger error logging and self-healing recovery restarts."""
+        self.orchestrator.initialize_swarm()
+        
+        # Simulate sandbox_exec thread timeout by aging last contact timestamp
+        self.orchestrator.health_monitor.nodes["sandbox_exec"]["last_contact"] -= 10.0
+        
+        # Run heartbeat check
+        health = self.orchestrator.check_swarm_heartbeat()
+        self.assertEqual(health["sandbox_exec"], "RECOVERED")
+        
+        # Verify log entry created in error_log.db
+        import sqlite3
+        conn = sqlite3.connect(self.orchestrator.error_log_db)
+        rows = conn.execute("SELECT engine_id, error_message FROM initialization_errors").fetchall()
+        conn.close()
+        
+        self.assertGreaterEqual(len(rows), 1)
+        self.assertEqual(rows[0][0], "sandbox_exec")
+        self.assertIn("Heartbeat responsiveness failure", rows[0][1])
+
+
 if __name__ == "__main__":
     unittest.main()
