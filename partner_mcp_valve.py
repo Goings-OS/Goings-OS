@@ -6,16 +6,28 @@
 
 import asyncio
 import json
+import os
 import re
 import sqlite3
+import sys
 import time
+
+# Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except AttributeError:
+        pass
 
 
 class PrivateIngressOverlord:
     """Hardens the lead pipeline; executing data sanitization and dynamic routing blocks."""
 
-    def __init__(self, db_path: str = "goings_os_vault.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: str = None):
+        self.root_dir = os.getenv("GOINGS_OS_ROOT", os.path.dirname(os.path.abspath(__file__)))
+        self.db_path = db_path or os.path.join(self.root_dir, "goings_os_vault.db")
+        self.humanitarian_db = os.path.join(self.root_dir, "choice_legacy_vault.db")
         self.max_retry_threshold = 5
 
     def sanitize_ingress_stream(self, raw_text: str) -> str:
@@ -32,9 +44,13 @@ class PrivateIngressOverlord:
 
     def execute_transactional_db_append(self, payload: dict, status: str) -> str:
         """Seals clean data records straight into the private storage database rows."""
+        target_db = self.db_path
+        if payload.get("form_name") and "Choice" in payload["form_name"]:
+            target_db = self.humanitarian_db
         try:
-            connection = sqlite3.connect(self.db_path)
+            connection = sqlite3.connect(target_db, timeout=30.0)
             cursor = connection.cursor()
+            cursor.execute("PRAGMA journal_mode=WAL;")
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS platform_lead_vault (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -1,12 +1,21 @@
 # ==============================================================================
 # KEEP IT GOINGS CONSULTING // GOINGS OS ARCHITECTURE
 # MODULE: SPECIALIZED MULTI-TENANT NODE INITIALIZATION
-# COMPLIANCE: ZERO EM-DASHES; STRIC COGNITIVE DATA SEPARATION
+# COMPLIANCE: ZERO EM-DASHES; STRICT COGNITIVE DATA SEPARATION
 # ==============================================================================
 
 import logging
 import os
 import sqlite3
+import sys
+
+# Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except AttributeError:
+        pass
 
 
 class NodeInfrastructureBuilder:

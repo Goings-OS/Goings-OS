@@ -7,7 +7,16 @@
 import logging
 import os
 import sqlite3
+import sys
 import time
+
+# Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except AttributeError:
+        pass
 
 
 class TBERetainerGenerator:
@@ -77,6 +86,7 @@ This instrument is executed in accordance with state registration standards; uti
         cursor = connection.cursor()
         
         try:
+            cursor.execute("PRAGMA journal_mode=WAL;")
             cursor.execute("SELECT company_name, client_ein FROM b2b_scout_vault WHERE pipeline_status = 'UNTOUCHED_PROSPECT'")
             uncontracted_leads = cursor.fetchall()
             

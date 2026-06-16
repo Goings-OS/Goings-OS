@@ -6,7 +6,16 @@
 
 import os
 import sqlite3
+import sys
 import time
+
+# Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except AttributeError:
+        pass
 
 
 class TestFacilityEngine:

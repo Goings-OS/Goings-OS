@@ -7,7 +7,16 @@
 import logging
 import os
 import sqlite3
+import sys
 import time
+
+# Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except AttributeError:
+        pass
 
 
 class GarnetScoutEngine:
@@ -17,6 +26,7 @@ class GarnetScoutEngine:
         # Resolve the root workspace directory dynamically across environments
         self.root_dir = os.getenv("GOINGS_OS_ROOT", os.path.dirname(os.path.abspath(__file__)))
         self.db_path = os.path.join(self.root_dir, "goings_os_vault.db")
+        self.humanitarian_db = os.path.join(self.root_dir, "choice_legacy_vault.db")
         self.log_path = os.path.join(self.root_dir, "system_faults.log")
         
         # Initialize structured platform logging
@@ -56,25 +66,41 @@ class GarnetScoutEngine:
 
     def ingest_live_stream_payload(self, inbound_payload: list) -> int:
         """Seals harvested data packages directly into data rows; eliminating production ceilings."""
-        connection = sqlite3.connect(self.db_path, timeout=30.0)
-        cursor = connection.cursor()
-        timestamp = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
         inserted_count = 0
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
         
         for lead in inbound_payload:
+            target_db = self.db_path
+            if lead.get("company") and "Choice" in lead["company"]:
+                target_db = self.humanitarian_db
             try:
+                connection = sqlite3.connect(target_db, timeout=30.0)
+                cursor = connection.cursor()
+                cursor.execute("PRAGMA journal_mode=WAL;")
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS b2b_scout_vault (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        timestamp TEXT,
+                        company_name TEXT UNIQUE,
+                        contact_email TEXT UNIQUE,
+                        contact_phone TEXT,
+                        identified_gap TEXT,
+                        client_ein TEXT,
+                        pipeline_status TEXT
+                    )
+                """)
                 cursor.execute("""
                     INSERT OR IGNORE INTO b2b_scout_vault (
                         timestamp, company_name, contact_email, contact_phone, identified_gap, client_ein, pipeline_status
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                     ) VALUES (?, ?, ?, ?, ?, ?, ?)
                 """, (timestamp, lead["company"], lead["email"], lead["phone"], lead["market_gap"], lead["ein"], "UNTOUCHED_PROSPECT"))
                 if cursor.rowcount > 0:
                     inserted_count += 1
+                connection.commit()
+                connection.close()
             except sqlite3.Error as write_fault:
                 logging.error(f"Data write failure encountered during target ingestion: {str(write_fault)}")
                 
-        connection.commit()
-        connection.close()
         return inserted_count
 
 

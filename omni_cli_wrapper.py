@@ -10,7 +10,16 @@ import os
 import shutil
 import sqlite3
 import subprocess
+import sys
 import time
+
+# Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except AttributeError:
+        pass
 
 
 class OmniCLIWrapper:
@@ -19,6 +28,7 @@ class OmniCLIWrapper:
     def __init__(self):
         self.root_dir = os.getenv("GOINGS_OS_ROOT", os.path.dirname(os.path.abspath(__file__)))
         self.db_path = os.path.join(self.root_dir, "goings_os_vault.db")
+        self.humanitarian_db = os.path.join(self.root_dir, "choice_legacy_vault.db")
         self.log_path = os.path.join(self.root_dir, "system_faults.log")
         
         # Hardcoded Corporate Parameters for Strategic Financial Reporting
@@ -36,24 +46,25 @@ class OmniCLIWrapper:
 
     def _initialize_telemetry_table(self):
         """Prepares the database schema and forces WAL mode for high-concurrency loops."""
-        try:
-            connection = sqlite3.connect(self.db_path, timeout=30.0)
-            cursor = connection.cursor()
-            cursor.execute("PRAGMA journal_mode=WAL;")
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS cli_orchestration_log (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    timestamp TEXT,
-                    cli_binary TEXT,
-                    command_executed TEXT,
-                    return_code INTEGER,
-                    execution_summary TEXT
-                )
-            """)
-            connection.commit()
-            connection.close()
-        except sqlite3.Error as fault:
-            logging.error(f"Failed to clear WAL database paths for wrapper operations: {str(fault)}")
+        for path in [self.db_path, self.humanitarian_db]:
+            try:
+                connection = sqlite3.connect(path, timeout=30.0)
+                cursor = connection.cursor()
+                cursor.execute("PRAGMA journal_mode=WAL;")
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS cli_orchestration_log (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        timestamp TEXT,
+                        cli_binary TEXT,
+                        command_executed TEXT,
+                        return_code INTEGER,
+                        execution_summary TEXT
+                    )
+                """)
+                connection.commit()
+                connection.close()
+            except sqlite3.Error as fault:
+                logging.error(f"Failed to clear WAL database paths for wrapper operations: {str(fault)}")
 
     def verify_and_log_binary_presence(self, binary_name: str) -> bool:
         """Checks if the command utility is correctly configured inside your system environment paths."""
@@ -62,8 +73,11 @@ class OmniCLIWrapper:
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
         summary = f"Binary path found: {binary_path}" if status else "Binary missing or path environment unconfigured"
         
+        target_db = self.db_path
+        if "choice" in binary_name.lower():
+            target_db = self.humanitarian_db
         try:
-            connection = sqlite3.connect(self.db_path, timeout=30.0)
+            connection = sqlite3.connect(target_db, timeout=30.0)
             cursor = connection.cursor()
             cursor.execute("""
                 INSERT INTO cli_orchestration_log (timestamp, cli_binary, command_executed, return_code, execution_summary)
@@ -98,7 +112,10 @@ class OmniCLIWrapper:
             return_code = result.returncode
             summary_output = result.stdout.strip() if return_code == 0 else result.stderr.strip()
             
-            connection = sqlite3.connect(self.db_path, timeout=30.0)
+            target_db = self.db_path
+            if "choice" in binary_name.lower() or "choice" in str(arguments).lower():
+                target_db = self.humanitarian_db
+            connection = sqlite3.connect(target_db, timeout=30.0)
             cursor = connection.cursor()
             cursor.execute("""
                 INSERT INTO cli_orchestration_log (timestamp, cli_binary, command_executed, return_code, execution_summary)

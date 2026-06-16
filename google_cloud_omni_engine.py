@@ -10,7 +10,16 @@ import json
 import logging
 import os
 import sqlite3
+import sys
 import time
+
+# Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except AttributeError:
+        pass
 
 # --- PRODUCTION LIVE ENTERPRISE GOOGLE SDK IMPORTS ---
 try:
@@ -29,6 +38,7 @@ class GoingsOSOmniEngine:
     def __init__(self):
         self.root_dir = os.getenv("GOINGS_OS_ROOT", os.path.dirname(os.path.abspath(__file__)))
         self.db_path = os.path.join(self.root_dir, "goings_os_vault.db")
+        self.humanitarian_db = os.path.join(self.root_dir, "choice_legacy_vault.db")
         self.log_path = os.path.join(self.root_dir, "system_faults.log")
         
         # Immutably locked conglomerate variables and conversion metrics
@@ -51,23 +61,24 @@ class GoingsOSOmniEngine:
 
     def _initialize_wal_vault(self):
         """Locks connection timeouts and forces WAL journaling for multi-agent loops."""
-        try:
-            connection = sqlite3.connect(self.db_path, timeout=30.0)
-            cursor = connection.cursor()
-            cursor.execute("PRAGMA journal_mode=WAL;")
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS cloud_omni_telemetry (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    timestamp TEXT,
-                    operation_type TEXT,
-                    payload_summary TEXT,
-                    execution_status TEXT
-                )
-            """)
-            connection.commit()
-            connection.close()
-        except sqlite3.Error as fault:
-            logging.error(f"Failed to wire database infrastructure layers: {str(fault)}")
+        for path in [self.db_path, self.humanitarian_db]:
+            try:
+                connection = sqlite3.connect(path, timeout=30.0)
+                cursor = connection.cursor()
+                cursor.execute("PRAGMA journal_mode=WAL;")
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS cloud_omni_telemetry (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        timestamp TEXT,
+                        operation_type TEXT,
+                        payload_summary TEXT,
+                        execution_status TEXT
+                    )
+                """)
+                connection.commit()
+                connection.close()
+            except sqlite3.Error as fault:
+                logging.error(f"Failed to wire database infrastructure layers: {str(fault)}")
 
     def _initialize_google_cloud_services(self):
         """Authenticates with official Google Cloud SDK hooks if available."""
@@ -96,8 +107,11 @@ class GoingsOSOmniEngine:
             clearance = "STANDARD_ROUTING_PROSPECT"
             model_route = "gemma-2-9b-edge"
 
+        target_db = self.db_path
+        if "choice" in pillar_key.lower():
+            target_db = self.humanitarian_db
         try:
-            connection = sqlite3.connect(self.db_path, timeout=30.0)
+            connection = sqlite3.connect(target_db, timeout=30.0)
             cursor = connection.cursor()
             cursor.execute("""
                 INSERT INTO cloud_omni_telemetry (timestamp, operation_type, payload_summary, execution_status)
