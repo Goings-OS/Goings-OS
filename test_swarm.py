@@ -561,5 +561,86 @@ class TestSemanticCataloger(unittest.TestCase):
         self.assertGreater(results[0]["similarity"], results[1]["similarity"])
 
 
+class TestSelfHealing(unittest.TestCase):
+    """Verifies HealthMonitor registries, responsiveness timeouts, process restarts, and data locking."""
+
+    def setUp(self):
+        from core_nodes.self_healing import HealthMonitor
+        self.monitor = HealthMonitor()
+        
+        # Clear fault/lock records for cleaner isolation queries
+        for db in [self.monitor.memory_bank.db_path, self.monitor.memory_bank.humanitarian_db]:
+            if os.path.exists(db):
+                import sqlite3
+                conn = sqlite3.connect(db)
+                conn.execute("DELETE FROM session_memory_cache WHERE context_key LIKE 'FAULT_LOG_%' OR context_key = 'SYSTEM_SECURITY_LOCK'")
+                conn.commit()
+                conn.close()
+
+    def test_node_health_detection(self):
+        """Verifies responsiveness timeouts and memory bloat detection rules."""
+        self.monitor.register_node("TestWorker", tenant="Goings OS", memory_limit_mb=100.0, contact_timeout_sec=1.0)
+        
+        # Initial health check (should be healthy)
+        health = self.monitor.check_node_health("TestWorker")
+        self.assertTrue(health["healthy"])
+        
+        # Simulate memory bloat
+        self.monitor.ping_node("TestWorker", memory_usage_mb=150.0)
+        health = self.monitor.check_node_health("TestWorker")
+        self.assertFalse(health["healthy"])
+        self.assertTrue(health["memory_bloated"])
+        self.assertFalse(health["unresponsive"])
+
+        # Reset memory, simulate timeout/unresponsiveness by manually aging last_contact
+        self.monitor.ping_node("TestWorker", memory_usage_mb=50.0)
+        self.monitor.nodes["TestWorker"]["last_contact"] -= 2.0
+        
+        health = self.monitor.check_node_health("TestWorker")
+        self.assertFalse(health["healthy"])
+        self.assertFalse(health["memory_bloated"])
+        self.assertTrue(health["unresponsive"])
+
+    def test_node_recovery_and_logging(self):
+        """Checks recovery loops, parameter resets, and SQLite fault logs."""
+        self.monitor.register_node("ChoiceSentry", tenant="Choice Inc", memory_limit_mb=100.0, contact_timeout_sec=1.0)
+        
+        # Trigger failure (bloat)
+        self.monitor.ping_node("ChoiceSentry", memory_usage_mb=120.0)
+        
+        # Trigger recovery
+        recovered = self.monitor.recover_node("ChoiceSentry")
+        self.assertTrue(recovered)
+        
+        # Verify node parameters reset
+        node = self.monitor.nodes["ChoiceSentry"]
+        self.assertEqual(node["status"], "HEALTHY")
+        self.assertEqual(node["memory_usage_mb"], 35.0)
+        self.assertEqual(node["recoveries"], 1)
+
+        # Verify fault logged to Choice Inc database (due to tenant setting)
+        records = self.monitor.memory_bank.retrieve_context({"node_name": "ChoiceSentry"}, tenant="Choice Inc")
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["metadata"]["reason"], "memory_bloated")
+        self.assertEqual(records[0]["metadata"]["action"], "CLEAN_RESTART")
+
+    def test_emergency_shutdown_safe_lock(self):
+        """Ensures emergency shutdowns safe-lock data and write security log locks to both databases."""
+        self.monitor.emergency_shutdown()
+        self.assertTrue(self.monitor.system_locked)
+        
+        # Verify locks exist in both SQLite database files
+        records_choice = self.monitor.memory_bank.retrieve_context({"event": "EMERGENCY_SHUTDOWN"}, tenant="Choice Inc")
+        records_goings = self.monitor.memory_bank.retrieve_context({"event": "EMERGENCY_SHUTDOWN"}, tenant="Goings OS")
+        
+        self.assertEqual(len(records_choice), 1)
+        self.assertEqual(records_choice[0]["context_key"], "SYSTEM_SECURITY_LOCK")
+        self.assertEqual(records_choice[0]["context_value"], "Status: LOCKED: Emergency shutdown engaged")
+        
+        self.assertEqual(len(records_goings), 1)
+        self.assertEqual(records_goings[0]["context_key"], "SYSTEM_SECURITY_LOCK")
+        self.assertEqual(records_goings[0]["context_value"], "Status: LOCKED: Emergency shutdown engaged")
+
+
 if __name__ == "__main__":
     unittest.main()
