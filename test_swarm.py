@@ -177,9 +177,50 @@ class TestAgentSecurity(unittest.TestCase):
         self.assertFalse(self.manager.verify_token(task_id, tampered_intent, gem, token))
 
     def test_unauthorized_gem_signing(self):
-        """Ensures signing with unauthorized gem role throws ValueError."""
+        # Ensures signing with unauthorized gem role throws ValueError.
         with self.assertRaises(ValueError):
             self.manager.sign_task_node("TASK-1", "Query logs", "UnauthorizedGemRoleName")
+
+
+class TestSafeSandbox(unittest.TestCase):
+    """Verifies restricted execution environments: safety validation: and timeout gates."""
+
+    def setUp(self):
+        from core_nodes.sandbox_exec import SafeSandbox
+        self.sandbox = SafeSandbox()
+
+    def test_static_safety_restrictions(self):
+        """Validates that unsafe imports and restricted calls are blocked statically."""
+        unsafe_code = "import os\nos.system('dir')"
+        res = self.sandbox.run_code_isolated(unsafe_code)
+        self.assertFalse(res["success"])
+        self.assertEqual(res["status"], "BLOCKED_BY_SAFETY_GUARD")
+        self.assertIn("Restricted command 'import os'", res["error"])
+
+    def test_isolated_code_execution_success(self):
+        """Verifies clean, compliant code runs successfully and captures stdout."""
+        clean_code = "print(10 + 20)"
+        res = self.sandbox.run_code_isolated(clean_code)
+        self.assertTrue(res["success"])
+        self.assertEqual(res["status"], "COMPLETED_SUCCESSFULLY")
+        self.assertEqual(res["output"], "30")
+
+    def test_runtime_error_trapping(self):
+        """Ensures python syntax errors and runtime exceptions are successfully captured."""
+        bad_code = "x = 10 / 0"
+        res = self.sandbox.run_code_isolated(bad_code)
+        self.assertFalse(res["success"])
+        self.assertEqual(res["status"], "RUNTIME_EXCEPTION_TRIGGERED")
+        self.assertIn("ZeroDivisionError", res["error"])
+
+    def test_timeout_gate_enforcement(self):
+        """Ensures infinite loops are terminated when execution exceeds the timeout limit."""
+        loop_code = "while True: pass"
+        # Run with short timeout
+        res = self.sandbox.run_code_isolated(loop_code, timeout=0.5)
+        self.assertFalse(res["success"])
+        self.assertEqual(res["status"], "TIMEOUT_EXCEEDED")
+        self.assertIn("Timeout Exception", res["error"])
 
 
 if __name__ == "__main__":
