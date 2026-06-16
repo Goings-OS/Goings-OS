@@ -270,5 +270,108 @@ class TestLiveStreamBridge(unittest.TestCase):
         self.assertEqual(self.orchestrator.task_queue[0].status, "COMPLETED")
 
 
+class TestComplianceRouter(unittest.TestCase):
+    """Verifies that the logical firewall correctly routes and logs decisions based on corporate rules."""
+
+    def setUp(self):
+        from core_nodes.compliance_router import ComplianceRouter
+        self.router = ComplianceRouter()
+
+    def test_compliant_payload(self):
+        """Verifies that fully compliant payloads are routed directly to the output layer."""
+        output = "Secured private operational payload: processed under the authority of the Private Governor."
+        dest = self.router.route_task_output("TEST-TASK-001", output)
+        self.assertEqual(dest, "OUTPUT_LAYER")
+
+    def test_em_dash_violation(self):
+        """Checks that outputs containing em-dashes fail verification and route to the Governor."""
+        output = "Processing task output \u2014 utilizing the default settings."
+        dest = self.router.route_task_output("TEST-TASK-002", output)
+        self.assertEqual(dest, "GOVERNOR")
+
+    def test_terminology_violation(self):
+        """Checks that prohibited high-level/global terms trigger fallback routing."""
+        output = "Deploying output to the global governor portal."
+        dest = self.router.route_task_output("TEST-TASK-003", output)
+        self.assertEqual(dest, "GOVERNOR")
+
+    def test_shareholder_distribution_violation(self):
+        """Ensures shareholder distributions must be designated as owner's draw allocations."""
+        # Failing case: mentions shareholder distribution but NOT owner's draw
+        output_fail = "Logging a shareholder distribution of $3,000.00."
+        dest_fail = self.router.route_task_output("TEST-TASK-004", output_fail)
+        self.assertEqual(dest_fail, "GOVERNOR")
+
+        # Passing case: mentions shareholder distribution designated as owner's draw
+        output_pass = "Logging a shareholder distribution tracked as an owner's draw allocation."
+        dest_pass = self.router.route_task_output("TEST-TASK-005", output_pass)
+        self.assertEqual(dest_pass, "OUTPUT_LAYER")
+
+    def test_cruise_capacity_violation(self):
+        """Ensures Norfolk Takeover Cruise stateroom capacity limit of 400 is not exceeded."""
+        output = "Norfolk Takeover Cruise schedule set: manifest capacity is 450 staterooms."
+        dest = self.router.route_task_output("TEST-TASK-006", output)
+        self.assertEqual(dest, "GOVERNOR")
+
+        # Verify structured metadata check
+        metadata = {"cruise_capacity": 401, "is_cruise_related": True}
+        dest_meta = self.router.route_task_output("TEST-TASK-007", "Norfolk Takeover Cruise update.", metadata)
+        self.assertEqual(dest_meta, "GOVERNOR")
+
+    def test_cruise_deposit_and_commission_violations(self):
+        """Checks base deposit is exactly $150 and non-refundable, and broker split is exactly $75."""
+        # Failing case: refundable deposit
+        output_fail1 = "Norfolk Cruise client deposit of $150.00 is fully refundable."
+        dest_fail1 = self.router.route_task_output("TEST-TASK-008", output_fail1)
+        self.assertEqual(dest_fail1, "GOVERNOR")
+
+        # Failing case: incorrect deposit amount
+        output_fail2 = "Norfolk Cruise non-refundable client deposit of $120.00."
+        dest_fail2 = self.router.route_task_output("TEST-TASK-009", output_fail2)
+        self.assertEqual(dest_fail2, "GOVERNOR")
+
+        # Failing case: incorrect broker commission split
+        output_fail3 = "Norfolk Cruise non-refundable deposit is $150.00: broker commission split is $80.00."
+        dest_fail3 = self.router.route_task_output("TEST-TASK-010", output_fail3)
+        self.assertEqual(dest_fail3, "GOVERNOR")
+
+        # Compliant cruise case
+        output_pass = "Norfolk Cruise non-refundable base client deposit: $150.00: broker commission split: $75.00: capacity: 380 souls."
+        dest_pass = self.router.route_task_output("TEST-TASK-011", output_pass)
+        self.assertEqual(dest_pass, "OUTPUT_LAYER")
+
+    def test_revenue_floor_violations(self):
+        """Validates that weekly revenue floor of $5,000 and daily operational yield of $714.28 are enforced."""
+        # Weekly revenue floor fail
+        metadata_week = {"weekly_revenue": 4500.00}
+        dest_week = self.router.route_task_output("TEST-TASK-012", "Weekly projection report", metadata_week)
+        self.assertEqual(dest_week, "GOVERNOR")
+
+        # Daily yield benchmark fail
+        metadata_daily = {"daily_yield": 700.00}
+        dest_daily = self.router.route_task_output("TEST-TASK-013", "Daily operational yield report", metadata_daily)
+        self.assertEqual(dest_daily, "GOVERNOR")
+
+        # Compliant benchmarks
+        metadata_ok = {"weekly_revenue": 5500.00, "daily_yield": 750.00}
+        dest_ok = self.router.route_task_output("TEST-TASK-014", "Operational report", metadata_ok)
+        self.assertEqual(dest_ok, "OUTPUT_LAYER")
+
+    def test_sqlite_memory_bank_logging(self):
+        """Confirms compliance decisions are correctly logged and isolated in the SQLite vaults."""
+        task_id = "TEST-CHOICE-ROUTING-LOG-99"
+        # Since it's choice related, it must go to the choice legacy database
+        output = "Choice Inc philanthropic allocation: Weekly revenue floor: $6,000.00: daily yield: $800.00."
+        dest = self.router.route_task_output(task_id, output)
+        self.assertEqual(dest, "OUTPUT_LAYER")
+
+        # Retrieve logged context from Memory Bank
+        records = self.router.memory_bank.retrieve_context({"task_id": task_id}, tenant="Choice Inc")
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["context_key"], f"COMPLIANCE_ROUTING_{task_id}")
+        self.assertEqual(records[0]["context_value"], "Status: APPROVED")
+        self.assertTrue(records[0]["metadata"]["is_compliant"])
+
+
 if __name__ == "__main__":
     unittest.main()
