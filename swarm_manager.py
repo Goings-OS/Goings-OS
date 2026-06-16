@@ -95,7 +95,7 @@ class Orchestrator:
     def execute_critic_compliance_check(self, output: str) -> tuple[bool, str]:
         """Validates output against absolute typographical and terminology rules."""
         # 1. Total and absolute prohibition of em-dashes
-        if "—" in output or "--" in output:
+        if "\u2014" in output or "--" in output:
             return False, "REJECTED: Em-dashes are strictly prohibited: utilize colons or semicolons instead."
         
         # 2. Terminology Mandate: Always use 'Private' and 'Private Governor'
@@ -111,8 +111,8 @@ class Orchestrator:
         """Simulates the Worker Gem correcting output based on Critic compliance feedback."""
         # Simulate clean, rule-compliant output correction
         refined = previous_output
-        if "—" in refined:
-            refined = refined.replace("—", ": ")
+        if "\u2014" in refined:
+            refined = refined.replace("\u2014", ": ")
         if "--" in refined:
             refined = refined.replace("--", ": ")
         
@@ -145,7 +145,7 @@ class Orchestrator:
         
         # Simulation: Worker produces initial raw output (which might contain compliance issues)
         # We will make the first output contain a compliance warning (an em-dash) to test the loop
-        initial_output = f"Executing task: {node.intent} — using the public governor configuration."
+        initial_output = f"Executing task: {node.intent} \u2014 using the public governor configuration."
         node.output = initial_output
         print(" -> Phase 2: Worker generated initial output.")
 

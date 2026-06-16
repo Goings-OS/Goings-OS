@@ -50,7 +50,7 @@ class TestSwarmManager(unittest.TestCase):
     def test_critic_compliance_checks(self):
         """Verifies that the Critic successfully identifies compliance guideline violations."""
         # Test em-dash rejection
-        ok, msg = self.orchestrator.execute_critic_compliance_check("Compliance payload — invalid.")
+        ok, msg = self.orchestrator.execute_critic_compliance_check("Compliance payload \u2014 invalid.")
         self.assertFalse(ok)
         self.assertIn("strictly prohibited", msg)
 
@@ -71,7 +71,7 @@ class TestSwarmManager(unittest.TestCase):
         self.assertEqual(result, "SUCCESS")
         self.assertEqual(node.status, "COMPLETED")
         self.assertGreaterEqual(node.refinement_count, 1)
-        self.assertNotIn("—", node.output)
+        self.assertNotIn("\u2014", node.output)
         self.assertNotIn("public governor", node.output)
         self.assertIn("Private Governor", node.output)
 
@@ -221,6 +221,53 @@ class TestSafeSandbox(unittest.TestCase):
         self.assertFalse(res["success"])
         self.assertEqual(res["status"], "TIMEOUT_EXCEEDED")
         self.assertIn("Timeout Exception", res["error"])
+
+
+class TestLiveStreamBridge(unittest.TestCase):
+    """Verifies low-latency media sessions: bidirectional packet streaming: and orchestrator bindings."""
+
+    def setUp(self):
+        from core_nodes.live_stream_bridge import LiveStreamBridge
+        from swarm_manager import Orchestrator
+        self.bridge = LiveStreamBridge()
+        self.orchestrator = Orchestrator()
+
+    def test_session_management(self):
+        """Validates socket allocation and clean termination behaviors."""
+        self.assertTrue(self.bridge.initialize_session("TEST-SESS-99"))
+        self.assertTrue(self.bridge.is_active)
+        self.assertEqual(self.bridge.session_id, "TEST-SESS-99")
+        
+        self.assertTrue(self.bridge.terminate_session())
+        self.assertFalse(self.bridge.is_active)
+        self.assertIsNone(self.bridge.session_id)
+
+    def test_bidirectional_audio_synthesis(self):
+        """Verifies low-latency Speech-to-Text parsing and Text-to-Speech outbound packet generation."""
+        self.bridge.initialize_session("TEST-SESS-99")
+        
+        # Test Inbound STT Conversion
+        command = self.bridge.stream_audio_inbound(b"\x00" * 123)
+        self.assertEqual(command, "Vocal Command: Sync Choice grant database")
+
+        # Test Outbound TTS conversion
+        audio_packet = self.bridge.stream_audio_outbound("Cognitive validation complete.")
+        self.assertIsNotNone(audio_packet)
+        self.assertEqual(audio_packet, "Cognitive validation complete.".encode("utf-8"))
+
+    def test_orchestrator_binding(self):
+        """Validates that incoming voice streams successfully trigger Swarm Manager pipelines."""
+        self.bridge.initialize_session("TEST-SESS-99")
+        self.bridge.bind_to_swarm_orchestrator(self.orchestrator)
+        
+        # Ingesting command should trigger tasks in swarm
+        # First check that task queue is empty
+        self.orchestrator.task_queue.clear()
+        
+        self.bridge.stream_audio_inbound(b"\x00" * 123)
+        self.assertEqual(len(self.orchestrator.task_queue), 1)
+        self.assertEqual(self.orchestrator.task_queue[0].intent, "Vocal Command: Sync Choice grant database")
+        self.assertEqual(self.orchestrator.task_queue[0].status, "COMPLETED")
 
 
 if __name__ == "__main__":
