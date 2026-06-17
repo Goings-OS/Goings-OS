@@ -153,6 +153,7 @@ class Orchestrator:
             # 10. event_automation
             current_node = "event_automation"
             self.event_engine = EventAutomationEngine(self.root_dir)
+            self.event_engine.register_event_listener("voice_ingest", self.handle_voice_event)
             print(" -> [10/10] EventAutomationEngine initialized successfully")
 
             # Register all engines in HealthMonitor for heartbeat checking
@@ -208,6 +209,13 @@ class Orchestrator:
             "compliance_router", "negotiator_node", "semantic_cataloger",
             "self_healing", "off_grid_protocol", "event_automation"
         ]
+
+    def handle_voice_event(self, payload: dict):
+        """Processes voice command events and logs them through Event Automation."""
+        intent = payload.get("intent", "Execute standard routine")
+        print(f" -> [ORCHESTRATOR CALLBACK] Voice command event processed: '{intent}'")
+        # Log to API handler console logs
+        OrchestratorAPIHandler.add_log(f"Event Automation: Handled voice intent: '{intent}'")
 
     def _initialize_vault_tables(self):
         """Forces WAL mode and initializes task monitoring telemetry tables."""
@@ -532,6 +540,32 @@ class OrchestratorAPIHandler(BaseHTTPRequestHandler):
                     self.orchestrator_instance.initialize_swarm()
 
                 mode = data.get("mode", "default")
+                
+                # Check for simulated fail trigger
+                if mode == "fail":
+                    self.add_log("Voice connection sync failure simulated! Triggering self-healing health check...")
+                    # Age the last_contact timestamp of live_stream_bridge to trigger failure
+                    self.orchestrator_instance.health_monitor.nodes["live_stream_bridge"]["last_contact"] -= 10.0
+                    
+                    # Run health check & recovery via self_healing
+                    recovered = self.orchestrator_instance.health_monitor.recover_node("live_stream_bridge")
+                    
+                    if recovered:
+                        self.add_log("Live Stream Bridge re-instantiated via self-healing recovery.")
+                        # Re-initialize the bridge session
+                        self.orchestrator_instance.live_bridge.initialize_session(f"WEB-{int(time.time())}")
+                        status_str = "RECOVERED"
+                    else:
+                        status_str = "FAILED"
+                        
+                    self._set_headers(200)
+                    self.wfile.write(json.dumps({
+                        "intent": "Voice Sync Failure: Self-Healing Active",
+                        "response_text": "WebRTC bridge socket healed and re-instantiated cleanly.",
+                        "bridge_status": status_str
+                    }).encode("utf-8"))
+                    return
+
                 self.add_log(f"Simulating Voice Ingest: mode {mode}")
                 
                 # Check active Live Stream Bridge session

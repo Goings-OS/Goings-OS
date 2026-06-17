@@ -63,6 +63,11 @@ class LiveStreamBridge:
             node = self.orchestrator.add_task(task_id, vocal_intent)
             self.orchestrator.process_task_execution_loop(node)
             
+            # Connect to Event Automation listener
+            if hasattr(self.orchestrator, "event_engine") and self.orchestrator.event_engine:
+                tenant = "Choice Inc" if "choice" in vocal_intent.lower() else "Goings OS"
+                self.orchestrator.event_engine.trigger_cascade("voice_ingest", {"intent": vocal_intent}, tenant=tenant)
+            
         return vocal_intent
 
     def stream_audio_outbound(self, response_text: str) -> bytes:
