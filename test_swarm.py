@@ -894,5 +894,48 @@ class TestMasterOrchestratorLink(unittest.TestCase):
         self.assertIn("Heartbeat responsiveness failure", rows[0][1])
 
 
+class TestGoogleEcosystemGateway(unittest.TestCase):
+    """Verifies credentials oauth handshakes, dynamic service maps, and exception trapping inside GoogleGateway."""
+
+    def setUp(self):
+        from core_nodes.api_integrator import UnifiedAPIConnector
+        self.connector = UnifiedAPIConnector()
+
+    def test_gateway_authentication_handshake(self):
+        """Verifies successful loading of Google credentials files and token generation."""
+        gateway = self.connector.gateway
+        success = gateway.authenticate()
+        self.assertTrue(success)
+        self.assertIsNotNone(gateway.auth_token)
+        self.assertTrue(gateway.authenticated)
+
+    def test_workspace_handshake_service_mapping(self):
+        """Checks status outputs across mapped Workspace services."""
+        statuses = self.connector.execute_workspace_handshake()
+        
+        # Verify all 5 mapped services are CONNECTED in fallback dev mode
+        self.assertEqual(len(statuses), 5)
+        for svc_id in ["google_calendar", "google_drive_sheets", "google_gmail", "google_vertex_ai", "google_bigquery"]:
+            self.assertEqual(statuses[svc_id], "CONNECTED")
+
+        # Verify statuses persist in memory cache
+        cached_statuses = self.connector.get_connector_status()
+        self.assertEqual(cached_statuses, statuses)
+
+    def test_handshake_sqlite_persistence(self):
+        """Verifies correct storage of handshake statuses inside relational vaults."""
+        self.connector.execute_workspace_handshake()
+        
+        # Query persistent memory bank database
+        import sqlite3
+        conn = sqlite3.connect(self.connector.memory_bank.db_path)
+        rows = conn.execute("SELECT context_key, context_value FROM session_memory_cache WHERE context_key LIKE 'GOOGLE_SVC_CONN_%'").fetchall()
+        conn.close()
+        
+        self.assertEqual(len(rows), 5)
+        for key, value in rows:
+            self.assertIn("Status: CONNECTED", value)
+
+
 if __name__ == "__main__":
     unittest.main()
