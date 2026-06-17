@@ -900,6 +900,12 @@ class TestGoogleEcosystemGateway(unittest.TestCase):
     def setUp(self):
         from core_nodes.api_integrator import UnifiedAPIConnector
         self.connector = UnifiedAPIConnector()
+        # Clean up database records from previous runs
+        import sqlite3
+        conn = sqlite3.connect(self.connector.memory_bank.db_path)
+        conn.execute("DELETE FROM session_memory_cache WHERE context_key LIKE 'GOOGLE_SVC_CONN_%'")
+        conn.commit()
+        conn.close()
 
     def test_gateway_authentication_handshake(self):
         """Verifies successful loading of Google credentials files and token generation."""

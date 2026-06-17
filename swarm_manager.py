@@ -100,91 +100,114 @@ class Orchestrator:
         except sqlite3.Error as err:
             sys.stderr.write(f"Error log insert failure: {str(err)}\n")
 
+    def execute_self_heal(self, node_id: str) -> bool:
+        """Inspects the local directory tree, auto-corrects path alignment, and heals stalled node loading."""
+        print(f" 🛠️ [SELF HEAL] Triggered path alignment audit for stalled node: '{node_id}'")
+        
+        # Log to initialization error log
+        self.log_initialization_error(node_id, "Import or module load failure: executing self-heal recovery")
+        
+        # Dynamic inspection of directory tree
+        try:
+            core_nodes_dir = os.path.join(self.root_dir, "core_nodes")
+            if not os.path.exists(core_nodes_dir):
+                print(" 🛠️ [SELF HEAL] Warning: core_nodes folder not found: attempting to realign root dir paths")
+                # Attempt to align path by setting GOINGS_OS_ROOT environment variable or adding to sys.path
+                if os.path.exists(os.path.join(os.path.dirname(self.root_dir), "core_nodes")):
+                    self.root_dir = os.path.dirname(self.root_dir)
+                    os.environ["GOINGS_OS_ROOT"] = self.root_dir
+                    print(f" 🛠️ [SELF HEAL] Path aligned: root folder set to: '{self.root_dir}'")
+            
+            # Ensure root directory and core_nodes directory are in sys.path
+            if self.root_dir not in sys.path:
+                sys.path.insert(0, self.root_dir)
+            if core_nodes_dir not in sys.path:
+                sys.path.insert(0, core_nodes_dir)
+                
+            print(f" 🛠️ [SELF HEAL] Auto-corrected path alignment: sys.path verified: restarting node '{node_id}'")
+            return True
+        except Exception as err:
+            sys.stderr.write(f" 🛠️ [SELF HEAL] Error during path alignment audit: {str(err)}\n")
+            return False
+
     def initialize_swarm(self) -> bool:
         """Starts all 10 core Swarm nodes in dependency order, logging any startup failures."""
         print("\n🏛️ [ORCHESTRATOR] Initializing Master Swarm components in dependency order...")
-        current_node = "memory_bank"
-        try:
-            # 1. memory_bank
-            current_node = "memory_bank"
-            self.memory_bank = PersistentMemoryBank(db_path=self.db_path)
-            # Verify database accessibility to ensure initialization issues propagate
-            with sqlite3.connect(self.db_path) as conn:
-                conn.execute("SELECT 1")
-            print(" -> [1/10] PersistentMemoryBank initialized successfully")
-
-            # 2. agent_security
-            current_node = "agent_security"
-            self.security_manager = GemIdentityManager()
-            print(" -> [2/10] GemIdentityManager initialized successfully")
-
-            # 3. sandbox_exec
-            current_node = "sandbox_exec"
-            self.sandbox = SafeSandbox()
-            print(" -> [3/10] SafeSandbox initialized successfully")
-
-            # 4. live_stream_bridge
-            current_node = "live_stream_bridge"
-            self.live_bridge = LiveStreamBridge()
-            self.live_bridge.bind_to_swarm_orchestrator(self)
-            print(" -> [4/10] LiveStreamBridge initialized successfully")
-
-            # 5. compliance_router
-            current_node = "compliance_router"
-            self.compliance_router = ComplianceRouter(self.memory_bank)
-            print(" -> [5/10] ComplianceRouter initialized successfully")
-
-            # 6. negotiator_node
-            current_node = "negotiator_node"
-            self.negotiator = NegotiatorNode(self.memory_bank)
-            print(" -> [6/10] NegotiatorNode initialized successfully")
-
-            # 7. semantic_cataloger
-            current_node = "semantic_cataloger"
-            self.semantic_cataloger = SemanticCataloger()
-            print(" -> [7/10] SemanticCataloger initialized successfully")
-
-            # 8. self_healing
-            current_node = "self_healing"
-            self.health_monitor = HealthMonitor(self.memory_bank)
-            print(" -> [8/10] HealthMonitor initialized successfully")
-
-            # 9. off_grid_protocol
-            current_node = "off_grid_protocol"
-            self.off_grid = OffGridController(self.root_dir)
-            print(" -> [9/10] OffGridController initialized successfully")
-
-            # 10. event_automation
-            current_node = "event_automation"
-            self.event_engine = EventAutomationEngine(self.root_dir)
-            self.event_engine.register_event_listener("voice_ingest", self.handle_voice_event)
-            print(" -> [10/10] EventAutomationEngine initialized successfully")
-
-            # 11. Google API Connector
-            current_node = "api_integrator"
-            self.google_connector = UnifiedAPIConnector(self.memory_bank)
-            self.google_connector.execute_workspace_handshake()
-            print(" -> [GOOGLE GATEWAY] UnifiedAPIConnector initialized and workspace handshake complete")
-
-            # Register all engines in HealthMonitor for heartbeat checking
-            for engine_id in self.nodes_to_monitor():
-                self.health_monitor.register_node(engine_id, tenant="Goings OS")
-
-            print("🏛️ [ORCHESTRATOR] Swarm initialization sequence finalized: VAULT IS SECURE.")
-            return True
-
-        except Exception as err:
-            failed_id = current_node
-            err_msg = str(err)
-            sys.stderr.write(f"❌ Swarm initialization error for '{failed_id}': {err_msg}\n")
-            self.log_initialization_error(failed_id, err_msg)
-            
-            if self.health_monitor:
+        
+        nodes_initialization = [
+            ("memory_bank", lambda: PersistentMemoryBank(db_path=self.db_path)),
+            ("agent_security", lambda: GemIdentityManager()),
+            ("sandbox_exec", lambda: SafeSandbox()),
+            ("live_stream_bridge", lambda: LiveStreamBridge()),
+            ("compliance_router", lambda: ComplianceRouter(self.memory_bank)),
+            ("negotiator_node", lambda: NegotiatorNode(self.memory_bank)),
+            ("semantic_cataloger", lambda: SemanticCataloger()),
+            ("self_healing", lambda: HealthMonitor(self.memory_bank)),
+            ("off_grid_protocol", lambda: OffGridController(self.root_dir)),
+            ("event_automation", lambda: EventAutomationEngine(self.root_dir)),
+            ("api_integrator", lambda: UnifiedAPIConnector(self.memory_bank))
+        ]
+        
+        for index, (node_id, init_func) in enumerate(nodes_initialization, 1):
+            retry_count = 0
+            while retry_count < 2:
                 try:
-                    self.health_monitor.recover_node(failed_id)
-                except Exception:
-                    pass
-            return False
+                    if node_id == "memory_bank":
+                        self.memory_bank = init_func()
+                        # Verify database accessibility to ensure initialization issues propagate
+                        with sqlite3.connect(self.db_path) as conn:
+                            conn.execute("SELECT 1")
+                    elif node_id == "agent_security":
+                        self.security_manager = init_func()
+                    elif node_id == "sandbox_exec":
+                        self.sandbox = init_func()
+                    elif node_id == "live_stream_bridge":
+                        self.live_bridge = init_func()
+                        self.live_bridge.bind_to_swarm_orchestrator(self)
+                    elif node_id == "compliance_router":
+                        self.compliance_router = init_func()
+                    elif node_id == "negotiator_node":
+                        self.negotiator = init_func()
+                    elif node_id == "semantic_cataloger":
+                        self.semantic_cataloger = init_func()
+                    elif node_id == "self_healing":
+                        self.health_monitor = init_func()
+                    elif node_id == "off_grid_protocol":
+                        self.off_grid = init_func()
+                    elif node_id == "event_automation":
+                        self.event_engine = init_func()
+                        self.event_engine.register_event_listener("voice_ingest", self.handle_voice_event)
+                    elif node_id == "api_integrator":
+                        self.google_connector = init_func()
+                        self.google_connector.execute_workspace_handshake()
+                    
+                    if node_id == "api_integrator":
+                        print(" -> [GOOGLE GATEWAY] UnifiedAPIConnector initialized and workspace handshake complete")
+                    else:
+                        print(f" -> [{index}/10] {node_id.replace('_', ' ').title()} initialized successfully")
+                    break
+                except (ModuleNotFoundError, ImportError) as err:
+                    retry_count += 1
+                    print(f" ⚠️ [LOAD ERROR] Import fault detected for '{node_id}': {str(err)}")
+                    self.execute_self_heal(node_id)
+                except Exception as err:
+                    failed_id = node_id
+                    err_msg = str(err)
+                    sys.stderr.write(f"❌ Swarm initialization error for '{failed_id}': {err_msg}\n")
+                    self.log_initialization_error(failed_id, err_msg)
+                    if self.health_monitor:
+                        try:
+                            self.health_monitor.recover_node(failed_id)
+                        except Exception:
+                            pass
+                    return False
+        
+        # Register all engines in HealthMonitor for heartbeat checking
+        for engine_id in self.nodes_to_monitor():
+            self.health_monitor.register_node(engine_id, tenant="Goings OS")
+
+        print("🏛️ [ORCHESTRATOR] Swarm initialization sequence finalized: VAULT IS SECURE.")
+        return True
 
     def check_swarm_heartbeat(self) -> dict:
         """Central heartbeat monitor checking responsiveness across all 10 core engines."""
