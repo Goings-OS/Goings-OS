@@ -87,6 +87,14 @@ class LiveStreamBridge:
         print(f" -> Outbound stream: Synthesized vocal audio response: Length {len(audio_payload)} bytes")
         print(f" -> TTS Latency: Synthesized in {total_latency_ms:.2f} milliseconds")
         
+        # Pipe the Swarm Manager execution confirmation message to vocal output
+        try:
+            from core_nodes.vocal_output import VocalResponse
+            vocal_synth = VocalResponse()
+            vocal_synth.speak(response_text)
+        except Exception as err:
+            sys.stderr.write(f" -> Vocal Output Pipe Failure: {str(err)}\n")
+            
         return bytes(audio_payload)
 
     def terminate_session(self) -> bool:
