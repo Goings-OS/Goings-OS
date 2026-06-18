@@ -2398,3 +2398,67 @@
 [2026-06-18 04:08:28 UTC] Simulated upload: Table: classroom_student_telemetry: rows synced: 3
 [2026-06-18 04:08:28 UTC] Simulated upload: Metric: Migration Health Status: HEALTHY
 [2026-06-18 04:08:28 UTC] Sync confirmation logged successfully under local fallback protocols
+[2026-06-18 04:09:28 UTC] Initializing Looker Studio Cloud Bridge synchronization cycle
+[2026-06-18 04:09:28 UTC] Migration Health Status: HEALTHY (Integrity Pass: True, Schema Drift: False)
+[2026-06-18 04:09:28 UTC] Extraction complete: retrieved 3 owners draw records and 3 student telemetry records
+[2026-06-18 04:09:28 UTC] Native Google BigQuery SDK not loaded: executing local fallback simulation
+[2026-06-18 04:09:28 UTC] Simulated upload: Table: owners_draw_allocations: rows synced: 3
+[2026-06-18 04:09:28 UTC] Simulated upload: Table: classroom_student_telemetry: rows synced: 3
+[2026-06-18 04:09:28 UTC] Simulated upload: Metric: Migration Health Status: HEALTHY
+[2026-06-18 04:09:28 UTC] Sync confirmation logged successfully under local fallback protocols
+[2026-06-18 04:10:28 UTC] Initializing Looker Studio Cloud Bridge synchronization cycle
+[2026-06-18 04:10:28 UTC] Migration Health Status: HEALTHY (Integrity Pass: True, Schema Drift: False)
+[2026-06-18 04:10:28 UTC] Extraction complete: retrieved 3 owners draw records and 3 student telemetry records
+[2026-06-18 04:10:28 UTC] Native Google BigQuery SDK not loaded: executing local fallback simulation
+[2026-06-18 04:10:28 UTC] Simulated upload: Table: owners_draw_allocations: rows synced: 3
+[2026-06-18 04:10:28 UTC] Simulated upload: Table: classroom_student_telemetry: rows synced: 3
+[2026-06-18 04:10:28 UTC] Simulated upload: Metric: Migration Health Status: HEALTHY
+[2026-06-18 04:10:28 UTC] Sync confirmation logged successfully under local fallback protocols
+[2026-06-18 04:11:28 UTC] Initializing Looker Studio Cloud Bridge synchronization cycle
+[2026-06-18 04:11:28 UTC] Migration Health Status: HEALTHY (Integrity Pass: True, Schema Drift: False)
+[2026-06-18 04:11:28 UTC] Extraction complete: retrieved 3 owners draw records and 3 student telemetry records
+[2026-06-18 04:11:28 UTC] Native Google BigQuery SDK not loaded: executing local fallback simulation
+[2026-06-18 04:11:28 UTC] Simulated upload: Table: owners_draw_allocations: rows synced: 3
+[2026-06-18 04:11:28 UTC] Simulated upload: Table: classroom_student_telemetry: rows synced: 3
+[2026-06-18 04:11:28 UTC] Simulated upload: Metric: Migration Health Status: HEALTHY
+[2026-06-18 04:11:28 UTC] Sync confirmation logged successfully under local fallback protocols
+[2026-06-18 04:12:28 UTC] Initializing Looker Studio Cloud Bridge synchronization cycle
+[2026-06-18 04:12:28 UTC] Migration Health Status: HEALTHY (Integrity Pass: True, Schema Drift: False)
+[2026-06-18 04:12:28 UTC] Extraction complete: retrieved 3 owners draw records and 3 student telemetry records
+[2026-06-18 04:12:28 UTC] Native Google BigQuery SDK not loaded: executing local fallback simulation
+[2026-06-18 04:12:28 UTC] Simulated upload: Table: owners_draw_allocations: rows synced: 3
+[2026-06-18 04:12:28 UTC] Simulated upload: Table: classroom_student_telemetry: rows synced: 3
+[2026-06-18 04:12:28 UTC] Simulated upload: Metric: Migration Health Status: HEALTHY
+[2026-06-18 04:12:28 UTC] Sync confirmation logged successfully under local fallback protocols
+[2026-06-18 04:13:28 UTC] Initializing Looker Studio Cloud Bridge synchronization cycle
+[2026-06-18 04:13:28 UTC] Migration Health Status: HEALTHY (Integrity Pass: True, Schema Drift: False)
+[2026-06-18 04:13:28 UTC] Extraction complete: retrieved 3 owners draw records and 3 student telemetry records
+[2026-06-18 04:13:28 UTC] Native Google BigQuery SDK not loaded: executing local fallback simulation
+[2026-06-18 04:13:28 UTC] Simulated upload: Table: owners_draw_allocations: rows synced: 3
+[2026-06-18 04:13:28 UTC] Simulated upload: Table: classroom_student_telemetry: rows synced: 3
+[2026-06-18 04:13:28 UTC] Simulated upload: Metric: Migration Health Status: HEALTHY
+[2026-06-18 04:13:28 UTC] Sync confirmation logged successfully under local fallback protocols
+[2026-06-18 04:14:28 UTC] Initializing Looker Studio Cloud Bridge synchronization cycle
+[2026-06-18 04:14:28 UTC] Migration Health Status: HEALTHY (Integrity Pass: True, Schema Drift: False)
+[2026-06-18 04:14:28 UTC] Extraction complete: retrieved 3 owners draw records and 3 student telemetry records
+[2026-06-18 04:14:28 UTC] Native Google BigQuery SDK not loaded: executing local fallback simulation
+[2026-06-18 04:14:28 UTC] Simulated upload: Table: owners_draw_allocations: rows synced: 3
+[2026-06-18 04:14:28 UTC] Simulated upload: Table: classroom_student_telemetry: rows synced: 3
+[2026-06-18 04:14:28 UTC] Simulated upload: Metric: Migration Health Status: HEALTHY
+[2026-06-18 04:14:28 UTC] Sync confirmation logged successfully under local fallback protocols
+[2026-06-18 07:35:11 UTC] Initializing Looker Studio Cloud Bridge synchronization cycle
+[2026-06-18 07:35:11 UTC] Migration Health Status: HEALTHY (Integrity Pass: True, Schema Drift: False)
+[2026-06-18 07:35:11 UTC] Extraction complete: retrieved 3 owners draw records and 3 student telemetry records
+[2026-06-18 07:35:11 UTC] Native Google BigQuery SDK not loaded: executing local fallback simulation
+[2026-06-18 07:35:11 UTC] Simulated upload: Table: owners_draw_allocations: rows synced: 3
+[2026-06-18 07:35:11 UTC] Simulated upload: Table: classroom_student_telemetry: rows synced: 3
+[2026-06-18 07:35:11 UTC] Simulated upload: Metric: Migration Health Status: HEALTHY
+[2026-06-18 07:35:11 UTC] Sync confirmation logged successfully under local fallback protocols
+[2026-06-18 14:47:49 UTC] Initializing Looker Studio Cloud Bridge synchronization cycle
+[2026-06-18 14:47:49 UTC] Migration Health Status: HEALTHY (Integrity Pass: True, Schema Drift: False)
+[2026-06-18 14:47:49 UTC] Extraction complete: retrieved 3 owners draw records and 3 student telemetry records
+[2026-06-18 14:47:49 UTC] Native Google BigQuery SDK not loaded: executing local fallback simulation
+[2026-06-18 14:47:49 UTC] Simulated upload: Table: owners_draw_allocations: rows synced: 3
+[2026-06-18 14:47:49 UTC] Simulated upload: Table: classroom_student_telemetry: rows synced: 3
+[2026-06-18 14:47:49 UTC] Simulated upload: Metric: Migration Health Status: HEALTHY
+[2026-06-18 14:47:49 UTC] Sync confirmation logged successfully under local fallback protocols
