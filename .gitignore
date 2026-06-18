@@ -9,3 +9,9 @@ build/
 !looker_bridge.log
 
 vite-monorepo/
+# Google OAuth Security Rules
+client_secret.json
+core_nodes/node_16_media_orchestrator/token.json
+__pycache__/
+*.pyc
+.venv/
