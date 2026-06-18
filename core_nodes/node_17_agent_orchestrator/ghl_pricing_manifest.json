@@ -1,0 +1,19 @@
+{
+  "integration_source": "GoHighLevel_Product_API",
+  "currency": "USD",
+  "billing_cycle": "Monthly",
+  "tiers": [
+    {
+      "package_id": "ghl_tier_01_core",
+      "package_name": "Goings-OS Core Infrastructure",
+      "price": 297.00,
+      "features": ["9 Gems Private Kernel Engine", "Local Context Grounding", "Secure Git Sync Storage"]
+    },
+    {
+      "package_id": "ghl_tier_02_enterprise",
+      "package_name": "Private Kernel Matrix Tier",
+      "price": 497.00,
+      "features": ["All Core Features", "Dynamic Subagent Context Isolation", "Live A2UI Visual Presentation Modules"]
+    }
+  ]
+}
