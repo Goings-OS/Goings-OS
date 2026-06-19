@@ -1,0 +1,9 @@
+[submodule "workspace_bridges/arsenal/30-days-of-python"]
+	path = workspace_bridges/arsenal/30-days-of-python
+	url = https://github.com/Asabeneh/30-Days-of-Python.git
+[submodule "workspace_bridges/arsenal/project-based-learning"]
+	path = workspace_bridges/arsenal/project-based-learning
+	url = https://github.com/practical-tutorials/project-based-learning.git
+[submodule "workspace_bridges/arsenal/build-your-own-x"]
+	path = workspace_bridges/arsenal/build-your-own-x
+	url = https://github.com/codecrafters-io/build-your-own-x.git
