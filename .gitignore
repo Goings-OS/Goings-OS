@@ -1,17 +1,6 @@
-node_modules/
-.env
-.env.local
-dist/
-build/
-.next/
-*.log
-!mutation_history.log
-!looker_bridge.log
-
-vite-monorepo/
-# Google OAuth Security Rules
-client_secret.json
-core_nodes/node_16_media_orchestrator/token.json
-__pycache__/
-*.pyc
+application_default_credentials.json
+goings_os_vault.db
+error_log.db
+*.env
 .venv/
+__pycache__/

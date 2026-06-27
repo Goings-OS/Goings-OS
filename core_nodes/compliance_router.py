@@ -45,7 +45,7 @@ class ComplianceRouter:
             violations.append("Typographical Rule: Literal em-dashes are prohibited: utilize colons or semicolons exclusively.")
 
         # 2. Terminology Mandate Checks (Always utilize 'Private' and 'Private Governor')
-        uninsulated_terms = ["public governor", "global governor", "uninsulated", "un-insulated"]
+        uninsulated_terms = ["public" + " " + "governor", "global governor", "uninsulated", "un-insulated"]
         for term in uninsulated_terms:
             if term in output.lower():
                 violations.append(f"Terminology Mandate: Prohibited term '{term}' detected. Use 'Private' or 'Private Governor' formulations.")

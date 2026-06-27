@@ -1,4 +1,10 @@
 {
-    "google.cloud.project": "goings-os-command",
-    "google.cloud.billingQuotaProject": "goings-os-command"
+    "java.configuration.runtimes":  [
+                                        {
+                                            "path":  "C:\\\\Google\\\\CloudSDK\\\\Goings-OS\\\\infra_tools\\\\jdk-21",
+                                            "default":  true,
+                                            "name":  "JavaSE-21"
+                                        }
+                                    ],
+    "java.jdt.ls.java.home":  "C:\\\\Google\\\\CloudSDK\\\\Goings-OS\\\\infra_tools\\\\jdk-21"
 }
