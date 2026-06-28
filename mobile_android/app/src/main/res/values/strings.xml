@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Goings OS Core</string>
+    
+    <!-- Keep It Goings Consulting : Credit and Forensic Auditing -->
+    <string name="domain_kig">https://keepitgoings.com</string>
+    <string name="phone_kig">757-500-0711</string>
+    
+    <!-- Luxury Affairs Event Center : Logistics and the nightlife Hub -->
+    <string name="domain_laec">https://luxuryaffairseventcenter.com</string>
+    <string name="phone_laec">757-330-3633</string>
+    
+    <!-- Norfolk Takeover Cruise Tracks -->
+    <string name="domain_cruise">https://norfolktakeovercruise.com</string>
+    <string name="phone_cruise">757-530-5355</string>
+    
+    <!-- Tanita Talks Business : Executive Advisory Channel -->
+    <string name="domain_tanita">https://tanitatalksbusiness.com</string>
+    
+    <!-- CHOICE Inc. : Humanitarian Compliance Matrix -->
+    <string name="domain_choice">https://choiceincva.org</string>
+</resources>
