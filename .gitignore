@@ -4,3 +4,5 @@ error_log.db
 *.env
 .venv/
 __pycache__/
+# Added by code-review-graph
+.code-review-graph/
