@@ -171,11 +171,11 @@ scanning cannot.
 
 ### When to use graph tools FIRST
 
-- **Exploring code**: `semantic_search_nodes` or `query_graph` instead of Grep
-- **Understanding impact**: `get_impact_radius` instead of manually tracing imports
-- **Code review**: `detect_changes` + `get_review_context` instead of reading entire files
-- **Finding relationships**: `query_graph` with callers_of/callees_of/imports_of/tests_for
-- **Architecture questions**: `get_architecture_overview` + `list_communities`
+* **Exploring code**: `semantic_search_nodes` or `query_graph` instead of Grep
+* **Understanding impact**: `get_impact_radius` instead of manually tracing imports
+* **Code review**: `detect_changes` + `get_review_context` instead of reading entire files
+* **Finding relationships**: `query_graph` with callers_of/callees_of/imports_of/tests_for
+* **Architecture questions**: `get_architecture_overview` + `list_communities`
 
 Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
 
