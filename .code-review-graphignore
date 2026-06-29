@@ -1,0 +1,8 @@
+# code-review-graph ignore file
+# Exclude folders and patterns from the knowledge graph
+
+node_modules/
+.venv/
+venv/
+vite-monorepo/
+OpenMontage/
