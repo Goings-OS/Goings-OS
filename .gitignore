@@ -7,3 +7,5 @@ __pycache__/
 # Added by code-review-graph
 .code-review-graph/
 data/
+core_nodes/node_04_courier/ghl_ingress_ledger.json
+core_nodes/node_04_courier/off_grid_fifo_queue.json
