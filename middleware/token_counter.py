@@ -67,9 +67,12 @@ class TokenCounterMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         process_time = time.time() - start_time
 
-        response_body = b""
-        async for chunk in response.body_iterator:
-            response_body += chunk
+        if hasattr(response, "body_iterator"):
+            response_body = b""
+            async for chunk in response.body_iterator:
+                response_body += chunk
+        else:
+            response_body = getattr(response, "body", b"")
 
         response = Response(
             content=response_body,
