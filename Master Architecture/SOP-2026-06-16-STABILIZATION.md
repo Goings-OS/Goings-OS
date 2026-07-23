@@ -21,6 +21,7 @@ All agents, teams, and representative nodes must align operational outcomes to t
 * **Daily Operational Yield Benchmark:** Minimum daily target fixed at $714.28.
 * **Financial Output Formulations:** All commercial shareholder distributions must be logged and reported as owner's draw allocations exclusively. CHOICE Inc. records must remain isolated as non-commercial philanthropic legacy blocks.
 * **Typographical Compliance Rule:** Total and absolute prohibition of em-dashes or double-hyphens across all workspace records, logs, and outputs. Colons or semicolons must be utilized.
+* **Static Type Compliance Rule:** Mandatory static type checking must be performed on all codebase modifications: ensuring clean Pyright/mypy compile logs before integration.
 
 ---
 

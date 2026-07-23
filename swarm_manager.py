@@ -322,32 +322,32 @@ class Orchestrator:
             while retry_count < 2:
                 try:
                     if node_id == "memory_bank":
-                        self.memory_bank = init_func()
+                        self.memory_bank = init_func()  # type: ignore
                         # Verify database accessibility to ensure initialization issues propagate
                         with sqlite3.connect(self.db_path) as conn:
                             conn.execute("SELECT 1")
                     elif node_id == "agent_security":
-                        self.security_manager = init_func()
+                        self.security_manager = init_func()  # type: ignore
                     elif node_id == "sandbox_exec":
-                        self.sandbox = init_func()
+                        self.sandbox = init_func()  # type: ignore
                     elif node_id == "live_stream_bridge":
-                        self.live_bridge = init_func()
+                        self.live_bridge = init_func()  # type: ignore
                         self.live_bridge.bind_to_swarm_orchestrator(self)
                     elif node_id == "compliance_router":
-                        self.compliance_router = init_func()
+                        self.compliance_router = init_func()  # type: ignore
                     elif node_id == "negotiator_node":
-                        self.negotiator = init_func()
+                        self.negotiator = init_func()  # type: ignore
                     elif node_id == "semantic_cataloger":
-                        self.semantic_cataloger = init_func()
+                        self.semantic_cataloger = init_func()  # type: ignore
                     elif node_id == "self_healing":
-                        self.health_monitor = init_func()
+                        self.health_monitor = init_func()  # type: ignore
                     elif node_id == "off_grid_protocol":
-                        self.off_grid = init_func()
+                        self.off_grid = init_func()  # type: ignore
                     elif node_id == "event_automation":
-                        self.event_engine = init_func()
+                        self.event_engine = init_func()  # type: ignore
                         self.event_engine.register_event_listener("voice_ingest", self.handle_voice_event)
                     elif node_id == "api_integrator":
-                        self.google_connector = init_func()
+                        self.google_connector = init_func()  # type: ignore
                         self.google_connector.execute_workspace_handshake()
                     
                     if node_id == "api_integrator":
@@ -364,7 +364,7 @@ class Orchestrator:
                     err_msg = str(err)
                     sys.stderr.write(f"❌ Swarm initialization error for '{failed_id}': {err_msg}\n")
                     self.log_initialization_error(failed_id, err_msg)
-                    if self.health_monitor:
+                    if self.health_monitor is not None:
                         try:
                             self.health_monitor.recover_node(failed_id)
                         except Exception:
@@ -627,7 +627,7 @@ class Orchestrator:
 
 class OrchestratorAPIHandler(BaseHTTPRequestHandler):
     """Processes HTTP requests from the web interface, exposing Swarm state and records."""
-    orchestrator_instance = None
+    orchestrator_instance: Orchestrator = None  # type: ignore
     log_messages = []
 
     @classmethod
@@ -652,7 +652,7 @@ class OrchestratorAPIHandler(BaseHTTPRequestHandler):
         if self.path == "/api/google/status":
             try:
                 if self.orchestrator_instance.google_connector is None:
-                    self.orchestrator_instance.google_connector = UnifiedAPIConnector(self.orchestrator_instance.memory_bank)
+                    self.orchestrator_instance.google_connector = UnifiedAPIConnector(self.orchestrator_instance.memory_bank)  # type: ignore
                     self.orchestrator_instance.google_connector.execute_workspace_handshake()
                 
                 status_data = self.orchestrator_instance.google_connector.get_connector_status()
@@ -820,7 +820,7 @@ class OrchestratorAPIHandler(BaseHTTPRequestHandler):
         if self.path == "/api/google/handshake":
             try:
                 if self.orchestrator_instance.google_connector is None:
-                    self.orchestrator_instance.google_connector = UnifiedAPIConnector(self.orchestrator_instance.memory_bank)
+                    self.orchestrator_instance.google_connector = UnifiedAPIConnector(self.orchestrator_instance.memory_bank)  # type: ignore
                 
                 status_data = self.orchestrator_instance.google_connector.execute_workspace_handshake()
                 self._set_headers(200)

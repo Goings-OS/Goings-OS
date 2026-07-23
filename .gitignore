@@ -3,6 +3,7 @@ goings_os_vault.db
 error_log.db
 *.env
 .venv/
+venv/
 __pycache__/
 # Added by code-review-graph
 .code-review-graph/

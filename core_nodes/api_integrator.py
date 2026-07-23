@@ -9,6 +9,7 @@ import sys
 import json
 import time
 import sqlite3
+import typing
 
 # Ensure parent directory is in sys.path when running directly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -18,8 +19,8 @@ from core_nodes.memory_bank import PersistentMemoryBank
 # Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
 if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
+        sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
     except AttributeError:
         pass
 
@@ -65,7 +66,7 @@ class GoogleMeetInterface:
 class GoogleGateway:
     """Central coordinator for managing authentication across Google Workspace and Cloud APIs."""
 
-    def __init__(self, credentials_path: str = None):
+    def __init__(self, credentials_path: str | None = None):
         self.root_dir = os.getenv("GOINGS_OS_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.credentials_path = credentials_path or os.path.join(self.root_dir, "google_credentials.json")
         self.auth_token = None
@@ -98,7 +99,7 @@ class GoogleGateway:
 class UnifiedAPIConnector:
     """Manages credentials vault and coordinates external sync pipelines."""
 
-    def __init__(self, memory_bank: PersistentMemoryBank = None):
+    def __init__(self, memory_bank: PersistentMemoryBank | None = None):
         self.memory_bank = memory_bank or PersistentMemoryBank()
         self.gateway = GoogleGateway()
         
@@ -268,7 +269,7 @@ class DocumentDiscoveryMatrix:
                 }
                 
                 self.memory_bank.store_context(
-                    f"DOC_DISC_{doc['type'].upper()}_{indexed_count}",
+                    f"DOC_DISC_{str(doc['type']).upper()}_{indexed_count}",
                     payload_value,
                     meta,
                     tenant="Goings OS"
@@ -364,7 +365,8 @@ class GHLWebhookListener:
     def parse_webhook_payload(self, raw_payload: dict) -> dict:
         """Parses raw form payload, identifying form context and mapping values cleanly."""
         # Detect form type from form_name or formName field; fallback to Onboarding
-        form_identifier = raw_payload.get("form_name", raw_payload.get("formName", "Onboarding"))
+        form_identifier_val = raw_payload.get("form_name") or raw_payload.get("formName") or "Onboarding"
+        form_identifier = str(form_identifier_val)
         
         # Match closest matching form from configurations
         matched_form_type = None
@@ -377,7 +379,7 @@ class GHLWebhookListener:
             matched_form_type = "Onboarding"
 
         mapping_schema = self.FORM_FIELD_MAPPINGS[matched_form_type]
-        parsed_data = {
+        parsed_data: dict[str, typing.Any] = {
             "form_type": matched_form_type,
             "raw_form_name": form_identifier
         }
@@ -402,7 +404,8 @@ class GHLWebhookListener:
         """Processes raw GHL form payload, updates allocation tracking and logs outcome."""
         parsed_data = self.parse_webhook_payload(raw_payload)
         form_type = parsed_data["form_type"]
-        client_name = parsed_data.get("client_name", parsed_data.get("first_name", "Unknown Client"))
+        client_name_val = parsed_data.get("client_name") or parsed_data.get("first_name") or "Unknown Client"
+        client_name = str(client_name_val)
         if not client_name and parsed_data.get("first_name"):
             client_name = f"{parsed_data['first_name']} {parsed_data.get('last_name', '')}".strip()
             

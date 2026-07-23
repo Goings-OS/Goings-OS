@@ -16,8 +16,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
 if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
+        sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
     except AttributeError:
         pass
 
@@ -47,7 +47,7 @@ class SatelliteBackhaul:
 class LocalQueueSubstrate:
     """Manages local SQLite database queue tables for offline payload preservation."""
 
-    def __init__(self, root_dir: str = None):
+    def __init__(self, root_dir: str | None = None):
         self.root_dir = root_dir or os.getenv("GOINGS_OS_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.commercial_db = os.path.join(self.root_dir, "goings_os_vault.db")
         self.humanitarian_db = os.path.join(self.root_dir, "choice_legacy_vault.db")
@@ -149,7 +149,7 @@ class LocalQueueSubstrate:
 class OffGridController:
     """Monitors heartbeat connectivity, triggers offline queueing, and flushes queues to sat-comm."""
 
-    def __init__(self, root_dir: str = None, sat_comm: SatelliteBackhaul = None):
+    def __init__(self, root_dir: str | None = None, sat_comm: SatelliteBackhaul | None = None):
         self.root_dir = root_dir or os.getenv("GOINGS_OS_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.local_queue = LocalQueueSubstrate(self.root_dir)
         self.sat_comm = sat_comm or SatelliteBackhaul()

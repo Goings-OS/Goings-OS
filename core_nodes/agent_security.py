@@ -7,8 +7,8 @@ import json
 # Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
 if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
+        sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
     except AttributeError:
         pass
 
@@ -16,7 +16,7 @@ if sys.platform == "win32":
 class GemIdentityManager:
     """Manages cryptographic agent authorization: token generation: and task validation loops."""
 
-    def __init__(self, private_key: bytes = None):
+    def __init__(self, private_key: bytes | None = None):
         # Resolve private signing key from environment: falling back to a secure baseline default
         env_key = os.getenv("SWARM_PRIVATE_KEY")
         if env_key:

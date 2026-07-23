@@ -17,8 +17,8 @@ from core_nodes.memory_bank import PersistentMemoryBank
 # Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
 if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
+        sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
     except AttributeError:
         pass
 
@@ -33,10 +33,10 @@ class ComplianceRouter:
     CRUISE_MIN_DEPOSIT = 150.00
     CRUISE_BROKER_COMMISSION = 75.00
 
-    def __init__(self, memory_bank: PersistentMemoryBank = None):
+    def __init__(self, memory_bank: PersistentMemoryBank | None = None):
         self.memory_bank = memory_bank or PersistentMemoryBank()
 
-    def enforce_rules(self, task_id: str, output: str, metadata: dict = None) -> tuple[bool, list[str]]:
+    def enforce_rules(self, task_id: str, output: str, metadata: dict | None = None) -> tuple[bool, list[str]]:
         """Scans incoming task outputs against a hard-coded matrix of business rules."""
         violations = []
 
@@ -137,7 +137,7 @@ class ComplianceRouter:
             print(f"    * {violation}")
         print(" -> Routing action: FALLBACK TO PRIVATE GOVERNOR ENGAGED")
 
-    def log_routing_decision(self, task_id: str, output: str, is_compliant: bool, violations: list[str], metadata: dict = None):
+    def log_routing_decision(self, task_id: str, output: str, is_compliant: bool, violations: list[str], metadata: dict | None = None):
         """Persists the evaluation results and routing actions directly inside the SQLite memory bank."""
         tenant = "Goings OS"
         if "choice" in task_id.lower() or "choice" in output.lower() or (metadata and metadata.get("tenant") == "Choice Inc"):
@@ -158,7 +158,7 @@ class ComplianceRouter:
 
         self.memory_bank.store_context(context_key, context_value, log_meta, tenant=tenant)
 
-    def route_task_output(self, task_id: str, output: str, metadata: dict = None) -> str:
+    def route_task_output(self, task_id: str, output: str, metadata: dict | None = None) -> str:
         """Evaluates output, routes appropriately, logs decision, and returns target destination."""
         is_compliant, violations = self.enforce_rules(task_id, output, metadata)
         self.log_routing_decision(task_id, output, is_compliant, violations, metadata)

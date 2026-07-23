@@ -18,8 +18,8 @@ from core_nodes.memory_bank import PersistentMemoryBank
 # Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
 if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
+        sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
     except AttributeError:
         pass
 
@@ -65,12 +65,12 @@ class CredentialVault:
 class NegotiatorNode:
     """Serves as an MCP client facilitating interactions with enterprise endpoints."""
 
-    def __init__(self, memory_bank: PersistentMemoryBank = None, vault: CredentialVault = None):
+    def __init__(self, memory_bank: PersistentMemoryBank | None = None, vault: CredentialVault | None = None):
         self.memory_bank = memory_bank or PersistentMemoryBank()
         self.vault = vault or CredentialVault()
         self.tools = {}
 
-    def register_tool(self, name: str, handler_callable, parameters_schema: dict = None):
+    def register_tool(self, name: str, handler_callable, parameters_schema: dict | None = None):
         """Registers a dynamic API integration endpoint tool capability."""
         if not name:
             raise ValueError("Integration tool name cannot be empty")
