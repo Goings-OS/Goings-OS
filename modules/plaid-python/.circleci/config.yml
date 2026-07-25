@@ -1,0 +1,15 @@
+version: 2
+jobs:
+  build:
+    machine:
+      image: ubuntu-2204:edge
+    steps:
+    - checkout
+    - run:
+        name: Build Docker image for running python tests
+        command: docker build -t plaid-python .
+    - run:
+        name: Run python tests in Docker
+        command: docker run --rm -e CLIENT_ID=$CLIENT_ID -e SECRET=$SECRET plaid-python
+    - store_test_results:
+        path: /tmp/circleci-test-results
