@@ -15,3 +15,5 @@ core_nodes/node_16_media_orchestrator/token.json
 __pycache__/
 *.pyc
 .venv/
+librarian-key.json
+*.db
