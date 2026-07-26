@@ -1,62 +1,105 @@
 import os
 import logging
+import requests
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel
-import google.generativeai as genai
+from typing import Optional
 
-# Configure Enterprise Structured Logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("goings-os-core")
 
-app = FastAPI(
-    title="Goings-OS Enterprise Core Engine",
-    description="Autonomous Enterprise Command API for Goings OS",
-    version="1.0.0"
-)
+app = FastAPI(title="Goings OS Core Engine", version="3.0.0")
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+class GHLInboundPayload(BaseModel):
+    source: Optional[str] = "GHL_Workflow_Lead_Ingest"
+    contact_id: Optional[str] = None
+    contact_name: Optional[str] = None
+    contact_email: Optional[str] = None
+    business_sector: Optional[str] = None
+    intake_notes: Optional[str] = None
+    action_required: Optional[str] = "qualify_and_generate_proposal"
 
-class AgentQuery(BaseModel):
-    prompt: str
-    model: str = "gemini-1.5-flash"
-
-@app.get("/healthz", status_code=status.HTTP_200_OK)
+@app.get("/healthz")
 def liveness_probe():
-    """Liveness probe for Cloud Run health checks."""
     return {"status": "HEALTHY"}
 
-@app.get("/ready", status_code=status.HTTP_200_OK)
+@app.get("/ready")
 def readiness_probe():
-    """Readiness probe for traffic routing."""
-    return {
-        "status": "READY",
-        "system": "Goings OS Core Engine",
-        "environment": "Enterprise Production",
-        "region": os.getenv("K_SERVICE", "us-west1")
-    }
+    return {"status": "READY", "system": "Goings OS Core Engine"}
 
 @app.post("/query")
-def process_query(payload: AgentQuery):
-    logger.info(f"Processing query using model: {payload.model}")
-    try:
-        if GEMINI_API_KEY:
-            model = genai.GenerativeModel(payload.model)
-            response = model.generate_content(payload.prompt)
-            output_text = response.text
-        else:
-            output_text = f"[Goings-OS Core Engine Response]: Processed prompt -> '{payload.prompt}'"
+def process_ghl_query(payload: GHLInboundPayload):
+    logger.info(f"Processing query for {payload.contact_name}")
+    
+    api_key = os.getenv("GEMINI_API_KEY", "").strip()
+    if not api_key:
+        raise HTTPException(
+            status_code=500, 
+            detail="GEMINI_API_KEY environment variable is empty or not mounted in container."
+        )
+
+    prompt_text = f"""
+    System Role: Goings OS Core Ingestion Engine.
+    Task: Analyze incoming lead payload and generate an executive intake brief.
+
+    Client Details:
+    * Name: {payload.contact_name}
+    * Company: {payload.business_sector}
+    * Notes: {payload.intake_notes}
+    * Requested Action: {payload.action_required}
+
+    Instructions:
+    1. Evaluate lead qualification level (High, Medium, Low).
+    2. Draft a 3 step immediate action plan for Goings OS.
+    3. Maintain clean markdown format with no em dashes.
+    """
+
+    # Verified active models from live key diagnostics
+    candidate_models = [
+        "models/gemini-3.6-flash",
+        "models/gemini-3.5-flash",
+        "models/gemini-3.1-flash-lite"
+    ]
+
+    req_body = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": prompt_text}
+                ]
+            }
+        ]
+    }
+
+    last_error = None
+
+    for model_path in candidate_models:
+        gen_url = f"https://generativelanguage.googleapis.com/v1beta/{model_path}:generateContent?key={api_key}"
+        logger.info(f"Sending direct REST request to modern endpoint: {model_path}")
         
-        return {
-            "status": "SUCCESS",
-            "agent": "Goings-OS-Core",
-            "prompt": payload.prompt,
-            "response": output_text
-        }
-    except Exception as e:
-        logger.error(f"Execution Error: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        try:
+            res = requests.post(gen_url, json=req_body, headers={"Content-Type": "application/json"}, timeout=30)
+            
+            if res.status_code == 200:
+                res_data = res.json()
+                output_text = res_data["candidates"][0]["content"]["parts"][0]["text"]
+                logger.info(f"Successfully generated response via modern model: {model_path}")
+                return {
+                    "status": "SUCCESS",
+                    "provider": f"Direct REST API ({model_path})",
+                    "contact_id": payload.contact_id,
+                    "contact_name": payload.contact_name,
+                    "engine": "goings-os-core",
+                    "analysis_output": output_text
+                }
+            else:
+                last_error = f"HTTP {res.status_code}: {res.text}"
+                logger.warning(f"Model candidate '{model_path}' failed: {last_error}")
+        except Exception as err:
+            last_error = str(err)
+            logger.warning(f"Model candidate '{model_path}' exception: {last_error}")
+
+    raise HTTPException(
+        status_code=500,
+        detail=f"All modern model endpoints failed. Last error: {last_error}"
+    )
