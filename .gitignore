@@ -25,3 +25,11 @@ goings_os_vault.db
 *.log
 goings_os_vault.db
 error_log.db
+
+node_modules/
+.venv/
+__pycache__/
+*.db
+*.log
+dist/
+build/
