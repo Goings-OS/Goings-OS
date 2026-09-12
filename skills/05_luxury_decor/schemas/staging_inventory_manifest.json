@@ -1,0 +1,157 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "StagingInventoryManifest",
+  "description": "Production schema for luxury staging inventory, commercial rentals, and furniture condition tracking for Luxury Decor & Rentals LLC.",
+  "type": "object",
+  "required": [
+    "manifest_id",
+    "client_profile",
+    "rental_period",
+    "inventory_items",
+    "financials",
+    "logistics",
+    "manifest_status"
+  ],
+  "properties": {
+    "manifest_id": {
+      "type": "string"
+    },
+    "client_profile": {
+      "type": "object",
+      "required": [
+        "client_name",
+        "organization",
+        "email",
+        "phone"
+      ],
+      "properties": {
+        "client_name": {
+          "type": "string"
+        },
+        "organization": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string"
+        }
+      }
+    },
+    "rental_period": {
+      "type": "object",
+      "required": [
+        "delivery_date",
+        "pickup_date",
+        "venue_address"
+      ],
+      "properties": {
+        "delivery_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "pickup_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "venue_address": {
+          "type": "string"
+        }
+      }
+    },
+    "inventory_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "sku",
+          "item_name",
+          "category",
+          "quantity",
+          "unit_rental_rate"
+        ],
+        "properties": {
+          "sku": {
+            "type": "string"
+          },
+          "item_name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "SEATING",
+              "TABLES",
+              "DRAPING",
+              "LIGHTING",
+              "THRONE_SPECIALTY",
+              "PODIUMS"
+            ]
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "unit_rental_rate": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "financials": {
+      "type": "object",
+      "required": [
+        "subtotal_rental",
+        "delivery_fee",
+        "security_deposit",
+        "total_contract",
+        "deposit_paid"
+      ],
+      "properties": {
+        "subtotal_rental": {
+          "type": "number"
+        },
+        "delivery_fee": {
+          "type": "number"
+        },
+        "security_deposit": {
+          "type": "number"
+        },
+        "total_contract": {
+          "type": "number"
+        },
+        "deposit_paid": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "logistics": {
+      "type": "object",
+      "properties": {
+        "truck_dispatch_id": {
+          "type": "string"
+        },
+        "lead_technician": {
+          "type": "string"
+        },
+        "special_instructions": {
+          "type": "string"
+        }
+      }
+    },
+    "manifest_status": {
+      "type": "string",
+      "enum": [
+        "RESERVATION_PENDING",
+        "DEPOSIT_CONFIRMED",
+        "DISPATCHED",
+        "RETURNED_INSPECTED",
+        "SETTLED"
+      ],
+      "default": "RESERVATION_PENDING"
+    }
+  }
+}

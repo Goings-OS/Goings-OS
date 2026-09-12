@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>GOINGS OS: DYNAMIC COCKPIT</title>
+    <style>
+        body { background-color: #000000; color: #ffffff; font-family: 'Courier New', monospace; text-align: center; padding-top: 30px; margin: 0; }
+        .cockpit-container { border: 3px solid #d4af37; padding: 30px; display: inline-block; background-color: #050505; border-radius: 12px; max-width: 800px; width: 90%; box-shadow: 0 0 30px rgba(212,175,55,0.15); margin-top: 20px; }
+        .logo-text { font-size: 26px; font-weight: bold; color: #d4af37; letter-spacing: 2px; margin-bottom: 5px; }
+        .sub-tag { font-size: 11px; color: #ffffff; letter-spacing: 4px; margin-bottom: 25px; text-transform: uppercase; }
+        .status-box { font-size: 13px; color: #4eed50; background: #111; padding: 10px; border: 1px solid #333; border-radius: 4px; margin-bottom: 20px; }
+        .chat-ledger { background: #000000; border: 1px solid #333; height: 150px; overflow-y: auto; text-align: left; padding: 15px; border-radius: 6px; font-size: 13px; color: #fff; margin-bottom: 20px; }
+        .dynamic-stage { border: 2px dashed #d4af37; background: #0a0a0a; min-height: 100px; border-radius: 8px; margin-bottom: 20px; padding: 20px; text-align: left; transition: all 0.3s ease; }
+        .btn-toggle { background-color: #d4af37; color: #000000; border: 1px solid #ffffff; padding: 12px 30px; font-weight: bold; font-family: 'Courier New', monospace; cursor: pointer; border-radius: 4px; }
+        .active-loop { background-color: #e63946 !important; color: #fff !important; }
+    </style>
+</head>
+<body>
+    <div class="cockpit-container">
+        <div class="logo-text">GOINGS OS LLC</div>
+        <div class="sub-tag">Dynamic Gen-UI System</div>
+        <div class="status-box" id="sys-status">● LIVE COMPONENT MATRIX ONLINE</div>
+        <div class="chat-ledger" id="chat-display">
+            <p style="color:#d4af37;">[SYS] System active. Awaiting voice triggers...</p>
+        </div>
+        <div class="dynamic-stage" id="ui-stage">
+            <p style="color:#666; text-align:center; margin-top:35px;">[DYNAMIC COMPLETER FRAME: EMPLEX READY]</p>
+        </div>
+        <button class="btn-toggle" id="loop-trigger" onclick="toggleDialogue()">ACTIVATE AUTOMATED AUDIO MATRIX</button>
+    </div>
+    <script>
+        var continuousMode = false; var recognition;
+        if('webkitSpeechRecognition' in window){ 
+            recognition = new webkitSpeechRecognition(); recognition.continuous = false; recognition.interimResults = false;
+            recognition.onstart = function() { document.getElementById('sys-status').innerText = "🎤 SENSORS ACTIVE... SPEAK NOW"; };
+            recognition.onresult = function(e) { 
+                var t = e.results[0][0].transcript; append("COMMANDER", t);
+                fetch("/api/chat", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({text: t}) })
+                .then(res => res.json()).then(data => {
+                    if(data.component) { document.getElementById('ui-stage').innerHTML = data.component; }
+                    speak(data.reply);
+                }).catch(err => { speak("Linkage error encountered."); });
+            };
+        }
+        function toggleDialogue() {
+            var b = document.getElementById('loop-trigger');
+            if(!continuousMode){ continuousMode = true; b.innerText = "HALT AUDIO"; b.classList.add('active-loop'); recognition.start(); }
+            else { continuousMode = false; b.innerText = "ACTIVATE AUTOMATED AUDIO MATRIX"; b.classList.remove('active-loop'); recognition.stop(); }
+        }
+        function append(s, t) {
+            var d = document.getElementById('chat-display'); var c = s==='VICTORY'?'#d4af37':'#ffffff';
+            d.innerHTML += '<p style="color:'+c+'"><b>['+s+']:</b> '+t+'</p>'; d.scrollTop = d.scrollHeight;
+        }
+        function speak(t) {
+            append("VICTORY", t); var u = new SpeechSynthesisUtterance(t); var v = window.speechSynthesis.getVoices();
+            var f = v.find(x => x.name.toLowerCase().includes('zira') || x.name.toLowerCase().includes('female') || x.name.toLowerCase().includes('samantha'));
+            if(f) u.voice = f; u.rate = 0.95; u.pitch = 1.08;
+            u.onend = function() { if(continuousMode) recognition.start(); };
+            window.speechSynthesis.speak(u);
+        }
+    </script>
+</body>
+</html>

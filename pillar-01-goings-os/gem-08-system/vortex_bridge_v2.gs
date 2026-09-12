@@ -14,7 +14,7 @@ const CONFIG = {
  * THE SWARM COMMAND: This talks to all 12 Gems
  */
 function callTheSwarm(agentNumber, task) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${CONFIG.GEMINI_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${CONFIG.GEMINI_KEY}`;
   const payload = {
     "contents": [{ "parts": [{ "text": `System Order for Agent ${agentNumber}: ${task}` }] }]
   };

@@ -1,0 +1,279 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KorslundSocialPostDispatchPayload",
+  "description": "Multi-platform video distribution payload schema for Korslund Law social content engine across Instagram, Facebook, LinkedIn, YouTube Shorts, and TikTok.",
+  "type": "object",
+  "required": [
+    "dispatch_id",
+    "batch_id",
+    "video_id",
+    "video_metadata",
+    "practice_area",
+    "legal_compliance",
+    "platform_payloads",
+    "cta_destination"
+  ],
+  "properties": {
+    "dispatch_id": {
+      "type": "string",
+      "description": "Unique UUID for the dispatch event"
+    },
+    "batch_id": {
+      "type": "string",
+      "description": "Identifier for the monthly batch (e.g., BATCH-2026-09)"
+    },
+    "video_id": {
+      "type": "string",
+      "description": "Identifier for the specific video (e.g., VID-PI-001)"
+    },
+    "practice_area": {
+      "type": "string",
+      "enum": [
+        "PERSONAL_INJURY",
+        "CRIMINAL_DEFENSE",
+        "COURTROOM_TRIAL_PRACTICE",
+        "LEGAL_EDUCATION"
+      ],
+      "description": "Primary practice area category for routing and CRM tagging"
+    },
+    "video_metadata": {
+      "type": "object",
+      "required": [
+        "title",
+        "master_video_url",
+        "duration_seconds",
+        "aspect_ratio",
+        "resolution"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Internal working title of the video"
+        },
+        "master_video_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Cloud Storage or local vault URI of the final rendered MP4 file"
+        },
+        "thumbnail_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URI of custom cover frame"
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 15,
+          "maximum": 60,
+          "description": "Video duration in seconds"
+        },
+        "aspect_ratio": {
+          "type": "string",
+          "enum": ["9:16", "1:1", "16:9"],
+          "default": "9:16"
+        },
+        "resolution": {
+          "type": "string",
+          "default": "1080x1920"
+        }
+      }
+    },
+    "legal_compliance": {
+      "type": "object",
+      "required": [
+        "vsb_compliant",
+        "disclaimer_text",
+        "responsible_attorney",
+        "office_location",
+        "no_outcome_guarantee_verified"
+      ],
+      "properties": {
+        "vsb_compliant": {
+          "type": "boolean",
+          "default": true
+        },
+        "disclaimer_text": {
+          "type": "string",
+          "default": "Case results depend upon a variety of factors unique to each case. Case results do not guarantee or predict a similar result in any future case."
+        },
+        "responsible_attorney": {
+          "type": "string",
+          "default": "Eric Korslund, Esq."
+        },
+        "office_location": {
+          "type": "string",
+          "default": "Norfolk, Virginia"
+        },
+        "statutory_citations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Code of Virginia statutory references verified in the script"
+        },
+        "no_outcome_guarantee_verified": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "platform_payloads": {
+      "type": "object",
+      "required": [
+        "instagram",
+        "facebook",
+        "tiktok",
+        "youtube_shorts",
+        "linkedin"
+      ],
+      "properties": {
+        "instagram": {
+          "type": "object",
+          "required": ["caption", "hashtags", "share_to_feed"],
+          "properties": {
+            "caption": {
+              "type": "string"
+            },
+            "hashtags": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "share_to_feed": {
+              "type": "boolean",
+              "default": true
+            },
+            "audio_name": {
+              "type": "string"
+            }
+          }
+        },
+        "facebook": {
+          "type": "object",
+          "required": ["post_text", "page_id"],
+          "properties": {
+            "post_text": {
+              "type": "string"
+            },
+            "page_id": {
+              "type": "string"
+            },
+            "call_to_action_button": {
+              "type": "string",
+              "default": "CALL_NOW"
+            }
+          }
+        },
+        "tiktok": {
+          "type": "object",
+          "required": ["title", "privacy_level", "allow_comments", "allow_duet", "allow_stitch"],
+          "properties": {
+            "title": {
+              "type": "string",
+              "maxLength": 150
+            },
+            "privacy_level": {
+              "type": "string",
+              "enum": ["PUBLIC_TO_EVERYONE", "MUTUAL_FOLLOW_FRIENDS", "SELF_ONLY"],
+              "default": "PUBLIC_TO_EVERYONE"
+            },
+            "allow_comments": {
+              "type": "boolean",
+              "default": true
+            },
+            "allow_duet": {
+              "type": "boolean",
+              "default": true
+            },
+            "allow_stitch": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "youtube_shorts": {
+          "type": "object",
+          "required": ["title", "description", "tags", "category_id", "privacy_status"],
+          "properties": {
+            "title": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "description": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "category_id": {
+              "type": "string",
+              "default": "27"
+            },
+            "privacy_status": {
+              "type": "string",
+              "enum": ["public", "unlisted", "private"],
+              "default": "public"
+            }
+          }
+        },
+        "linkedin": {
+          "type": "object",
+          "required": ["commentary", "visibility"],
+          "properties": {
+            "commentary": {
+              "type": "string"
+            },
+            "visibility": {
+              "type": "string",
+              "enum": ["PUBLIC", "CONNECTIONS"],
+              "default": "PUBLIC"
+            },
+            "title": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "cta_destination": {
+      "type": "object",
+      "required": [
+        "target_url",
+        "phone_number",
+        "utm_campaign",
+        "lead_capture_tag"
+      ],
+      "properties": {
+        "target_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "phone_number": {
+          "type": "string"
+        },
+        "utm_campaign": {
+          "type": "string"
+        },
+        "lead_capture_tag": {
+          "type": "string"
+        }
+      }
+    },
+    "scheduling": {
+      "type": "object",
+      "properties": {
+        "scheduled_publish_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "timezone": {
+          "type": "string",
+          "default": "America/New_York"
+        },
+        "auto_publish": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  }
+}

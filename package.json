@@ -1,0 +1,10 @@
+{
+  "name": "goings-os-root",
+  "version": "4.2.0",
+  "private": true,
+  "scripts": {
+    "typecheck": "npm --prefix vite-monorepo run typecheck",
+    "test": "npm --prefix vite-monorepo test",
+    "build": "npm --prefix vite-monorepo run build"
+  }
+}

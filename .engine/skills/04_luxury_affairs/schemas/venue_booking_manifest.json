@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VenueBookingManifest",
+  "description": "Production schema for event bookings, date holds, staging packages, and catering manifests at Luxury Affairs Event Center (4010 Victory Blvd, Portsmouth, VA).",
+  "type": "object",
+  "required": [
+    "booking_id",
+    "client_profile",
+    "event_details",
+    "package_tier",
+    "financials",
+    "staging_specifications",
+    "booking_status"
+  ],
+  "properties": {
+    "booking_id": { "type": "string" },
+    "client_profile": {
+      "type": "object",
+      "required": ["client_name", "email", "phone"],
+      "properties": {
+        "client_name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "organization_or_partner_name": { "type": "string" }
+      }
+    },
+    "event_details": {
+      "type": "object",
+      "required": ["event_type", "event_date", "start_time", "end_time", "guest_count_estimate"],
+      "properties": {
+        "event_type": {
+          "type": "string",
+          "enum": ["WEDDING_CEREMONY_RECEPTION", "MILESTONE_BIRTHDAY", "BABY_SHOWER", "CORPORATE_GALA", "CHURCH_BANQUET", "NETWORKING_MIXER", "POP_UP_MARKET", "RETIREMENT_CELEBRATION"]
+        },
+        "event_date": { "type": "string", "format": "date" },
+        "start_time": { "type": "string" },
+        "end_time": { "type": "string" },
+        "guest_count_estimate": { "type": "integer", "maximum": 200 }
+      }
+    },
+    "package_tier": {
+      "type": "string",
+      "enum": ["TIER_1_VENUE_ONLY", "TIER_2_DECOR_PACKAGE", "TIER_3_ALL_INCLUSIVE_VIP", "CUSTOM_CORPORATE_BUYOUT"]
+    },
+    "financials": {
+      "type": "object",
+      "required": ["total_contract_amount", "deposit_required", "deposit_paid", "balance_remaining", "final_due_date"],
+      "properties": {
+        "total_contract_amount": { "type": "number" },
+        "deposit_required": { "type": "number" },
+        "deposit_paid": { "type": "boolean", "default": false },
+        "balance_remaining": { "type": "number" },
+        "final_due_date": { "type": "string", "format": "date" }
+      }
+    },
+    "staging_specifications": {
+      "type": "object",
+      "properties": {
+        "chiavari_chair_color": { "type": "string", "default": "Gold" },
+        "uplighting_color_hex": { "type": "string", "default": "#FFD700" },
+        "ceiling_draping_required": { "type": "boolean", "default": true },
+        "throne_chairs_required": { "type": "boolean", "default": false },
+        "red_carpet_entry": { "type": "boolean", "default": false },
+        "bridal_suite_access": { "type": "boolean", "default": true }
+      }
+    },
+    "booking_status": {
+      "type": "string",
+      "enum": ["DATE_INQUIRY", "HOLD_PLACED", "CONTRACT_SIGNED", "DEPOSIT_CONFIRMED", "EVENT_COMPLETED"],
+      "default": "DATE_INQUIRY"
+    }
+  }
+}

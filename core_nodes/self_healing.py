@@ -18,8 +18,8 @@ from core_nodes.memory_bank import PersistentMemoryBank
 # Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
 if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
+        sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
     except AttributeError:
         pass
 
@@ -27,7 +27,7 @@ if sys.platform == "win32":
 class HealthMonitor:
     """Monitors the state of Swarm processes, restarts unresponsive nodes, and safe-locks vaults."""
 
-    def __init__(self, memory_bank: PersistentMemoryBank = None):
+    def __init__(self, memory_bank: PersistentMemoryBank | None = None):
         self.memory_bank = memory_bank or PersistentMemoryBank()
         self.nodes = {}
         self.system_locked = False
@@ -48,7 +48,7 @@ class HealthMonitor:
         }
         print(f" -> Health Monitor: Registered node tracking for '{name}' (Tenant: {tenant})")
 
-    def ping_node(self, name: str, memory_usage_mb: float = None):
+    def ping_node(self, name: str, memory_usage_mb: float | None = None):
         """Updates the node contact timestamp and memory metrics to prove responsiveness."""
         if name not in self.nodes:
             raise ValueError(f"Node '{name}' is not registered under this monitor")

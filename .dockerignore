@@ -1,0 +1,7 @@
+node_modules
+vite-monorepo
+.git
+.venv
+__pycache__
+*.pyc
+dist

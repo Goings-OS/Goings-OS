@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CabinInventoryManifest",
+  "description": "Production schema for cruise stateroom cabin inventory, guest booking records, and installment payment tracking for the Norfolk Takeover Cruise.",
+  "type": "object",
+  "required": [
+    "reservation_id",
+    "cruise_voyage_id",
+    "lead_passenger",
+    "cabin_details",
+    "pricing_and_installments",
+    "vip_packages",
+    "reservation_status"
+  ],
+  "properties": {
+    "reservation_id": { "type": "string" },
+    "cruise_voyage_id": { "type": "string" },
+    "lead_passenger": {
+      "type": "object",
+      "required": ["full_name", "email", "phone", "date_of_birth"],
+      "properties": {
+        "full_name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "date_of_birth": { "type": "string", "format": "date" },
+        "emergency_contact": { "type": "string" }
+      }
+    },
+    "cabin_details": {
+      "type": "object",
+      "required": ["cabin_category", "occupancy_type", "assigned_cabin_number", "deck_number"],
+      "properties": {
+        "cabin_category": {
+          "type": "string",
+          "enum": ["BALCONY_SUITE", "OCEANVIEW_STATEROOM", "INTERIOR_STATEROOM"]
+        },
+        "occupancy_type": {
+          "type": "string",
+          "enum": ["DOUBLE_OCCUPANCY", "TRIPLE_OCCUPANCY", "QUAD_OCCUPANCY", "SOLO_TRAVELER"]
+        },
+        "assigned_cabin_number": { "type": "string" },
+        "deck_number": { "type": "integer" }
+      }
+    },
+    "pricing_and_installments": {
+      "type": "object",
+      "required": ["total_cruise_fare", "initial_deposit_amount", "deposit_paid", "monthly_installment_amount", "installments_remaining", "final_payment_due_date"],
+      "properties": {
+        "total_cruise_fare": { "type": "number" },
+        "initial_deposit_amount": { "type": "number" },
+        "deposit_paid": { "type": "boolean", "default": false },
+        "monthly_installment_amount": { "type": "number" },
+        "installments_remaining": { "type": "integer" },
+        "final_payment_due_date": { "type": "string", "format": "date" }
+      }
+    },
+    "vip_packages": {
+      "type": "object",
+      "properties": {
+        "all_white_gala_access": { "type": "boolean", "default": true },
+        "private_deck_party_wristband": { "type": "boolean", "default": true },
+        "catamaran_island_excursion": { "type": "boolean", "default": false },
+        "commemorative_merchandise_pack": { "type": "boolean", "default": false }
+      }
+    },
+    "reservation_status": {
+      "type": "string",
+      "enum": ["CABIN_HOLD", "DEPOSIT_CONFIRMED", "INSTALLMENTS_ACTIVE", "PAID_IN_FULL", "CANCELLED"],
+      "default": "CABIN_HOLD"
+    }
+  }
+}

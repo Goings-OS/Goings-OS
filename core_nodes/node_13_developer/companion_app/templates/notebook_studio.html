@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goings OS : Agentic Notebook Studio</title>
+    <style>
+        :root {
+            --bg-base: #0b0914;
+            --bg-surface: #131125;
+            --bg-card: #1c1836;
+            --accent-gold: #d4af37;
+            --text-main: #f0edf6;
+            --text-muted: #a39eb9;
+            --border-glow: #2a244d;
+        }
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .sidebar {
+            width: 240px;
+            background-color: var(--bg-surface);
+            height: 100vh;
+            border-right: 1px solid var(--border-glow);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .sidebar h2 {
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar-menu li {
+            padding: 12px 15px;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+        .sidebar-menu li.active, .sidebar-menu li:hover {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            border-left: 3px solid var(--accent-gold);
+        }
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            height: 100vh;
+            width: calc(100% - 240px);
+        }
+        .header-area {
+            margin-bottom: 30px;
+        }
+        .header-area h1 {
+            font-size: 2.5rem;
+            margin: 0 0 10px 0;
+            font-weight: 600;
+        }
+        .header-area p {
+            color: var(--text-muted);
+            margin: 0;
+        }
+        .studio-container {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .matrix-btn {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            color: var(--text-main);
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        .matrix-btn:hover {
+            border-color: var(--accent-gold);
+            background-color: var(--bg-surface);
+            transform: translateY(-2px);
+        }
+        .input-focus-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .prompt-input {
+            flex: 1;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            color: var(--text-main);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .prompt-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+        .generate-btn {
+            background-color: var(--accent-gold);
+            color: var(--bg-base);
+            border: none;
+            padding: 0 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: opacity 0.2s ease;
+        }
+        .generate-btn:hover {
+            opacity: 0.9;
+        }
+        .artifacts-header {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-gold);
+        }
+        .artifacts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .artifact-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .artifact-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .status-badge {
+            background-color: #1b472c;
+            color: #52d681;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .artifact-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .action-btn {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .action-btn:hover {
+            border-color: var(--accent-gold);
+        }
+        .artifact-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>Goings OS</h2>
+        <ul class="sidebar-menu">
+            <li>Dashboard</li>
+            <li class="active">Notebook Studio</li>
+            <li>Vault Files</li>
+            <li>Sentry Security</li>
+            <li>Settings</li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header-area">
+            <h1>Notebook Studio</h1>
+            <p>Your dynamic repository files, audio overviews, and asset generations: unified inside your private hardware stack.</p>
+        </div>
+
+        <div class="studio-container">
+            <div class="matrix-grid">
+                <button class="matrix-btn" onclick="triggerMatrix('AUDIO_OVERVIEW')">🎧 Audio-Overview</button>
+                <button class="matrix-btn" onclick="triggerMatrix('VIDEO')">📹 Video Context</button>
+                <button class="matrix-btn" onclick="triggerMatrix('SLIDE_DECK')">📊 Slide Deck</button>
+                <button class="matrix-btn" onclick="triggerMatrix('MIND_MAP')">🕸️ Mind Map</button>
+                <button class="matrix-btn" onclick="triggerMatrix('INFOGRAPHIC')">🎨 Infographic</button>
+                <button class="matrix-btn" onclick="triggerMatrix('FLASHCARDS')">📇 Flashcards</button>
+                <button class="matrix-btn" onclick="triggerMatrix('QUIZ')">📝 Interactive Quiz</button>
+                <button class="matrix-btn" onclick="triggerMatrix('DATA_TABLE')">📅 Data Table</button>
+                <button class="matrix-btn" onclick="triggerMatrix('REPORT')">📄 Executive Report</button>
+            </div>
+
+            <div class="input-focus-group">
+                <input type="text" id="focusPrompt" class="prompt-input" placeholder="Optional focus prompt (e.g., focus on 70/30 treasury splits or compliance targets)...">
+                <button class="generate-btn" onclick="executeGeneration()">Generate</button>
+            </div>
+        </div>
+
+        <div class="artifacts-header">Active Artifacts in Goings OS Repository</div>
+        <div class="artifacts-grid">
+            <div class="artifact-card">
+                <div class="artifact-meta">
+                    <h3>The June 2026 Core Operating Stack</h3>
+                    <span class="status-badge">COMPLETED</span>
+                </div>
+                <p class="artifact-desc">Multi-pillar automation parameters linking Keep It Goings and Choice Inc.</p>
+                <div class="artifact-actions">
+                    <button class="action-btn">📥 Pull to Local</button>
+                    <button class="action-btn">👁️ View Source</button>
+                </div>
+            </div>
+            <div class="artifact-card">
+                <div class="artifact-meta">
+                    <h3>Private Treasury Allocation Model</h3>
+                    <span class="status-badge">COMPLETED</span>
+                </div>
+                <p class="artifact-desc">Automated checking systems enforcing owner's draw allocation balances.</p>
+                <div class="artifact-actions">
+                    <button class="action-btn">📥 Pull to Local</button>
+                    <button class="action-btn">👁️ View Source</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function triggerMatrix(targetAction) {
+            console.log("Matrix selected: " + targetAction);
+            alert("Notebook OS executing: " + targetAction + " initialization sequence.");
+        }
+
+        function executeGeneration() {
+            const promptValue = document.getElementById('focusPrompt').value;
+            console.log("Executing focused generation pass: " + promptValue);
+            alert("Custom generator loop dispatched onto local data tracks.");
+        }
+    </script>
+</body>
+</html>

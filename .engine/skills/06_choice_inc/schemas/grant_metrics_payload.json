@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GrantMetricsPayload",
+  "description": "Production schema for 501(c)(3) grant application metrics, donor contribution ledgers, and program impact tracking for CHOICE Inc.",
+  "type": "object",
+  "required": [
+    "grant_cycle_id",
+    "program_name",
+    "funder_profile",
+    "grant_financials",
+    "community_impact_metrics",
+    "reporting_milestones",
+    "grant_status"
+  ],
+  "properties": {
+    "grant_cycle_id": { "type": "string" },
+    "program_name": {
+      "type": "string",
+      "enum": [
+        "YOUTH_FINANCIAL_LITERACY_ACADEMY",
+        "STEM_AND_AI_CODING_LAB",
+        "VOCATIONAL_TRADES_INITIATIVE",
+        "FAMILY_EMERGENCY_FOOD_ASSISTANCE",
+        "YOUNG_ENTREPRENEUR_MICRO_SEED_FUND"
+      ]
+    },
+    "funder_profile": {
+      "type": "object",
+      "required": ["funder_name", "funder_type", "contact_officer", "award_period_start", "award_period_end"],
+      "properties": {
+        "funder_name": { "type": "string" },
+        "funder_type": {
+          "type": "string",
+          "enum": ["PRIVATE_FOUNDATION", "CORPORATE_SPONSOR", "MUNICIPAL_GRANT", "COMMUNITY_DEVELOPMENT_FUND", "INDIVIDUAL_MAJOR_DONOR"]
+        },
+        "contact_officer": { "type": "string" },
+        "award_period_start": { "type": "string", "format": "date" },
+        "award_period_end": { "type": "string", "format": "date" }
+      }
+    },
+    "grant_financials": {
+      "type": "object",
+      "required": ["awarded_amount", "disbursed_to_date", "direct_program_allocation_pct", "administrative_cost_pct"],
+      "properties": {
+        "awarded_amount": { "type": "number" },
+        "disbursed_to_date": { "type": "number" },
+        "direct_program_allocation_pct": { "type": "number", "minimum": 80.0, "default": 88.5 },
+        "administrative_cost_pct": { "type": "number", "maximum": 20.0, "default": 11.5 }
+      }
+    },
+    "community_impact_metrics": {
+      "type": "object",
+      "required": ["students_enrolled", "program_graduates", "certifications_earned", "meals_distributed"],
+      "properties": {
+        "students_enrolled": { "type": "integer" },
+        "program_graduates": { "type": "integer" },
+        "certifications_earned": { "type": "integer" },
+        "teen_businesses_launched": { "type": "integer" },
+        "meals_distributed": { "type": "integer" },
+        "emergency_families_stabilized": { "type": "integer" }
+      }
+    },
+    "reporting_milestones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["milestone_name", "due_date", "status"],
+        "properties": {
+          "milestone_name": { "type": "string" },
+          "due_date": { "type": "string", "format": "date" },
+          "status": {
+            "type": "string",
+            "enum": ["UPCOMING", "REPORT_SUBMITTED", "APPROVED", "REVISION_REQUESTED"]
+          }
+        }
+      }
+    },
+    "grant_status": {
+      "type": "string",
+      "enum": ["PROPOSAL_SUBMITTED", "ACTIVE_AWARD", "REPORTING_PHASE", "AUDIT_COMPLETED"],
+      "default": "ACTIVE_AWARD"
+    }
+  }
+}

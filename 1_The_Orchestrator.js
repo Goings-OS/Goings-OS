@@ -263,7 +263,7 @@ function executeHealedGeminiFallbackCall(prompt, rawErrorString) {
   if (!apiKey) return "🚨 RESILIENCE FAULT: Both processing endpoints throttled. Verify environment keys.";
   
   // Clean production-stable endpoint link structure
-  var fallbackUrl = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=" + apiKey;
+  var fallbackUrl = "https://generativelanguage.googleapis.com/v1/models/gemini-3.8-flash:generateContent?key=" + apiKey;
   var payload = { "contents": [{ "role": "user", "parts": [{ "text": prompt }] }] };
   var options = { "method": "post", "contentType": "application/json", "payload": JSON.stringify(payload), "muteHttpExceptions": true };
 

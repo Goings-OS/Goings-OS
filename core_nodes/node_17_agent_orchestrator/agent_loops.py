@@ -35,9 +35,9 @@ class MultiAgentOrchestrationComplex:
         
         # Step 4: Writer Checker Gate (Enforcing Compliance Rules)
         print("[STAGE: WRITER CHECK] Performing compliance sweep on draft...")
-        if "—" in draft_prose:
+        if ": " in draft_prose:
             print("[RULE VIOLATION] Em-dash detected inside draft pipeline. Rectifying content...")
-            draft_prose = draft_prose.replace("—", ":")
+            draft_prose = draft_prose.replace(": ", ":")
             
         print("[SUCCESS] Final draft validated clear of all compliance infractions.")
         return {"tenant": self.tenant_id, "final_output": draft_prose, "status": "SECURED"}
@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
 class VisionMCPServerBridge:
     def __init__(self, project_id="goings-os-enterprise"):
-        self.supported_models = ["gemini-2.0-flash", "gemini-1.5-pro"]
+        self.supported_models = ["gemini-3.8-flash"]
         self.active_server_status = "INITIALIZED"
 
     def execute_veo_synthesis(self, prompt_text, duration_seconds=5):

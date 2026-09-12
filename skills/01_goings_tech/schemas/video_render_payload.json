@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VideoRenderPayload",
+  "description": "Production schema for automated synthetic avatar and faceless AI video rendering jobs.",
+  "type": "object",
+  "required": [
+    "render_job_id",
+    "batch_id",
+    "script_metadata",
+    "voice_clone_config",
+    "visual_layer",
+    "audio_layer",
+    "render_output"
+  ],
+  "properties": {
+    "render_job_id": {
+      "type": "string",
+      "description": "Unique UUID for the video rendering job"
+    },
+    "batch_id": {
+      "type": "string",
+      "description": "Batch sequence identifier (e.g., GTM-BATCH-2026-09)"
+    },
+    "script_metadata": {
+      "type": "object",
+      "required": ["script_id", "title", "full_spoken_text", "duration_target_seconds"],
+      "properties": {
+        "script_id": { "type": "string" },
+        "title": { "type": "string" },
+        "full_spoken_text": { "type": "string" },
+        "duration_target_seconds": { "type": "integer", "minimum": 30, "maximum": 60 }
+      }
+    },
+    "voice_clone_config": {
+      "type": "object",
+      "required": ["voice_model_id", "speaking_rate_wpm", "stability", "similarity_boost"],
+      "properties": {
+        "voice_model_id": { "type": "string" },
+        "speaking_rate_wpm": { "type": "integer", "default": 135 },
+        "stability": { "type": "number", "minimum": 0.0, "maximum": 1.0, "default": 0.75 },
+        "similarity_boost": { "type": "number", "minimum": 0.0, "maximum": 1.0, "default": 0.85 }
+      }
+    },
+    "visual_layer": {
+      "type": "object",
+      "required": ["aspect_ratio", "resolution", "fps", "kinetic_typography", "b_roll_tracks"],
+      "properties": {
+        "aspect_ratio": { "type": "string", "enum": ["9:16", "1:1", "16:9"], "default": "9:16" },
+        "resolution": { "type": "string", "default": "1080x1920" },
+        "fps": { "type": "integer", "default": 60 },
+        "kinetic_typography": {
+          "type": "object",
+          "required": ["font_family", "highlight_color", "text_position"],
+          "properties": {
+            "font_family": { "type": "string", "default": "Montserrat Black" },
+            "highlight_color": { "type": "string", "default": "#FFCC00" },
+            "text_position": { "type": "string", "default": "center_middle" }
+          }
+        },
+        "b_roll_tracks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["start_second", "end_second", "source_asset_uri"],
+            "properties": {
+              "start_second": { "type": "number" },
+              "end_second": { "type": "number" },
+              "source_asset_uri": { "type": "string", "format": "uri" }
+            }
+          }
+        }
+      }
+    },
+    "audio_layer": {
+      "type": "object",
+      "required": ["background_music_uri", "music_ducking_volume", "master_volume_db"],
+      "properties": {
+        "background_music_uri": { "type": "string", "format": "uri" },
+        "music_ducking_volume": { "type": "number", "default": 0.12 },
+        "master_volume_db": { "type": "number", "default": 0.0 }
+      }
+    },
+    "render_output": {
+      "type": "object",
+      "required": ["output_format", "destination_vault_path"],
+      "properties": {
+        "output_format": { "type": "string", "default": "mp4" },
+        "destination_vault_path": { "type": "string" }
+      }
+    }
+  }
+}

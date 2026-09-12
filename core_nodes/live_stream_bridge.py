@@ -5,8 +5,8 @@ import time
 # Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
 if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
+        sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
     except AttributeError:
         pass
 
@@ -22,7 +22,7 @@ class LiveStreamBridge:
         self.audio_inbound_buffer = bytearray()
         self.audio_outbound_buffer = bytearray()
 
-    def initialize_session(self, session_id: str, socket_url: str = None) -> bool:
+    def initialize_session(self, session_id: str, socket_url: str | None = None) -> bool:
         """Establishes connection state and opens the WebRTC/LiveKit media capture stream socket."""
         self.session_id = session_id
         self.socket_url = socket_url or "wss://livekit.goingsos.com/rtc"
@@ -95,7 +95,7 @@ class LiveStreamBridge:
         except Exception as err:
             sys.stderr.write(f" -> Vocal Output Pipe Failure: {str(err)}\n")
             
-        return bytes(audio_payload)
+        return audio_payload
 
     def terminate_session(self) -> bool:
         """Closes active WebRTC streaming sockets and flushes data buffers."""

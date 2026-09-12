@@ -1,4 +1,1 @@
-{
-    "google.cloud.project": "goings-os-command",
-    "google.cloud.billingQuotaProject": "goings-os-command"
-}
+﻿{"python.defaultInterpreterPath": ".\\venv\\Scripts\\python.exe"}

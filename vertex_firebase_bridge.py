@@ -76,10 +76,10 @@ class GoogleEcosystemBridge:
         
         # Dynamic Router Formula: Reserve expensive reasoning swarms for high-value contracts
         if "TBE" in pillar_name or "Consulting" in pillar_name:
-            allocated_model = "gemini-1.5-pro-enterprise"
+            allocated_model = "gemini-3.8-flash"
             routing_tier = "HIGH_COMPLEXITY_VECTOR_SEARCH"
         else:
-            allocated_model = "gemma-2-9b-local-edge"
+            allocated_model = "gemini-3.8-flash"
             routing_tier = "LIGHTWEIGHT_LOCAL_STREAM"
 
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())

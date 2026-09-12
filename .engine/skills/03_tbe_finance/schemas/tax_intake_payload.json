@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TaxIntakePayload",
+  "description": "Production schema for corporate entity intake, tax shield evaluation, and financial assessment.",
+  "type": "object",
+  "required": [
+    "intake_id",
+    "client_profile",
+    "business_entity",
+    "financial_metrics",
+    "tax_shield_interests",
+    "intake_status"
+  ],
+  "properties": {
+    "intake_id": { "type": "string" },
+    "client_profile": {
+      "type": "object",
+      "required": ["full_name", "email", "phone", "state_of_residence"],
+      "properties": {
+        "full_name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "state_of_residence": { "type": "string" }
+      }
+    },
+    "business_entity": {
+      "type": "object",
+      "required": ["entity_name", "entity_type", "state_of_formation", "ein_present", "number_of_owners"],
+      "properties": {
+        "entity_name": { "type": "string" },
+        "entity_type": {
+          "type": "string",
+          "enum": ["SOLE_PROPRIETORSHIP", "SINGLE_MEMBER_LLC", "MULTI_MEMBER_LLC", "S_CORPORATION", "C_CORPORATION", "HOLDING_COMPANY_STRUCTURE"]
+        },
+        "state_of_formation": { "type": "string" },
+        "ein_present": { "type": "boolean" },
+        "number_of_owners": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "financial_metrics": {
+      "type": "object",
+      "required": ["annual_gross_revenue", "estimated_net_profit", "current_owner_draw_monthly", "w2_payroll_active"],
+      "properties": {
+        "annual_gross_revenue": { "type": "number" },
+        "estimated_net_profit": { "type": "number" },
+        "current_owner_draw_monthly": { "type": "number" },
+        "w2_payroll_active": { "type": "boolean" },
+        "current_tax_filing_status": { "type": "string" }
+      }
+    },
+    "tax_shield_interests": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "AUGUSTA_RULE_IRC_280A",
+          "S_CORP_ELECTION_IRC_1362",
+          "HOLDING_COMPANY_REORGANIZATION",
+          "ACCOUNTABLE_REIMBURSEMENT_PLAN",
+          "SECTION_179_VEHICLE_EXPENSING",
+          "HIRING_CHILDREN_PAYROLL",
+          "BOARD_MEETING_TRAVEL_DEDUCTION"
+        ]
+      }
+    },
+    "intake_status": {
+      "type": "string",
+      "enum": ["SUBMITTED", "UNDER_REVIEW", "STRATEGY_SESSION_SCHEDULED", "COMPLETED"],
+      "default": "SUBMITTED"
+    }
+  }
+}

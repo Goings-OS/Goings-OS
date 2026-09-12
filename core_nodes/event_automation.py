@@ -17,8 +17,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
 if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
+        sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
     except AttributeError:
         pass
 
@@ -26,7 +26,7 @@ if sys.platform == "win32":
 class EventAutomationEngine:
     """Coordinates pub-sub listener routing, asynchronous parallel cascades, and transaction logs."""
 
-    def __init__(self, root_dir: str = None, max_workers: int = 5):
+    def __init__(self, root_dir: str | None = None, max_workers: int = 5):
         self.root_dir = root_dir or os.getenv("GOINGS_OS_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.commercial_db = os.path.join(self.root_dir, "goings_os_vault.db")
         self.humanitarian_db = os.path.join(self.root_dir, "choice_legacy_vault.db")
@@ -84,7 +84,7 @@ class EventAutomationEngine:
                 INSERT INTO event_history_log (timestamp, event_topic, event_data_json, listener_callback, status)
                 VALUES (?, ?, ?, ?, ?)
             """, (timestamp, topic, data_json, callback_name, status))
-            log_id = cursor.lastrowid
+            log_id = cursor.lastrowid if cursor.lastrowid is not None else -1
             connection.commit()
             connection.close()
         except sqlite3.Error as err:

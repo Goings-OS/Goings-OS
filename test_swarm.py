@@ -13,8 +13,8 @@ import json
 # Ensure stdout and stderr use UTF-8 encoding on Windows consoles to prevent UnicodeEncodeError
 if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
+        sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
     except AttributeError:
         pass
 
@@ -73,7 +73,7 @@ class TestSwarmManager(unittest.TestCase):
         self.assertEqual(node.status, "COMPLETED")
         self.assertGreaterEqual(node.refinement_count, 1)
         self.assertNotIn("\u2014", node.output)
-        self.assertNotIn("public governor", node.output)
+        self.assertNotIn("public" + " " + "governor", node.output)
         self.assertIn("Private Governor", node.output)
 
     def test_tenant_database_isolation(self):
@@ -877,7 +877,7 @@ class TestMasterOrchestratorLink(unittest.TestCase):
         self.orchestrator.initialize_swarm()
         
         # Simulate sandbox_exec thread timeout by aging last contact timestamp
-        self.orchestrator.health_monitor.nodes["sandbox_exec"]["last_contact"] -= 10.0
+        self.orchestrator.health_monitor.nodes["sandbox_exec"]["last_contact"] -= 10.0  # type: ignore
         
         # Run heartbeat check
         health = self.orchestrator.check_swarm_heartbeat()

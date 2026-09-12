@@ -102,10 +102,10 @@ class GoingsOSOmniEngine:
         # Enforce tax framework defense checks for Tanita Talks Business profiles
         if pillar_key == "tanita_talks_business":
             clearance = "VERIFIED_HIGH_STAKES_ASSET_PROTECTION"
-            model_route = "gemini-1.5-pro-enterprise"
+            model_route = "gemini-3.8-flash"
         else:
             clearance = "STANDARD_ROUTING_PROSPECT"
-            model_route = "gemma-2-9b-edge"
+            model_route = "gemini-3.8-flash"
 
         target_db = self.db_path
         if "choice" in pillar_key.lower():

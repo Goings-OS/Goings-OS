@@ -8,12 +8,13 @@ import os
 import sys
 import sqlite3
 import re
+import typing
 
 # Ensure stdout and stderr use UTF-8 encoding on Windows consoles
 if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
+        sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
     except AttributeError:
         pass
 
@@ -53,7 +54,7 @@ class SchemaManager:
 
     def detect_drift(self) -> dict:
         """Compares SQLite live database metadata against the target instructions schema."""
-        drift_report = {
+        drift_report: dict[str, typing.Any] = {
             "drift_detected": False,
             "missing_tables": [],
             "missing_columns": {},

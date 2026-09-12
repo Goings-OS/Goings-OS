@@ -1,0 +1,8 @@
+﻿[pyrefly]
+project_root = 'C:\Google\CloudSDK\Goings-OS'
+extra_paths = [
+    'C:\Google\CloudSDK\Goings-OS\core_nodes\node_03_sentry',
+    'C:\Google\CloudSDK\Goings-OS\core_nodes\node_08_vault',
+    'C:\Google\CloudSDK\Goings-OS\core_nodes\node_13_developer'
+]
+ignore_missing_imports = true

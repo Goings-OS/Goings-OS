@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GoingsTechMediaPostDispatchPayload",
+  "description": "Multi-platform video dispatch payload schema for Goings Tech Media across YouTube Shorts, TikTok, Instagram Reels, and LinkedIn.",
+  "type": "object",
+  "required": [
+    "dispatch_id",
+    "batch_id",
+    "video_id",
+    "video_metadata",
+    "pillar",
+    "platform_payloads",
+    "cta_destination"
+  ],
+  "properties": {
+    "dispatch_id": { "type": "string" },
+    "batch_id": { "type": "string" },
+    "video_id": { "type": "string" },
+    "pillar": {
+      "type": "string",
+      "enum": ["FACELESS_AI", "PRIVATE_ARCHITECTURE", "ZERO_SAAS_AUTOMATION", "PYTHON_MICROSERVICES"]
+    },
+    "video_metadata": {
+      "type": "object",
+      "required": ["title", "master_video_url", "duration_seconds", "aspect_ratio"],
+      "properties": {
+        "title": { "type": "string" },
+        "master_video_url": { "type": "string", "format": "uri" },
+        "thumbnail_url": { "type": "string", "format": "uri" },
+        "duration_seconds": { "type": "integer" },
+        "aspect_ratio": { "type": "string", "default": "9:16" }
+      }
+    },
+    "platform_payloads": {
+      "type": "object",
+      "required": ["youtube_shorts", "tiktok", "instagram", "linkedin"],
+      "properties": {
+        "youtube_shorts": {
+          "type": "object",
+          "required": ["title", "description", "tags"],
+          "properties": {
+            "title": { "type": "string", "maxLength": 100 },
+            "description": { "type": "string" },
+            "tags": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "tiktok": {
+          "type": "object",
+          "required": ["title", "privacy_level"],
+          "properties": {
+            "title": { "type": "string", "maxLength": 150 },
+            "privacy_level": { "type": "string", "default": "PUBLIC_TO_EVERYONE" }
+          }
+        },
+        "instagram": {
+          "type": "object",
+          "required": ["caption", "hashtags"],
+          "properties": {
+            "caption": { "type": "string" },
+            "hashtags": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "linkedin": {
+          "type": "object",
+          "required": ["commentary"],
+          "properties": {
+            "commentary": { "type": "string" },
+            "title": { "type": "string" }
+          }
+        }
+      }
+    },
+    "cta_destination": {
+      "type": "object",
+      "required": ["target_url", "utm_campaign", "action_tag"],
+      "properties": {
+        "target_url": { "type": "string", "format": "uri" },
+        "utm_campaign": { "type": "string" },
+        "action_tag": { "type": "string" }
+      }
+    }
+  }
+}

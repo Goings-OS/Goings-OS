@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <base target="_top">
   <meta charset="UTF-8">
@@ -17,9 +17,14 @@
     .clearance-badge { background-color: #EF4444; font-weight: bold; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
     .card { background-color: var(--slate-dark); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 15px; }
+    .card-wide { grid-column: span 2; }
     .card-title { color: var(--luxury-gold); text-transform: uppercase; font-size: 0.85rem; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
     .data-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; }
     .label { color: #94A3B8; }
+    .bold-val { font-weight: bold; }
+    .gold-mono { font-family: monospace; color: var(--luxury-gold); }
+    .green-text { color: #34D399; }
+    .table-placeholder { color: #94A3B8; text-align: center; }
     
     .terminal-card { background-color: #0B132B; border: 1px solid var(--luxury-gold); border-radius: 6px; padding: 15px; margin-bottom: 20px; }
     .terminal-log { background-color: #020617; height: 180px; border-radius: 4px; padding: 10px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; margin-bottom: 10px; }
@@ -52,13 +57,13 @@
     <div class="grid">
       <div class="card">
         <div class="card-title">System Properties Mappings</div>
-        <div class="data-row"><span class="label">Commander:</span><span style="font-weight:bold;"><?= architect ?></span></div>
-        <div class="data-row"><span class="label">GHL Location ID:</span><span style="font-family:monospace; color:var(--luxury-gold);"><?= locationId ?></span></div>
+        <div class="data-row"><span class="label">Commander:</span><span class="bold-val"><?= architect ?></span></div>
+        <div class="data-row"><span class="label">GHL Location ID:</span><span class="gold-mono"><?= locationId ?></span></div>
       </div>
       <div class="card">
         <div class="card-title">Connected Storage Core</div>
-        <div class="data-row"><span class="label">System Concurrency State:</span><span style="color:#34D399;">Active Balance Pulse</span></div>
-        <div class="data-row"><span class="label">Gravity Sweep Drag Friction:</span><span style="color:#34D399;">0.00% (Zero Gravity)</span></div>
+        <div class="data-row"><span class="label">System Concurrency State:</span><span class="green-text">Active Balance Pulse</span></div>
+        <div class="data-row"><span class="label">Gravity Sweep Drag Friction:</span><span class="green-text">0.00% (Zero Gravity)</span></div>
       </div>
     </div>
 
@@ -74,14 +79,14 @@
     </div>
 
     <div class="grid">
-      <div class="card" style="grid-column: span 2;">
+      <div class="card card-wide">
         <div class="card-title">
           <span>📋 Live Oasis Master Manifest</span>
           <input type="text" id="radarSearch" class="search-input" placeholder="🔍 Search client radar..." oninput="executeClientRadarSearch()">
         </div>
         <table id="manifestTable">
           <thead><tr><th>Time</th><th>Client Identity</th><th>Originating Intake Form</th><th>Asset Vault</th></tr></thead>
-          <tbody id="manifestBody"><tr><td colspan="4" style="color:#94A3B8; text-align:center;">Scraping spreadsheet ledger entries...</td></tr></tbody>
+          <tbody id="manifestBody"><tr><td colspan="4" class="table-placeholder">Scraping spreadsheet ledger entries...</td></tr></tbody>
         </table>
       </div>
       
@@ -89,7 +94,7 @@
         <div class="card-title">🧹 Autonomous Friction Logs</div>
         <table id="frictionTable">
           <thead><tr><th>Time</th><th>Module</th><th>Resolved Exception Trace</th></tr></thead>
-          <tbody id="frictionBody"><tr><td colspan="3" style="color:#94A3B8; text-align:center;">Checking system health logs...</td></tr></tbody>
+          <tbody id="frictionBody"><tr><td colspan="3" class="table-placeholder">Checking system health logs...</td></tr></tbody>
         </table>
       </div>
     </div>
