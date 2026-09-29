@@ -1,6 +1,6 @@
 ---
 name: 02_goings_tech_media
-description: Automated faceless AI video production, synthetic avatar pipeline, and Goings OS sovereign architecture content engine.
+description: Automated faceless AI video production, synthetic avatar pipeline, and Goings OS private architecture content engine.
 version: 1.0.0
 author: Terrence Goings
 publisher: Keep It Goings LLC & Goings OS
@@ -33,7 +33,7 @@ Goings Tech Media represents the cutting-edge media and engineering branch of Ke
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                    GOINGS TECH MEDIA ENGINE PILLARS                         │
 ├──────────────────────────┬──────────────────────────┬───────────────────────┤
-│   AVATAR VIDEO ENGINE    │   SOVEREIGN ARCHITECTURE │   BATCH DISTRIBUTION  │
+│   AVATAR VIDEO ENGINE    │   PRIVATE ARCHITECTURE │   BATCH DISTRIBUTION  │
 ├──────────────────────────┼──────────────────────────┼───────────────────────┤
 │ • Cloned neural voices   │ • Zero SaaS tax          │ • 16 Videos / Month   │
 │ • Kinetic text rendering │ • FastAPI microservices  │ • Multi-network sync  │

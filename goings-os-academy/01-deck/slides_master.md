@@ -1,6 +1,6 @@
 # GOINGS OS ACADEMY: 60-MINUTE MASTERCLASS SLIDE DECK
 
-## Sovereign AI Automation, The C-P-O Framework & Reclaiming 15 Hours/Week
+## Private AI Automation, The C-P-O Framework & Reclaiming 15 Hours/Week
 
 **Presenter:** Terrence Goings  
 **Publishers:** Keep It Goings LLC & Goings OS LLC  
@@ -23,9 +23,9 @@
 
 #### Zero SaaS Tax, Autonomous Engines & The C-P-O Framework
 
-*How Everyday Founders Reclaim 15 Hours a Week and Build Sovereign Systems That Don't Sleep.*
+*How Everyday Founders Reclaim 15 Hours a Week and Build Private Systems That Don't Sleep.*
 
-* **Presenter:** Terrence Goings (Founder & Sovereign Builder)
+* **Presenter:** Terrence Goings (Founder & Private Builder)
 * **Organizations:** Keep It Goings LLC | Goings OS LLC
 
 > **PRESENTER NOTES:**  
@@ -35,7 +35,7 @@
 
 ## SLIDE 2: The Founder's Journey : From Norfolk to Cloud Engineering
 
-### The Math of the Streets Meets Sovereign Code
+### The Math of the Streets Meets Private Code
 
 * **November 14, 1981:** Born in Norfolk, Virginia: shaped by working-class resilience, street smarts, and high-stakes situational awareness.
 * **The Kitchen Table Rule:** Grading algebra, calculus, and statistics papers with my mother, Barbara Goings.
@@ -76,7 +76,7 @@
 
 ## SLIDE 4: The 3 Core Pillars of Goings OS
 
-### The Sovereign Enterprise Operating System
+### The Private Enterprise Operating System
 
 1. **Physical Product & Cash Flow Capture:** Zero fluff. Shipping physical products, closing high-ticket service retainers, enforcing Stripe deposits.
 2. **Autonomous Kernel Infrastructure:** Python microservices running 24/7 on serverless container hosts with zero daily restarts required.

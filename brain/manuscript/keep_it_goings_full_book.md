@@ -2841,7 +2841,7 @@ Initialize your `brain/` root directory as a private local repository. Whenever 
 
 ### Strategic Takeaways
 
-1. **Own Your Intellectual Sovereign Base**: Relying on third-party SaaS platforms to store your core business strategy isolates your knowledge behind paywalls and non-standard data structures. Plaintext Markdown files are local-first, vendor-agnostic, and natively readable by advanced artificial intelligence.
+1. **Own Your Intellectual Private Base**: Relying on third-party SaaS platforms to store your core business strategy isolates your knowledge behind paywalls and non-standard data structures. Plaintext Markdown files are local-first, vendor-agnostic, and natively readable by advanced artificial intelligence.
 2. **Structure for Clarity**: Organize your vault into logical paths. Keep long-form assets and content IP inside `brain/manuscript/`, and store operational procedures, market positioning, and offer details inside `brain/business/`.
 3. **Master Dynamic Context Hydration**: Achieve precise output from AI models by feeding them explicit combinations of Markdown files right before task execution. Match the right files to the right task every time.
 4. **Separate Knowledge Strategy from Integration Engineering**: Focus your executive energy on shaping vision, documenting strategy, and refining core concepts. Let Keep It Goings LLC and Goings OS LLC handle the underlying automation pipelines, secure integrations, and context hydration engines that scale your vision enterprise-wide.
@@ -3312,7 +3312,7 @@ True community healing occurs when local founders own their operational leverage
 
 ## Epilogue: The Crown Principle
 
-### The Shift from Operator to Sovereign Executive
+### The Shift from Operator to Private Executive
 
 There is a quiet, devastating lie embedded deep within the culture of modern entrepreneurship. It is the belief that sweat is a direct substitute for strategy, and that exhaustion is the ultimate proof of commitment. For decades, founders have been conditioned to wear their operational fatigue like a badge of honor. They wake up at four in the morning, wade through endless streams of operational drag, manually clear backlogs, fight administrative fires, and fall into bed exhausted, believing they have built a business. 
 
@@ -3320,7 +3320,7 @@ In truth, they have not built a business. They have built a high-stakes, hyper-f
 
 The Crown Principle exists to dismantle that lie once and for all.
 
-To hold sovereignty over an enterprise is to understand a fundamental reality: the monarch does not forge the swords, construct the siege weapons, or individually hand-deliver every message across the realm. The monarch defines the strategy, establishes the vision, commands the infrastructure, and retains ultimate authority over the kingdom. When you step into the role of the sovereign executive, you cease measuring your value by the number of tasks you personally execute. You begin measuring your value by the leverage, autonomy, and architectural clarity you command.
+To hold sovereignty over an enterprise is to understand a fundamental reality: the monarch does not forge the swords, construct the siege weapons, or individually hand-deliver every message across the realm. The monarch defines the strategy, establishes the vision, commands the infrastructure, and retains ultimate authority over the kingdom. When you step into the role of the private executive, you cease measuring your value by the number of tasks you personally execute. You begin measuring your value by the leverage, autonomy, and architectural clarity you command.
 
 Artificial intelligence and strategic automation represent the greatest technological shift in human history. For the everyday founder, this transition is not merely a technical upgrade or a software migration. It is an act of reclaiming your ultimate asset: your self-determination.
 
@@ -3328,11 +3328,11 @@ Throughout this book, we have laid out the blueprint for turning fragmented oper
 
 ```
 ================================================================================
-                    THE SOVEREIGN EXECUTIVE'S CREED
+                    THE PRIVATE EXECUTIVE'S CREED
 ================================================================================
   "I am no longer the engine that pulls the train. I am the architect 
    who designs the track, the strategist who chooses the destination, 
-   and the sovereign owner who secures the yield. My time belongs to vision; 
+   and the private owner who secures the yield. My time belongs to vision; 
    my systems belong to execution."
 ================================================================================
 ```
@@ -3349,7 +3349,7 @@ Achieving this level of executive sovereignty requires absolute clarity across t
 2. **Systemic Resilience:** Operational architecture that performs consistently, scales on demand, and recovers autonomously regardless of market volatility or human error.
 3. **Legacy Architecture:** Capital and institutional equity designed to compound across generations, operating independently of any single individual.
 
-When these three pillars align, a founder ceases to be a reactive survivalist fighting daily operational fires. They transform into a proactive sovereign executive operating from a position of absolute power.
+When these three pillars align, a founder ceases to be a reactive survivalist fighting daily operational fires. They transform into a proactive private executive operating from a position of absolute power.
 
 ```
 +------------------------------------------------------------------------------+
@@ -3365,7 +3365,7 @@ When these three pillars align, a founder ceases to be a reactive survivalist fi
 +------------------------------------------------------------------------------+
 ```
 
-To step into this sovereign reality, you must master three core questions that govern every action, system, and strategy in your enterprise: The Who, The What, and The When.
+To step into this private reality, you must master three core questions that govern every action, system, and strategy in your enterprise: The Who, The What, and The When.
 
 ---
 
@@ -3373,7 +3373,7 @@ To step into this sovereign reality, you must master three core questions that g
 
 Many founders fail because they confuse strategic command with operational labor. They ask themselves *How do I build this workflow? How do I write this integration? How do I fix this broken system?* 
 
-The moment a sovereign executive asks *How*, they have stepped off the throne and onto the factory floor. The *How* is the domain of specialized infrastructure and dedicated execution engines. Your mandate as the founder is to maintain absolute command over the strategic dimensions: Who, What, and When.
+The moment a private executive asks *How*, they have stepped off the throne and onto the factory floor. The *How* is the domain of specialized infrastructure and dedicated execution engines. Your mandate as the founder is to maintain absolute command over the strategic dimensions: Who, What, and When.
 
 ```
 +------------------------------------------------------------------------------+
@@ -3396,11 +3396,11 @@ The moment a sovereign executive asks *How*, they have stepped off the throne an
 ```
 
 #### 1. The Who: Clarifying Strategic Identity and Agency
-The first key to sovereign command is determining exactly *Who* is responsible for every outcome in your business ecosystem. 
+The first key to private command is determining exactly *Who* is responsible for every outcome in your business ecosystem. 
 
 In a traditional company, the *Who* is always an overworked employee or the founder themselves. In an AI-automated enterprise, the *Who* becomes a highly coordinated network of specialized human talent and intelligent software agents. 
 
-As the sovereign founder, you must define:
+As the private founder, you must define:
 * **Who holds final decision-making authority?** (You, the executive).
 * **Who manages high-touch human relationships?** (Your specialized account leadership).
 * **Who executes repeatable, high-volume cognitive tasks?** (Your deployed AI workforce and automated pipelines).
@@ -3412,7 +3412,7 @@ The second key is defining *What* must be accomplished to drive disproportionate
 
 Unclear directions produce chaotic operations. When founders fail to define the exact deliverables, parameters, and success criteria for their business, their systems inevitably stall out or produce low-quality results.
 
-The sovereign executive does not guess. You define:
+The private executive does not guess. You define:
 * **What precise data points trigger an automated client onboarding journey?**
 * **What specific threshold requires manual executive approval before capital is deployed?**
 * **What standardized output must be generated at the conclusion of every sales conversation?**
@@ -3490,7 +3490,7 @@ By delegating the technical implementation to the custom ecosystem designed spec
 
 ### The Legacy of the KG/GO Brand: Built for Generational Sovereignty
 
-The modern marketplace is brutally unforgiving to businesses relying on outdated human labor models. As artificial intelligence advances, the gap between traditional manual operators and AI-automated sovereign executives will grow exponentially. Companies that fail to adapt will be outpaced, out-priced, and ultimately rendered obsolete.
+The modern marketplace is brutally unforgiving to businesses relying on outdated human labor models. As artificial intelligence advances, the gap between traditional manual operators and AI-automated private executives will grow exponentially. Companies that fail to adapt will be outpaced, out-priced, and ultimately rendered obsolete.
 
 The **Keep It Goings (KG)** and **Goings OS (GO)** brand legacy was forged to ensure that everyday founders do not get left behind in this technological epoch. 
 
@@ -3519,7 +3519,7 @@ When you integrate the principles laid out in this book, you are not merely fixi
 * **Your time becomes completely liberated:** Allowing you to focus on high-stakes deals, strategic expansion, family, and personal freedom.
 * **Your business becomes an acquirable, high-value asset:** An enterprise that operates seamlessly without you is worth exponentially more than a business where you are the central point of failure.
 
-This is the ultimate promise of the KG/GO framework. It is the transition from worker to owner, from manager to architect, and from operator to sovereign executive.
+This is the ultimate promise of the KG/GO framework. It is the transition from worker to owner, from manager to architect, and from operator to private executive.
 
 ---
 
@@ -3529,7 +3529,7 @@ To lock in the transformation and begin operating under the Crown Principle toda
 
 ```
 +------------------------------------------------------------------------------+
-|                       THE SOVEREIGN ACTION PLAN                              |
+|                       THE PRIVATE ACTION PLAN                              |
 +------------------------------------------------------------------------------+
 |  [ ] STEP 1: AUDIT YOUR DAILY OPERATIONAL DRAG                               |
 |      Identify every task taking up your mental space. Categorize them by     |
@@ -3564,7 +3564,7 @@ It is claimed the moment you decide that your time is too valuable to spend figh
 
 ```
 ================================================================================
-                         THE SOVEREIGN COMMANDMENT
+                         THE PRIVATE COMMANDMENT
 ================================================================================
   "Build systems that work for you, so you never spend another day 
    working for your systems. Step into your power, protect your freedom, 

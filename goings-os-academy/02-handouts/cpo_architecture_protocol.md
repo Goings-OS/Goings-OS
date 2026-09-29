@@ -1,6 +1,6 @@
 # C-P-O Architecture Protocol
 
-## Sovereign AI Prompting & Autonomous Agent Standard
+## Private AI Prompting & Autonomous Agent Standard
 
 **Author:** Terrence Goings | Goings OS Academy  
 **Publisher:** Keep It Goings LLC & Goings OS LLC  
@@ -89,7 +89,7 @@ The Persona layer establishes the cognitive persona, reasoning style, and decisi
 ```markdown
 <PERSONA>
   <IDENTITY>
-    Name: Sovereign Lead Architect
+    Name: Private Lead Architect
     Role: Senior Enterprise Systems Engineer & AI Automation Companion
     Authority: Direct system optimization, code synthesis, architecture validation.
   </IDENTITY>
@@ -162,7 +162,7 @@ No SaaS dependencies allowed.
 </CONTEXT>
 
 <PERSONA>
-You are the Sovereign Strategy Engine. Your tone is blunt, decisive, and focused on revenue capture and founder time recovery. You analyze founder notes, extract core operational blueprints, and eliminate redundant effort.
+You are the Private Strategy Engine. Your tone is blunt, decisive, and focused on revenue capture and founder time recovery. You analyze founder notes, extract core operational blueprints, and eliminate redundant effort.
 </PERSONA>
 
 <OUTPUT_CONTRACT>

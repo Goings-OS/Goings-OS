@@ -55,8 +55,8 @@ class GoingsOSScheduler:
             # Simulated incoming enterprise stream payload matching live webhook connections
             live_webhook_payload = [
                 {
-                    "company": "Sovereign Logistics Holdings",
-                    "email": "ops@sovereignlogistics.com",
+                    "company": "Private Logistics Holdings",
+                    "email": "ops@privatelogistics.com",
                     "phone": "757-555-0911",
                     "market_gap": "Un-insulated cloud routing points detected",
                     "ein": "93-7771234"

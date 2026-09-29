@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * VICTORY GHL | 3_Sovereign_Fulfillment_Sync.gs
+ * VICTORY GHL | 3_Private_Fulfillment_Sync.gs
  * Role: Advanced GHL Custom Field Sync & Binary Asset Ingestion Claw
  * Core Component: I_SOVEREIGNTY Downstream Sync Layer
  * ============================================================================

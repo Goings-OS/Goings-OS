@@ -38,7 +38,7 @@ def initialize_tenant_vault():
     
     # Populate default target market profiles to secure the baseline architecture
     default_tenants = [
-        ("757-LOCAL-HQ", "Goings OS Core Operations", "Hampton Roads", "Sovereign"),
+        ("757-LOCAL-HQ", "Goings OS Core Operations", "Hampton Roads", "Private"),
         ("GLOBAL-ENT-01", "International Logistics Tier", "Abroad", "Enterprise")
     ]
     

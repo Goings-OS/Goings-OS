@@ -167,6 +167,45 @@ STANDARD_AGENT_CARDS: Dict[str, Dict[str, Any]] = {
             "SETTLE_TRANSACTION",
             "ENFORCE_SPEND_CAP"
         ]
+    },
+    "catalyst-cmo": {
+        "agent_id": "catalyst-cmo",
+        "name": "Catalyst CMO Creative Engine",
+        "node_id": "node_09_catalyst_cmo",
+        "role": "Marketing Campaign, Video Script & Curriculum Architecture",
+        "security_clearance": "MARKETING_CREATIVE",
+        "capabilities": [
+            "video_script_compilation",
+            "curriculum_syllabus_design",
+            "youtube_ad_copy_generation"
+        ],
+        "endpoints": {
+            "module": "core_nodes.node_09_catalyst_cmo.video_rotator"
+        },
+        "authorized_intents": [
+            "GENERATE_CURRICULUM",
+            "PUBLISH_TBE_SYLLABUS",
+            "ASSEMBLE_CAMPAIGN"
+        ]
+    },
+    "analyst": {
+        "agent_id": "analyst",
+        "name": "Analyst Commercial Intelligence Engine",
+        "node_id": "node_05_analyst",
+        "role": "Financial Modeling, Ratios & Sustainable Allocation Partitioner",
+        "security_clearance": "FINANCIAL_MODELING",
+        "capabilities": [
+            "owners_draw_partitioning",
+            "pricing_tier_modeling",
+            "gross_yield_forecasting"
+        ],
+        "endpoints": {
+            "module": "core_nodes.node_05_analyst"
+        },
+        "authorized_intents": [
+            "CALCULATE_FINANCIAL_SPLITS",
+            "PROJECT_PRODUCT_ECONOMICS"
+        ]
     }
 }
 

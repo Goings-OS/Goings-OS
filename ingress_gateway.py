@@ -24,6 +24,23 @@ if sys.platform == "win32":
     except AttributeError:
         pass
 
+# Automatically load environment variables from root .env if present
+try:
+    from dotenv import load_dotenv
+    load_dotenv(override=True)
+except ImportError:
+    env_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    if os.path.exists(env_file):
+        with open(env_file, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    k = k.strip()
+                    v = v.strip().strip("'\"")
+                    if k and k not in os.environ:
+                        os.environ[k] = v
+
 # Initialize FastAPI App
 app = FastAPI(
     title="Private Ingress Gateway",
@@ -883,7 +900,7 @@ def query_gemini_model_armor(prompt: str, context_payload: Dict[str, Any], syste
             logging.warning(f"Gemini API call fell back to local reasoning: {str(e)}")
 
     if not gemini_response_text:
-        gemini_response_text = f"Gemini 3.8 Flash Analysis [{timestamp}]: Sanitized payload verified via Model Armor. Parameters aligned with Goings OS Sovereign Architecture."
+        gemini_response_text = f"Gemini 3.8 Flash Analysis [{timestamp}]: Sanitized payload verified via Model Armor. Parameters aligned with Goings OS Private Architecture."
 
     return {
         "model": model_name,
@@ -1106,6 +1123,46 @@ async def security_emergency_stop_endpoint(request: Request):
     return JSONResponse(
         status_code=200,
         content=result
+    )
+
+@app.post("/api/v4.2/alerts/test")
+@app.get("/api/v4.2/alerts/test")
+async def test_alert_dispatch_endpoint(request: Request):
+    """Test Alert Dispatch: Sends a real-time verification ping to Google Chat and Telegram."""
+    from core_nodes.node_17_auto_updater.notifier import MultiChannelNotifier
+    notifier = MultiChannelNotifier()
+
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
+    title = "GOINGS OS v4.2 TEST ALERT DISPATCH"
+    summary = f"Live alert delivery verification triggered at {timestamp}."
+    diff_snippet = "Test Ping: Verifying Google Chat Space webhook and Telegram Bot push delivery."
+    approval_url = "https://keepitgoings.com"
+
+    chat_result = notifier.send_google_chat(
+        title=title,
+        summary=summary,
+        diff_snippet=diff_snippet,
+        approval_url=approval_url,
+        severity="INFO",
+        branch="main"
+    )
+
+    telegram_result = notifier.send_telegram(
+        title=title,
+        summary=summary,
+        approval_url=approval_url,
+        severity="INFO",
+        branch="main"
+    )
+
+    return JSONResponse(
+        status_code=200,
+        content={
+            "status": "ALERT_TEST_DISPATCHED",
+            "timestamp": timestamp,
+            "google_chat": chat_result,
+            "telegram": telegram_result
+        }
     )
 
 # Wrap FastAPI ASGI App with a2wsgi for Waitress WSGI server compatibility

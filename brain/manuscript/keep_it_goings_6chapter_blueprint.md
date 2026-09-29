@@ -1047,7 +1047,7 @@ Do not wait until next month to implement this framework. You can reclaim your f
 
 ---
 
-### The Sovereign Founder's Weekly Schedule Architecture
+### The Private Founder's Weekly Schedule Architecture
 
 To help you visualize your target state, review this blueprint schedule. This is how an everyday founder shifts from working IN the business to leading ON the business.
 
@@ -1075,7 +1075,7 @@ You did not launch your business to become a slave to administrative drag, endle
 
 Reclaiming 15 hours a week is not an impossible dream. It is a straightforward engineering task. Audit your daily steps, identify your friction points, build your automated Life OS pipelines, and protect your personal time with unyielding discipline.
 
-Put your operational variables where they belong. Balance your ledger. Build your enterprise system, step into your role as a true sovereign founder, and keep it going.
+Put your operational variables where they belong. Balance your ledger. Build your enterprise system, step into your role as a true private founder, and keep it going.
 
 ---
 
@@ -1928,11 +1928,11 @@ This is a structural flaw, not a personal failure. You cannot out-hustle a broke
 
 To achieve genuine freedom, you must build what I call a **Life Operating System (Life OS)**. A Life OS treats your enterprise and your personal existence as a unified, optimized architecture. In this paradigm, artificial intelligence acts as your digital workforce. It is your dynamic labor layer that executes routine, deterministic operations around the clock without fatigue or error.
 
-When you implement a Life OS, your daily focus shifts entirely. You move from being the operator on the factory floor to the sovereign architect sitting in the executive suite.
+When you implement a Life OS, your daily focus shifts entirely. You move from being the operator on the factory floor to the private architect sitting in the executive suite.
 
 ```
 +-----------------------------------------------------------------------+
-|                       THE SOVEREIGN FOUNDER                           |
+|                       THE PRIVATE FOUNDER                           |
 |                  (Vision, Legacy, Strategic Strategy)                 |
 +-----------------------------------------------------------------------+
                                    |
@@ -1949,7 +1949,7 @@ When you implement a Life OS, your daily focus shifts entirely. You move from be
 +---------------+          +---------------+          +---------------+
 ```
 
-Notice the power dynamics in this architecture. The sovereign founder sits comfortably at the top of the chain, defining the strategic vision and preserving personal energy for family, health, and legacy. The AI automation layer takes the operational weight off your shoulders, executing background execution protocols silently and continuously.
+Notice the power dynamics in this architecture. The private founder sits comfortably at the top of the chain, defining the strategic vision and preserving personal energy for family, health, and legacy. The AI automation layer takes the operational weight off your shoulders, executing background execution protocols silently and continuously.
 
 ---
 
@@ -1993,23 +1993,23 @@ Artificial intelligence automation is the great equalizer for everyday founders.
 
 ```
 +-------------------------------------------------------------------------+
-|                  THE TRADITIONAL VS. SOVEREIGN FOUNDER                  |
+|                  THE TRADITIONAL VS. PRIVATE FOUNDER                  |
 +-------------------------------------------------------------------------+
-| METRIC             | TRADITIONAL FOUNDER      | SOVEREIGN FOUNDER       |
+| METRIC             | TRADITIONAL FOUNDER      | PRIVATE FOUNDER       |
 +--------------------+--------------------------+-------------------------+
 | Focus              | Working IN the business  | Working ON the Life OS  |
 | Scalability Limit  | Personal physical hours  | Automated API capacity  |
 | Data Handling      | Manual, reactive triage  | Systemic routing logic  |
-| Family Presence    | Fragmented, distracted   | Protected, sovereign    |
+| Family Presence    | Fragmented, distracted   | Protected, private    |
 | Enterprise Value   | tied to founder's labor  | Self-sustaining asset   |
 +--------------------+--------------------------+-------------------------+
 ```
 
 ---
 
-## Actionable Blueprint: The Crown Framework for Sovereign Execution
+## Actionable Blueprint: The Crown Framework for Private Execution
 
-To transition from an operational laborer to a sovereign executive, you must systematically implement the **Crown Framework**. Follow these four non-negotiable steps over the next ninety days.
+To transition from an operational laborer to a private executive, you must systematically implement the **Crown Framework**. Follow these four non-negotiable steps over the next ninety days.
 
 ```
   +-----------------------------------------------------------------+

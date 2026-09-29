@@ -358,7 +358,7 @@ class HitLEscalationGate:
     """Aegis-Risk Human-in-the-Loop Gatekeeper enforcing executive authorization before submission."""
 
     def __init__(self, secret_key: Optional[str] = None, db_path: Optional[str] = None):
-        self.secret_key = secret_key or os.environ.get("AEGIS_SECRET_KEY", "SOVEREIGN_GOINGS_OS_SECRET_KEY_757")
+        self.secret_key = secret_key or os.environ.get("AEGIS_SECRET_KEY", "PRIVATE_GOINGS_OS_SECRET_KEY_757")
         self.db_path = db_path or DB_PATH
         self._init_vault_db()
 

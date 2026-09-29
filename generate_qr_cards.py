@@ -63,8 +63,8 @@ def build_table_card(filename, url, title, subtitle, cta, footer, theme="cream_g
     width, height = 1500, 2100
     
     # Establish Color Palette configurations
-    if theme == "sovereign":
-        # Sovereign Theme: Ocean Navy (#07162C) and Luxury Gold (#FACC15) values exclusively
+    if theme == "private":
+        # Private Theme: Ocean Navy (#07162C) and Luxury Gold (#FACC15) values exclusively
         bg_color = "#07162C"
         border_color = "#FACC15"
         title_color = "#FACC15"
@@ -209,12 +209,12 @@ if __name__ == "__main__":
             theme="cream_gold"
         )
 
-    # Generate sovereign theme cards for compliance alignment
+    # Generate private theme cards for compliance alignment
     print("\n----------------------------------------------------------")
-    print(" GENERATING SOVEREIGN ALIGNED METRIC CARDS                ")
+    print(" GENERATING PRIVATE ALIGNED METRIC CARDS                ")
     print("----------------------------------------------------------")
     for data in cards_data:
-        sov_filename = data["filename"].replace(".png", "_Sovereign.png")
+        sov_filename = data["filename"].replace(".png", "_Private.png")
         build_table_card(
             filename=sov_filename,
             url=data["url"],
@@ -222,7 +222,7 @@ if __name__ == "__main__":
             subtitle=data["subtitle"],
             cta=data["cta"],
             footer=data["footer"],
-            theme="sovereign"
+            theme="private"
         )
 
     print("==========================================================")

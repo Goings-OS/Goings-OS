@@ -50,7 +50,7 @@ const GoingsOSDashboard = () => {
       <div className="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tighter text-blue-400">GOINGS OS <span className="text-slate-500 font-normal">v2.0</span></h1>
-          <p className="text-xs text-slate-400 uppercase tracking-widest">AWS of the South / Sovereign Engine</p>
+          <p className="text-xs text-slate-400 uppercase tracking-widest">AWS of the South / Private Engine</p>
         </div>
         <div className="text-right">
           <div className="text-xs text-slate-500 uppercase">System Status</div>
@@ -144,7 +144,7 @@ const GoingsOSDashboard = () => {
             </span>
           </div>
           <p className="text-slate-300 max-w-2xl leading-relaxed">
-            Connected to Sovereign Bridge V2. Monitoring high-intent traffic for **KIG Consulting** and **Tanita Brinkley Ent.** All parameters within Industrial standards.
+            Connected to Private Bridge V2. Monitoring high-intent traffic for **KIG Consulting** and **Tanita Brinkley Ent.** All parameters within Industrial standards.
           </p>
         </motion.div>
       </AnimatePresence>

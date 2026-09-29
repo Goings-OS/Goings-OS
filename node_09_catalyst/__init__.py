@@ -37,12 +37,12 @@ ENTITY_CAMPAIGN_DEFAULTS: Dict[str, Dict[str, str]] = {
         "target_audience": "Maritime travelers, luxury entertainment seekers, group reservation coordinators"
     },
     "Keep It Goings LLC": {
-        "focus_vector": "Faceless AI Architecture and Sovereign Enterprise Systems",
+        "focus_vector": "Faceless AI Architecture and Private Enterprise Systems",
         "visual_style_constraints": "Titanium Slate, Neon Cyan Data Matrix, Ultra-Minimal Glassmorphism, 60fps Macro Optics",
         "storyboard_sequence": (
             "Scene 1: Clean architectural server racks humming silently in a climate-controlled data node. "
             "Scene 2: Micro-animations tracing multi-tenant database transactions in real time across the Goings OS network. "
-            "Scene 3: Text overlay: Engineering Sovereign Infrastructure for Modern Conglomerates. Keep It Goings."
+            "Scene 3: Text overlay: Engineering Private Infrastructure for Modern Conglomerates. Keep It Goings."
         ),
         "target_audience": "Enterprise founders, cloud architecture teams, institutional stakeholders"
     },

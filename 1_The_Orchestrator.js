@@ -1,8 +1,8 @@
 /**
  * ============================================================================
  * VICTORY GHL MATRIX CORE | 1_The_Orchestrator.gs
- * Architecture: Sovereign Meta-Engine with Automated Fault Isolation
- * Managed Nodes: Sovereign OS Brain, System (The Vortex) & Resilience Core
+ * Architecture: Private Meta-Engine with Automated Fault Isolation
+ * Managed Nodes: Private OS Brain, System (The Vortex) & Resilience Core
  * Configuration Version: v4.0.0 (Absolute Production Grade)
  * ============================================================================
  */
@@ -95,7 +95,7 @@ function doPost(e) {
     } catch (clawErr) {}
 
     // 4. METASYSTEM FULFILLMENT CORE
-    executeSovereignMetaFulfillment(clientName, email, formName, OS_CONFIG, clientFolderId);
+    executePrivateMetaFulfillment(clientName, email, formName, OS_CONFIG, clientFolderId);
 
     return ContentService.createTextOutput(JSON.stringify({
       status: "SUCCESS",
@@ -187,7 +187,7 @@ function processCommandFromCenter(userPrompt) {
   return askTheArchitect(structuralDirective);
 }
 
-function executeSovereignMetaFulfillment(clientName, email, formName, config, folderId) {
+function executePrivateMetaFulfillment(clientName, email, formName, config, folderId) {
   var ss = SpreadsheetApp.openById(config.VAULT_SPREADSHEET_ID);
   var configSheet = ss.getSheetByName("System_Agent_Registry");
   var agentDirective = "ROLE: Elite Consumer Law Forensic Auditor. Strategy: Execute an advanced factual dispute audit challenge using strict Metro 2 formatting compliance parameters. Output clean body text paragraphs only.";

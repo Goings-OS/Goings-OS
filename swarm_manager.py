@@ -835,7 +835,7 @@ class OrchestratorAPIHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
         elif self.path == "/api/mutation":
             try:
-                code_to_compile = data.get("code", "print('Sovereign Mutation Audit: OK')")
+                code_to_compile = data.get("code", "print('Private Mutation Audit: OK')")
                 engine = self.orchestrator_instance.mutation_engine
                 result = engine.execute_validation(code_to_compile)
                 
@@ -1052,7 +1052,7 @@ class MultiTenantRoundRobinScheduler:
                 "intents": [
                     "Draft corporate bylaws and strategic tax filings",
                     "Process contractor independent alignment records",
-                    "Perform sovereign presentment audits and good standing checks"
+                    "Perform private presentment audits and good standing checks"
                 ]
             },
             {

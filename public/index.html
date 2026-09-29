@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goings OS - Asset Scanner</title>
+  <style>
+    body {
+      background: #0d0f12;
+      color: #e5e7eb;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+    .header {
+      border-bottom: 2px solid #d4af37;
+      padding-bottom: 10px;
+      margin-bottom: 16px;
+    }
+    h2 {
+      color: #d4af37;
+      margin: 0;
+      text-transform: uppercase;
+      font-size: 1.2rem;
+    }
+    .card {
+      background: #161a22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+    button {
+      background: #d4af37;
+      color: #0d0f12;
+      font-weight: bold;
+      border: none;
+      padding: 14px;
+      width: 100%;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button:disabled {
+      background: #444;
+      color: #888;
+      cursor: not-allowed;
+    }
+    #log {
+      background: #000;
+      border: 1px solid #222;
+      padding: 12px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      margin-top: 14px;
+      white-space: pre-wrap;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    #preview {
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      border-radius: 6px;
+      display: none;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h2>Goings OS Asset Intake // Warwick Facility</h2>
+    <small style="color: #9ca3af;">Offline-Resilient Multimodal Vision</small>
+  </div>
+
+  <div class="card">
+    <label for="camera"><strong>Capture Warehouse Asset</strong></label>
+    <input type="file" id="camera" accept="image/*" capture="environment" style="margin-top: 10px; width: 100%;">
+    <img id="preview" alt="Asset Preview">
+    <button id="scanBtn" style="margin-top: 14px;" disabled>Scan & Catalog Item</button>
+    <div id="log">System online and ready for asset capture.</div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app-check.js";
+    import { getAI, getGenerativeModel, GoogleAIBackend } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-ai.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+    // Enable debug mode automatically on local host
+    if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+      self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+    }
+
+    // 1. Firebase Project Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBk-1eJFpKmHsJX8rWdr4ka88TIqnC2PVQ",
+      authDomain: "goings-os-command.firebaseapp.com",
+      projectId: "goings-os-command",
+      storageBucket: "goings-os-command.firebasestorage.app",
+      appId: "1:618999325541:web:f3e8cdb830e7f3d25df78c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+
+    // 2. Production App Check Attestation
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider("6LfEiNEtAAAAAD_0nTwb-b-KVcLyAr_MNpES5h9C"),
+      isTokenAutoRefreshEnabled: true
+    });
+
+    // 3. Initialize Cloud Firestore
+    const db = getFirestore(app);
+
+    // 4. Gemini Developer API Backend Initialization
+    const ai = getAI(app, { backend: new GoogleAIBackend() });
+    const model = getGenerativeModel(ai, { model: "gemini-3.8-flash" });
+
+    const logBox = document.getElementById("log");
+    const scanBtn = document.getElementById("scanBtn");
+    const camera = document.getElementById("camera");
+    const preview = document.getElementById("preview");
+
+    let base64Data = null;
+
+    camera.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        preview.src = event.target.result;
+        preview.style.display = "block";
+        base64Data = event.target.result.split(",")[1];
+        scanBtn.disabled = false;
+        logBox.innerText = "Asset preview loaded. Tap scan to catalog.";
+      };
+      reader.readAsDataURL(file);
+    });
+
+    scanBtn.addEventListener("click", async () => {
+      if (!base64Data) return;
+      scanBtn.disabled = true;
+      logBox.innerText = "Attesting via App Check and processing with Gemini 3.8 Flash...";
+
+      try {
+        const prompt = "Identify this event rental item. Return a clean JSON object with keys: itemName, category (Furniture, Linens, Centerpieces, Atmospheric, Service Ware), estimatedQuantity, conditionGrade (Tier A, B, or C).";
+        
+        const result = await model.generateContent([
+          prompt,
+          { inlineData: { data: base64Data, mimeType: "image/jpeg" } }
+        ]);
+
+        const output = result.response.text();
+        logBox.innerText = "Catalog Result:\n" + output;
+
+        // Persist completed scan payload to Firestore 'inventory_assets' collection
+        try {
+          let parsedDetails = null;
+          try {
+            const cleaned = output.replace(/```json/g, "").replace(/```/g, "").trim();
+            parsedDetails = JSON.parse(cleaned);
+          } catch (_) {}
+
+          await addDoc(collection(db, "inventory_assets"), {
+            payload: output,
+            itemDetails: parsedDetails || null,
+            facility: "Warwick Facility",
+            timestamp: serverTimestamp(),
+            createdAt: new Date().toISOString()
+          });
+          logBox.innerText += "\n\n[Payload synced to Firestore collection 'inventory_assets']";
+        } catch (dbErr) {
+          console.error("Firestore persistence error:", dbErr);
+          logBox.innerText += "\n\n[Firestore sync pending/offline: " + dbErr.message + "]";
+        }
+
+        // Offline storage queue
+        const currentScans = JSON.parse(localStorage.getItem("warwick_scans") || "[]");
+        currentScans.push({ timestamp: new Date().toISOString(), payload: output });
+        localStorage.setItem("warwick_scans", JSON.stringify(currentScans));
+
+      } catch (err) {
+        logBox.innerText = "Latency or connection issue. Saved to offline queue: " + err.message;
+        const currentScans = JSON.parse(localStorage.getItem("warwick_scans") || "[]");
+        currentScans.push({ timestamp: new Date().toISOString(), payload: "Offline pending scan" });
+        localStorage.setItem("warwick_scans", JSON.stringify(currentScans));
+      } finally {
+        scanBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

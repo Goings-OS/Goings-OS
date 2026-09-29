@@ -15,7 +15,7 @@
 
 The **Enterprise System Deployment Standard** governs the transition of code, configuration, and database schemas from local development into live enterprise production.
 
-In a sovereign, zero-SaaS enterprise architecture, deployments must be deterministic, auditable, and resilient against regression. System updates must never disrupt transactional state, drop active client connections, or leak sensitive API credentials.
+In a private, zero-SaaS enterprise architecture, deployments must be deterministic, auditable, and resilient against regression. System updates must never disrupt transactional state, drop active client connections, or leak sensitive API credentials.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐

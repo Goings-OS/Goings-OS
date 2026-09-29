@@ -96,11 +96,11 @@
 
 ---
 
-## 🎯 Part II: Sovereign Goings OS Architecture Blueprints (8 Videos)
+## 🎯 Part II: Private Goings OS Architecture Blueprints (8 Videos)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                 SOVEREIGN GOINGS OS ARCHITECTURE BLUEPRINTS                 │
+│                 PRIVATE GOINGS OS ARCHITECTURE BLUEPRINTS                 │
 ├─────┬─────────────────────────────────┬─────────────────────────────────────┤
 │ NO. │ CORE TOPIC                      │ PRIMARY ARCHITECTURAL FOCUS         │
 ├─────┼─────────────────────────────────┼─────────────────────────────────────┤
@@ -129,7 +129,7 @@
 * **Hook (0 to 3s):** "Why SQLite is the most underrated database engine for enterprise AI systems."
 * **Tech Tension (4 to 25s):** "Cloud database vendors want you hooked on expensive monthly managed clusters that introduce network latency and security vulnerabilities for basic structured operations."
 * **Architectural Solution (26 to 45s):** "We utilize local SQLite databases configured with write-ahead logging (WAL) and memory caching. They execute in microseconds, require zero maintenance, and store gigabytes of customer data securely on your own hardware."
-* **Call to Action (46 to 60s):** "Take control of your data layer. Learn sovereign database engineering with Goings OS."
+* **Call to Action (46 to 60s):** "Take control of your data layer. Learn private database engineering with Goings OS."
 
 ---
 

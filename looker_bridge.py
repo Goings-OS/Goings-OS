@@ -112,7 +112,7 @@ class LookerStudioBridge:
                 mock_students = [
                     ("STU-101", "Avery Brooks", "Humanitarian Leadership", 94.5, 88.0),
                     ("STU-102", "Jordan Hayes", "Non-profit Management", 98.0, 92.5),
-                    ("STU-103", "Morgan Vance", "Sovereign Asset Protection", 91.0, 85.0)
+                    ("STU-103", "Morgan Vance", "Private Asset Protection", 91.0, 85.0)
                 ]
                 cursor.executemany("""
                     INSERT OR IGNORE INTO classroom_student_telemetry (timestamp, student_id, student_name, course_name, attendance_score, grade_score)

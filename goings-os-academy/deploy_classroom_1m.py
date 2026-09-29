@@ -56,7 +56,7 @@ def deploy_3tier_enterprise_classroom():
     
     try:
         course_body = {
-            'name': 'Goings OS Academy: Sovereign Enterprise Track',
+            'name': 'Goings OS Academy: Private Enterprise Track',
             'section': 'Cohort 001 (3-Tier Master Class)',
             'descriptionHeading': 'The Goings OS Operational Standard',
             'description': '3-Tier pathways for Novice Beginners, Intermediate Operators, and System Architects.',

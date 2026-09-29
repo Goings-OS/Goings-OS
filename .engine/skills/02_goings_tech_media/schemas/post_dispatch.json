@@ -18,7 +18,7 @@
     "video_id": { "type": "string" },
     "pillar": {
       "type": "string",
-      "enum": ["FACELESS_AI", "SOVEREIGN_ARCHITECTURE", "ZERO_SAAS_AUTOMATION", "PYTHON_MICROSERVICES"]
+      "enum": ["FACELESS_AI", "PRIVATE_ARCHITECTURE", "ZERO_SAAS_AUTOMATION", "PYTHON_MICROSERVICES"]
     },
     "video_metadata": {
       "type": "object",

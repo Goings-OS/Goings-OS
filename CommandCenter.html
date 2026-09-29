@@ -204,8 +204,8 @@
                         {!complete ? (
                             <div class="text-center w-full space-y-8 animate-slideUp">
                                 <i class="fa-solid fa-crosshairs text-6xl text-amber-500 mb-4 animate-pulse"></i>
-                                <h2 class="text-4xl font-black text-white uppercase tracking-tighter">Sovereign <span class="text-amber-500">Scout Engine</span></h2>
-                                <p class="text-slate-400 text-sm max-w-md mx-auto">Drop a logistics competitor or prospect URL below. Victory will scrape their data and generate a custom $8,500 Sovereign Tenant Portal.</p>
+                                <h2 class="text-4xl font-black text-white uppercase tracking-tighter">Private <span class="text-amber-500">Scout Engine</span></h2>
+                                <p class="text-slate-400 text-sm max-w-md mx-auto">Drop a logistics competitor or prospect URL below. Victory will scrape their data and generate a custom $8,500 Private Tenant Portal.</p>
                                 
                                 <div class="relative w-full max-w-2xl mx-auto">
                                     <div class="absolute -inset-1 bg-amber-500 rounded-2xl blur opacity-20"></div>
@@ -239,7 +239,7 @@
                                 </div>
                                 <div class="bg-white p-8 rounded-3xl relative overflow-hidden">
                                     <div class="absolute top-0 right-0 bg-red-500 text-white text-[8px] font-black uppercase px-4 py-1 tracking-widest">Restricted Preview</div>
-                                    <h3 class="text-xl font-black text-slate-900 italic tracking-tighter mb-4">SOVEREIGN_TECH</h3>
+                                    <h3 class="text-xl font-black text-slate-900 italic tracking-tighter mb-4">PRIVATE_TECH</h3>
                                     <h2 class="text-3xl font-black text-slate-900 leading-tight">Your Infrastructure is Ready, <span class="text-amber-600">Coastal.</span></h2>
                                     <p class="text-slate-500 text-xs mt-4">We've identified your data leaks. Deploy your $8,500 automated system below.</p>
                                     <div class="mt-8 bg-slate-100 p-4 rounded-xl flex items-center justify-between">
@@ -272,7 +272,7 @@
                                 <h2 class="text-2xl font-black text-emerald-500 uppercase tracking-tighter flex items-center gap-3">
                                     <i class="fa-solid fa-radar flex w-4 h-4 animate-ping bg-emerald-500 rounded-full"></i> 757 God View Active
                                 </h2>
-                                <p class="text-[10px] text-slate-400 font-mono uppercase">Tracking 11 Sovereign Hunters across Hampton Roads</p>
+                                <p class="text-[10px] text-slate-400 font-mono uppercase">Tracking 11 Private Hunters across Hampton Roads</p>
                             </div>
                             <div class="relative z-10 flex gap-4 mt-4 md:mt-0">
                                 <div class="text-right">
@@ -313,7 +313,7 @@
                         <i class="fa-solid fa-truck-fast text-5xl text-blue-500"></i>
                         <div>
                             <h2 class="text-3xl font-black text-white uppercase tracking-tighter">Tenant Portal: <span class="text-blue-500">Coastal Logistics</span></h2>
-                            <p class="text-slate-400 mt-2 text-sm">Welcome to your restricted Sovereign Infrastructure dashboard.</p>
+                            <p class="text-slate-400 mt-2 text-sm">Welcome to your restricted Private Infrastructure dashboard.</p>
                         </div>
                         <div class="grid grid-cols-2 gap-4 text-left">
                             <div class="bg-black p-4 rounded-xl border border-white/5"><p class="text-[10px] text-slate-500 uppercase">Status</p><p class="text-emerald-500 font-black">Active & Compliant</p></div>
@@ -388,7 +388,7 @@
                                 <i class="fa-solid fa-bolt mr-2"></i> Execution Deck
                             </button>
                             <button onClick={() => setActiveTab('SCOUT')} class={`px-6 py-3 rounded-t-xl font-black uppercase text-xs tracking-widest transition-all ${activeTab === 'SCOUT' ? 'bg-blue-500 text-white' : 'bg-slate-900 text-slate-500 hover:text-white'}`}>
-                                <i class="fa-solid fa-crosshairs mr-2"></i> Sovereign Scout
+                                <i class="fa-solid fa-crosshairs mr-2"></i> Private Scout
                             </button>
                             <button onClick={() => setActiveTab('RADAR')} class={`px-6 py-3 rounded-t-xl font-black uppercase text-xs tracking-widest transition-all ${activeTab === 'RADAR' ? 'bg-emerald-500 text-black' : 'bg-slate-900 text-slate-500 hover:text-white'}`}>
                                 <i class="fa-solid fa-satellite-dish mr-2"></i> Intelligence Radar
@@ -408,7 +408,7 @@
                             activeTab === 'EXECUTION' ? (
                                 <div class="p-6 grid grid-cols-1 xl:grid-cols-12 gap-6 animate-fadeIn h-full">
                                     <div class="xl:col-span-3 space-y-4">
-                                        <h2 class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Sovereign Pillars</h2>
+                                        <h2 class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Private Pillars</h2>
                                         <div onClick={() => setActivePillar('LAEC')} class={`p-5 rounded-2xl cursor-pointer border transition-all ${activePillar === 'LAEC' ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.1)]' : 'bg-slate-900 border-white/5'}`}>
                                             <div class="flex justify-between items-center mb-2"><i class={`fa-solid fa-building text-xl ${activePillar === 'LAEC' ? 'text-amber-500' : 'text-slate-500'}`}></i></div>
                                             <h3 class="font-black text-white uppercase text-sm">Luxury Affairs</h3>
