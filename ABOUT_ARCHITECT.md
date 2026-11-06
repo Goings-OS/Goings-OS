@@ -10,7 +10,7 @@
 
 \* Global Command Headquarters: 4010 B Victory Blvd, Portsmouth, VA 23701
 
-\* Authorized Communications Hub: info@goingsos.com
+\* Authorized Communications Hub: info@goingsos.com \& terrencegoings48@gmail.com
 
 
 
@@ -20,19 +20,21 @@
 
 \## 2. CONGLOMERATE OPERATIONAL DIVISIONS \& ASSET ANCHORS
 
-The Master Architect provides overarching governance, technological infrastructure, and cash distribution management across five core distinct organizational pillars:
+The Master Architect provides overarching governance, technological infrastructure, and owner's draw management across six core distinct organizational pillars:
 
 
 
-1\. \*\*Keep It Goings Consulting (Goings OS):\*\* EIN 93-4911193: Parent Machine Operations and Technical Integration Center: Core domain infrastructure hosted at goingsos.com and keepitgoings.com.
+1\. \*\*Keep It Goings Consulting (Goings OS):\*\* EIN 93-4911193. Parent Machine Operations and Technical Integration Center. Core domain infrastructure hosted at goingsos.com and keepitgoings.com.
 
-2\. \*\*CHOICE Inc. (Consciously Helping Others In Changing Everything):\*\* EIN 99-2050106: Non-profit humanitarian structural funding codex: Core portal hosted at choiceinkva.org.
+2\. \*\*Tanita Brinkley Enterprises (TBE):\*\* Advanced forensic business formatting, private asset protection trust modeling, and corporate tax defense.
 
-3\. \*\*Luxury Affairs Event Center (LAEC):\*\* Physical logistics hub and commercial venue facility managing "the nightlife" networks on Victory Blvd.
+3\. \*\*Luxury Decor and Rentals (LDR):\*\* Warwick inventory staging facility, high-end event decor curation, optical telemetry intake, and physical asset leasing.
 
-4\. \*\*Norfolk Takeover Cruise (NTC):\*\* Premium maritime fleet logistics and hospitality venue orchestration: Stateroom manifest threshold capacity limited to a maximum of 400 souls.
+4\. \*\*Luxury Affairs Event Center (LAEC):\*\* Physical logistics hub and commercial venue facility managing "the nightlife" networks on Victory Blvd.
 
-5\. \*\*Tanita Brinkley Enterprises (TBE):\*\* Advanced forensic business formatting, private asset protection trust modeling, and corporate tax defense.
+5\. \*\*Norfolk Takeover Cruise (NTC):\*\* Premium maritime fleet logistics and hospitality venue orchestration. Stateroom manifest threshold capacity limited to a maximum of 400 souls.
+
+6\. \*\*CHOICE Inc. (Consciously Helping Others In Changing Everything):\*\* EIN 99-2050106. Non-profit humanitarian structural funding codex. Core portal hosted at choiceincva.org.
 
 
 
@@ -56,7 +58,35 @@ The Master Architect provides overarching governance, technological infrastructu
 
 \* LAEC Minimum Venue Booking Baseline Parameter: $2,500.00 per physical execution event.
 
+\* LDR Physical Staging \& Inventory Package Baseline: $1,500.00 baseline package allocation.
+
 \* CHOICE Inc. Standardized Corporate Grant Allocation Blocks: Fixed $10,000.00 tracking units.
 
 \* Design Interface Visual Master Palette: Ocean Navy (#07162C) and Luxury Gold (#FACC15) values exclusively.
+
+
+
+\---
+
+
+
+\## 4. GOVERNANCE \& PRIVATE GOVERNOR PROTOCOLS
+
+\* Level 1 (Autonomous Research): Continuous market telemetry ingestion, columnar factor modeling in DuckDB, and automated system health audits.
+
+\* Level 2 (Swarm Coordination): Cross-gem communication, lead pipeline routing, and scheduled operational workflows.
+
+\* Level 3 (Human-In-The-Loop Execution): Absolute lock requiring explicit multi-factor authorization from Terrence Goings prior to binding financial contracts, capital movement, or owner's draw distributions.
+
+
+
+\---
+
+
+
+\## 5. SYNTACTICAL \& TYPOGRAPHICAL GOVERNANCE
+
+\* Strict Zero Em-Dash Policy: Em-dashes are permanently prohibited across all documents, system prompts, code comments, and corporate communications. Punctuation must rely strictly on periods, colons, commas, or parentheses.
+
+\* Private Governor Tone Standard: Maintain elevated grace and diplomacy across all operational deliverables. Use private governance terminology exclusively, and designate all shareholder distributions strictly as owner's draw.
 

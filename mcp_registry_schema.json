@@ -1,0 +1,1403 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://goings-os.internal/schemas/mcp_registry_schema.json",
+  "title": "GoingsOS_MCP_Registry_Schema",
+  "description": "Enterprise Model Context Protocol (MCP) registry schema and tool contract for Goings-OS, providing formal specifications for orchestrate_workspace_asset to automate Google Docs and Google Sheets generation, formatting, and Drive synchronization.",
+  "type": "object",
+  "name": "orchestrate_workspace_asset",
+  "tools": [
+    {
+      "name": "orchestrate_workspace_asset",
+      "description": "Automates the end-to-end creation, templating, data population, table generation, visual formatting, and Google Drive lifecycle management for Google Docs and Google Sheets assets.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "Input parameters for orchestrating Google Workspace assets (Docs and Sheets).",
+        "required": [
+          "asset_type",
+          "title",
+          "action"
+        ],
+        "properties": {
+          "asset_type": {
+            "type": "string",
+            "enum": [
+              "google_doc",
+              "google_sheet"
+            ],
+            "description": "Target Google Workspace asset type to orchestrate."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "create_new",
+              "clone_template",
+              "append_section",
+              "populate_sheet",
+              "batch_format",
+              "sync_permissions"
+            ],
+            "description": "The orchestration operation to perform on the target asset."
+          },
+          "title": {
+            "type": "string",
+            "description": "Display name of the Google Doc or Google Sheet asset."
+          },
+          "folder_id": {
+            "type": "string",
+            "description": "Google Drive parent folder ID where the created or cloned asset will be stored."
+          },
+          "template_id": {
+            "type": "string",
+            "description": "Optional Google Drive file ID of a template Doc or Sheet to clone when action is 'clone_template'."
+          },
+          "doc_spec": {
+            "type": "object",
+            "description": "Document structure, sections, body content, tables, and typography for Google Docs.",
+            "properties": {
+              "document_title": {
+                "type": "string",
+                "description": "Document headline displayed at the start of the document."
+              },
+              "subtitle": {
+                "type": "string",
+                "description": "Optional subtitle beneath the document headline."
+              },
+              "sections": {
+                "type": "array",
+                "description": "Ordered content sections to inject into the Google Doc.",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "heading",
+                    "content"
+                  ],
+                  "properties": {
+                    "heading": {
+                      "type": "string",
+                      "description": "Heading text for the section."
+                    },
+                    "heading_level": {
+                      "type": "string",
+                      "enum": [
+                        "HEADING_1",
+                        "HEADING_2",
+                        "HEADING_3",
+                        "HEADING_4",
+                        "NORMAL_TEXT"
+                      ],
+                      "default": "HEADING_2",
+                      "description": "Google Docs paragraph style heading level."
+                    },
+                    "content": {
+                      "type": "string",
+                      "description": "Body text or markdown content to format and insert."
+                    },
+                    "bullet_points": {
+                      "type": "array",
+                      "description": "Bulleted list items to append to this section.",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "table_data": {
+                      "type": "object",
+                      "description": "Tabular structure to insert within this section.",
+                      "required": [
+                        "headers",
+                        "rows"
+                      ],
+                      "properties": {
+                        "headers": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "styling": {
+                "type": "object",
+                "description": "Page setup, margins, and typography styling.",
+                "properties": {
+                  "font_family": {
+                    "type": "string",
+                    "default": "Arial"
+                  },
+                  "page_orientation": {
+                    "type": "string",
+                    "enum": [
+                      "PORTRAIT",
+                      "LANDSCAPE"
+                    ],
+                    "default": "PORTRAIT"
+                  },
+                  "header_text": {
+                    "type": "string",
+                    "description": "Optional header running across document pages."
+                  },
+                  "footer_text": {
+                    "type": "string",
+                    "description": "Optional footer text running across document pages."
+                  },
+                  "include_page_numbers": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                }
+              }
+            }
+          },
+          "sheet_spec": {
+            "type": "object",
+            "description": "Grid geometry, cell values, formulas, and visual formatting specifications for Google Sheets.",
+            "properties": {
+              "sheets": {
+                "type": "array",
+                "description": "Array of individual worksheets or tabs to create or update.",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "sheet_title"
+                  ],
+                  "properties": {
+                    "sheet_title": {
+                      "type": "string",
+                      "description": "Name of the worksheet tab."
+                    },
+                    "headers": {
+                      "type": "array",
+                      "description": "Column header labels for row 1.",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "rows": {
+                      "type": "array",
+                      "description": "Grid row records to insert.",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": [
+                            "string",
+                            "number",
+                            "boolean",
+                            "null"
+                          ]
+                        }
+                      }
+                    },
+                    "cell_updates": {
+                      "type": "array",
+                      "description": "Targeted A1-notation cell updates.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "range",
+                          "value"
+                        ],
+                        "properties": {
+                          "range": {
+                            "type": "string",
+                            "description": "A1 notation range (e.g. 'Sheet1!B5' or 'C2:D10')."
+                          },
+                          "value": {
+                            "description": "Value or 2D array of values for the specified range."
+                          }
+                        }
+                      }
+                    },
+                    "formulas": {
+                      "type": "array",
+                      "description": "Formulas to write into designated cells.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "cell",
+                          "formula"
+                        ],
+                        "properties": {
+                          "cell": {
+                            "type": "string",
+                            "description": "A1 notation single cell (e.g. 'E12')."
+                          },
+                          "formula": {
+                            "type": "string",
+                            "description": "Google Sheets formula string (e.g. '=SUM(E2:E11)')."
+                          }
+                        }
+                      }
+                    },
+                    "formatting": {
+                      "type": "object",
+                      "description": "Styling, header colors, and freeze configurations for the worksheet.",
+                      "properties": {
+                        "freeze_header_row": {
+                          "type": "boolean",
+                          "default": true
+                        },
+                        "auto_resize_columns": {
+                          "type": "boolean",
+                          "default": true
+                        },
+                        "header_bg_color": {
+                          "type": "string",
+                          "default": "#1B365D",
+                          "description": "Hex color code for the header background."
+                        },
+                        "header_text_color": {
+                          "type": "string",
+                          "default": "#FFFFFF",
+                          "description": "Hex color code for header text."
+                        },
+                        "alternating_row_shading": {
+                          "type": "boolean",
+                          "default": true
+                        },
+                        "number_formats": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "range",
+                              "format_type"
+                            ],
+                            "properties": {
+                              "range": {
+                                "type": "string"
+                              },
+                              "format_type": {
+                                "type": "string",
+                                "enum": [
+                                  "CURRENCY",
+                                  "PERCENT",
+                                  "DATE",
+                                  "NUMBER",
+                                  "TEXT"
+                                ]
+                              },
+                              "pattern": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "description": "Google Drive permissions and roles to grant upon asset generation.",
+            "items": {
+              "type": "object",
+              "required": [
+                "role",
+                "type"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "reader",
+                    "commenter",
+                    "writer",
+                    "organizer"
+                  ]
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "user",
+                    "group",
+                    "domain",
+                    "anyone"
+                  ]
+                },
+                "email_address": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "notify": {
+                  "type": "boolean",
+                  "default": false
+                }
+              }
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Enterprise tracking and attribution metadata.",
+            "properties": {
+              "client_id": {
+                "type": "string"
+              },
+              "campaign_id": {
+                "type": "string"
+              },
+              "correlation_id": {
+                "type": "string"
+              },
+              "managed_by": {
+                "type": "string",
+                "default": "Goings-OS"
+              }
+            }
+          }
+        }
+      },
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "MCP inputSchema for orchestrate_workspace_asset (alias to parameters for standard MCP compatibility).",
+        "required": [
+          "asset_type",
+          "title",
+          "action"
+        ],
+        "properties": {
+          "asset_type": {
+            "type": "string",
+            "enum": [
+              "google_doc",
+              "google_sheet"
+            ]
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "create_new",
+              "clone_template",
+              "append_section",
+              "populate_sheet",
+              "batch_format",
+              "sync_permissions"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "folder_id": {
+            "type": "string"
+          },
+          "template_id": {
+            "type": "string"
+          },
+          "doc_spec": {
+            "type": "object"
+          },
+          "sheet_spec": {
+            "type": "object"
+          },
+          "permissions": {
+            "type": "array"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "name": "scout_technical_intelligence",
+      "description": "Autonomously searches the web, reads external API documentation, analyzes technical architecture, and compiles structured research summaries directly into markdown files within /data/research/.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "Input parameters for autonomous technical intelligence gathering and documentation scouting.",
+        "required": [
+          "query",
+          "output_filename"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The primary technical topic, question, or technology ecosystem to investigate."
+          },
+          "target_urls": {
+            "type": "array",
+            "description": "Specific API documentation, specifications, or reference URLs to retrieve and parse.",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "search_domains": {
+            "type": "array",
+            "description": "Priority domains to filter and constrain web searches against.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "output_filename": {
+            "type": "string",
+            "description": "Name of the markdown file to generate inside /data/research/ (e.g. 'stripe_connect_v3_api.md')."
+          },
+          "research_depth": {
+            "type": "string",
+            "enum": [
+              "shallow",
+              "standard",
+              "deep",
+              "exhaustive"
+            ],
+            "default": "standard",
+            "description": "Depth of technical analysis and source crawling."
+          },
+          "focus_areas": {
+            "type": "array",
+            "description": "Technical facets to isolate (e.g. 'authentication', 'rate_limits', 'code_examples', 'schema_models').",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Telemetry and project tracking metadata.",
+            "properties": {
+              "project_id": {
+                "type": "string"
+              },
+              "requested_by": {
+                "type": "string"
+              },
+              "correlation_id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "MCP inputSchema for scout_technical_intelligence.",
+        "required": [
+          "query",
+          "output_filename"
+        ],
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "target_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "search_domains": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "output_filename": {
+            "type": "string"
+          },
+          "research_depth": {
+            "type": "string",
+            "enum": [
+              "shallow",
+              "standard",
+              "deep",
+              "exhaustive"
+            ]
+          },
+          "focus_areas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "name": "orchestrate_google_form",
+      "description": "Generates, configures, and deploys Google Forms via Google Workspace Forms API (v1). Enforces operator intake verification for exact form fields, target audience, and webhook routing endpoints.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "Input parameters for generating and wiring Google Forms.",
+        "required": [
+          "title",
+          "target_audience",
+          "fields",
+          "webhook_routing",
+          "operator_confirmed"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Headline title of the Google Form."
+          },
+          "target_audience": {
+            "type": "string",
+            "description": "Target respondent demographic (e.g. 'internal_team', 'high_ticket_clients', 'public_leads', 'vendor_intake')."
+          },
+          "description": {
+            "type": "string",
+            "description": "Introductory guidance or instructions displayed on the form."
+          },
+          "fields": {
+            "type": "array",
+            "description": "Ordered questions and input fields to construct within the form.",
+            "items": {
+              "type": "object",
+              "required": [
+                "field_name",
+                "field_type"
+              ],
+              "properties": {
+                "field_name": {
+                  "type": "string",
+                  "description": "The question prompt or input label."
+                },
+                "field_type": {
+                  "type": "string",
+                  "enum": [
+                    "short_answer",
+                    "paragraph",
+                    "multiple_choice",
+                    "checkboxes",
+                    "dropdown",
+                    "linear_scale",
+                    "date",
+                    "time"
+                  ],
+                  "description": "Google Forms question item type."
+                },
+                "required": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Whether the respondent must answer this question."
+                },
+                "options": {
+                  "type": "array",
+                  "description": "Selectable choices for multiple_choice, checkboxes, or dropdown types.",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "help_text": {
+                  "type": "string",
+                  "description": "Supplemental helper text displayed below the question."
+                }
+              }
+            }
+          },
+          "webhook_routing": {
+            "type": "object",
+            "description": "Webhook routing destination and trigger configuration for form submissions.",
+            "required": [
+              "destination_url"
+            ],
+            "properties": {
+              "destination_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Target endpoint to receive POST payloads upon form submission."
+              },
+              "routing_engine": {
+                "type": "string",
+                "enum": [
+                  "apps_script_trigger",
+                  "direct_http",
+                  "pubsub_bridge"
+                ],
+                "default": "apps_script_trigger"
+              },
+              "auth_header_token": {
+                "type": "string",
+                "description": "Optional Bearer or HMAC authentication token for webhook dispatch."
+              },
+              "payload_format": {
+                "type": "string",
+                "enum": [
+                  "json_flattened",
+                  "json_nested",
+                  "form_encoded"
+                ],
+                "default": "json_nested"
+              }
+            }
+          },
+          "operator_confirmed": {
+            "type": "boolean",
+            "description": "MANDATORY GATE: Must be true certifying that the operator answered intake questions before execution."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Enterprise tracking parameters.",
+            "properties": {
+              "project_id": {
+                "type": "string"
+              },
+              "campaign_id": {
+                "type": "string"
+              },
+              "client_id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "MCP inputSchema for orchestrate_google_form.",
+        "required": [
+          "title",
+          "target_audience",
+          "fields",
+          "webhook_routing",
+          "operator_confirmed"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "target_audience": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "webhook_routing": {
+            "type": "object"
+          },
+          "operator_confirmed": {
+            "type": "boolean"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "name": "dispatch_intake_confirmation",
+      "description": "Instantly parses incoming client transaction and intake data from GoHighLevel webhooks and dispatches personalized Thank You SMS sequences, MIME-encoded Gmail API confirmations, and payment receipts within milliseconds of receipt.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "Input parameters for instantaneous intake parsing and multi-channel confirmation dispatch.",
+        "required": [
+          "client_data",
+          "transaction"
+        ],
+        "properties": {
+          "client_data": {
+            "type": "object",
+            "description": "Identity and communication coordinates of the incoming client.",
+            "required": [
+              "first_name",
+              "email"
+            ],
+            "properties": {
+              "first_name": {
+                "type": "string",
+                "description": "Client first name."
+              },
+              "last_name": {
+                "type": "string",
+                "description": "Client last name."
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "description": "Client destination email address for Gmail API dispatch."
+              },
+              "phone": {
+                "type": "string",
+                "description": "Client destination phone number for GoHighLevel SMS dispatch."
+              },
+              "company_name": {
+                "type": "string",
+                "description": "Client enterprise or entity name."
+              }
+            }
+          },
+          "transaction": {
+            "type": "object",
+            "description": "Financial and service booking data from the GHL webhook or payment gateway.",
+            "required": [
+              "transaction_id",
+              "amount",
+              "service_tier"
+            ],
+            "properties": {
+              "transaction_id": {
+                "type": "string",
+                "description": "Unique transaction or order identifier."
+              },
+              "amount": {
+                "type": "number",
+                "description": "Total payment amount collected."
+              },
+              "currency": {
+                "type": "string",
+                "default": "USD"
+              },
+              "service_tier": {
+                "type": "string",
+                "description": "The contracted consulting tier, retainer, or service package."
+              },
+              "payment_method": {
+                "type": "string",
+                "default": "CREDIT_CARD"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            }
+          },
+          "channels": {
+            "type": "object",
+            "description": "Channel dispatch toggles.",
+            "properties": {
+              "email_dispatch": {
+                "type": "boolean",
+                "default": true
+              },
+              "sms_dispatch": {
+                "type": "boolean",
+                "default": true
+              }
+            }
+          },
+          "template_overrides": {
+            "type": "object",
+            "description": "Optional custom copy overrides for email or SMS templates.",
+            "properties": {
+              "email_subject": {
+                "type": "string"
+              },
+              "custom_note": {
+                "type": "string"
+              }
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Enterprise telemetry tags.",
+            "properties": {
+              "source": {
+                "type": "string",
+                "default": "gohighlevel_webhook"
+              },
+              "campaign_id": {
+                "type": "string"
+              },
+              "correlation_id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "MCP inputSchema for dispatch_intake_confirmation.",
+        "required": [
+          "client_data",
+          "transaction"
+        ],
+        "properties": {
+          "client_data": {
+            "type": "object"
+          },
+          "transaction": {
+            "type": "object"
+          },
+          "channels": {
+            "type": "object"
+          },
+          "template_overrides": {
+            "type": "object"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "name": "orchestrate_enterprise_presentation",
+      "description": "Programmatically drafts enterprise pitch decks and Google Slides presentations via Google Workspace Slides API (v1). Enforces mandatory operator intake interview to capture the high-ticket tier, client industry, and exact value proposition variables before slide synthesis.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "Input parameters for drafting enterprise pitch decks and Google Slides.",
+        "required": [
+          "title",
+          "high_ticket_tier",
+          "client_industry",
+          "value_proposition_variables",
+          "operator_confirmed"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the presentation deck."
+          },
+          "high_ticket_tier": {
+            "type": "string",
+            "description": "The specific high-ticket tier being pitched (e.g. '$25K Sprint', '$50K Sovereign OS Build', '$100K Enterprise Private AI', '$250K Conglomerate Retainer')."
+          },
+          "client_industry": {
+            "type": "string",
+            "description": "The client's industry sector (e.g. 'Private Equity', 'Healthcare', 'Legal', 'Luxury Hospitality', 'Supply Chain Logistics')."
+          },
+          "value_proposition_variables": {
+            "type": "object",
+            "description": "Exact financial and operational value proposition metrics required for the pitch deck.",
+            "required": [
+              "primary_economic_lever",
+              "efficiency_multiple"
+            ],
+            "properties": {
+              "primary_economic_lever": {
+                "type": "string",
+                "description": "Core financial argument (e.g. 'Zero-SaaS elimination of $240,000 in annual recurring fees')."
+              },
+              "efficiency_multiple": {
+                "type": "string",
+                "description": "Operational velocity multiplier (e.g. '12x acceleration of client ingestion workflows')."
+              },
+              "risk_reduction_moat": {
+                "type": "string",
+                "description": "Security and governance moat (e.g. 'Zero em-dash audit compliance, client-isolated KMS vault encryption')."
+              },
+              "projected_annual_savings": {
+                "type": "number",
+                "description": "Estimated annualized financial return or cost reduction in USD."
+              },
+              "payback_period_months": {
+                "type": "number",
+                "description": "Estimated capital amortization period in months."
+              }
+            }
+          },
+          "slide_outline": {
+            "type": "array",
+            "description": "Optional custom slide modules to include in the deck sequence.",
+            "items": {
+              "type": "object",
+              "required": [
+                "slide_title",
+                "layout_type"
+              ],
+              "properties": {
+                "slide_title": {
+                  "type": "string"
+                },
+                "layout_type": {
+                  "type": "string",
+                  "enum": [
+                    "TITLE_SLIDE",
+                    "PROBLEM_STATEMENT",
+                    "ARCHITECTURE_SOLUTION",
+                    "FINANCIAL_MODEL",
+                    "ROADMAP_EXECUTION",
+                    "CALL_TO_ACTION"
+                  ]
+                },
+                "bullet_points": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "key_metric": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "styling": {
+            "type": "object",
+            "description": "Visual theme and typography palette.",
+            "properties": {
+              "primary_hex": {
+                "type": "string",
+                "default": "#1B365D"
+              },
+              "accent_hex": {
+                "type": "string",
+                "default": "#C5A059"
+              },
+              "dark_mode": {
+                "type": "boolean",
+                "default": true
+              },
+              "aspect_ratio": {
+                "type": "string",
+                "enum": [
+                  "16:9",
+                  "4:3"
+                ],
+                "default": "16:9"
+              }
+            }
+          },
+          "operator_confirmed": {
+            "type": "boolean",
+            "description": "MANDATORY GATE: Must be true certifying that the operator answered the high-ticket tier, industry, and value prop questions before drafting."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Enterprise tracking parameters.",
+            "properties": {
+              "client_id": {
+                "type": "string"
+              },
+              "campaign_id": {
+                "type": "string"
+              },
+              "managed_by": {
+                "type": "string",
+                "default": "Goings-OS"
+              }
+            }
+          }
+        }
+      },
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "MCP inputSchema for orchestrate_enterprise_presentation.",
+        "required": [
+          "title",
+          "high_ticket_tier",
+          "client_industry",
+          "value_proposition_variables",
+          "operator_confirmed"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "high_ticket_tier": {
+            "type": "string"
+          },
+          "client_industry": {
+            "type": "string"
+          },
+          "value_proposition_variables": {
+            "type": "object"
+          },
+          "slide_outline": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "styling": {
+            "type": "object"
+          },
+          "operator_confirmed": {
+            "type": "boolean"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "name": "orchestrate_ui_component",
+      "description": "Generates production-grade React TypeScript components, Tailwind CSS styling tokens, and dark mode enterprise interfaces. Enforces mandatory operator intake interview to capture layout constraints, data visualization needs, and color palette parameters prior to component synthesis.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "Input parameters for drafting enterprise React and Tailwind dark mode UI components.",
+        "required": [
+          "component_name",
+          "layout_constraints",
+          "data_visualization_needs",
+          "color_palette_parameters",
+          "operator_confirmed"
+        ],
+        "properties": {
+          "component_name": {
+            "type": "string",
+            "description": "PascalCase name of the React component (e.g. 'ExecutiveTelemetryDashboard', 'VaultAuditLedger')."
+          },
+          "description": {
+            "type": "string",
+            "description": "Functional description and user journey context for this interface."
+          },
+          "layout_constraints": {
+            "type": "object",
+            "description": "Spatial geometry, responsive container boundaries, and padding density rules.",
+            "required": [
+              "container_width",
+              "breakpoint_target"
+            ],
+            "properties": {
+              "container_width": {
+                "type": "string",
+                "enum": [
+                  "full_bleed",
+                  "max_w_7xl",
+                  "max_w_5xl",
+                  "modal_centered",
+                  "sidebar_split"
+                ],
+                "default": "max_w_7xl"
+              },
+              "breakpoint_target": {
+                "type": "string",
+                "enum": [
+                  "mobile_responsive",
+                  "desktop_only",
+                  "ultrawide_dashboard"
+                ],
+                "default": "mobile_responsive"
+              },
+              "spacing_density": {
+                "type": "string",
+                "enum": [
+                  "compact_dense",
+                  "standard",
+                  "spacious_executive"
+                ],
+                "default": "standard"
+              }
+            }
+          },
+          "data_visualization_needs": {
+            "type": "object",
+            "description": "Charts, gauges, data tables, and metrics widgets to integrate.",
+            "required": [
+              "chart_types",
+              "metrics_to_display"
+            ],
+            "properties": {
+              "chart_types": {
+                "type": "array",
+                "description": "Chart and visualization types required.",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "area_chart",
+                    "bar_chart",
+                    "donut_breakdown",
+                    "sparklines",
+                    "live_stream_gauge",
+                    "kpi_stat_cards",
+                    "sortable_data_table"
+                  ]
+                }
+              },
+              "metrics_to_display": {
+                "type": "array",
+                "description": "Key telemetry and business metrics to visualize.",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "interactive_filters": {
+                "type": "array",
+                "description": "User controls (e.g. date range, search, category filter).",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "color_palette_parameters": {
+            "type": "object",
+            "description": "Dark mode enterprise theme tokens and hex color palette.",
+            "required": [
+              "primary_brand_hex",
+              "accent_hex",
+              "surface_dark_hex"
+            ],
+            "properties": {
+              "theme_mode": {
+                "type": "string",
+                "enum": [
+                  "dark_only",
+                  "dark_preferred",
+                  "light_dark_toggle"
+                ],
+                "default": "dark_only"
+              },
+              "primary_brand_hex": {
+                "type": "string",
+                "default": "#1B365D"
+              },
+              "accent_hex": {
+                "type": "string",
+                "default": "#C5A059"
+              },
+              "surface_dark_hex": {
+                "type": "string",
+                "default": "#0B1120"
+              },
+              "border_subtle_hex": {
+                "type": "string",
+                "default": "#1E293B"
+              },
+              "glassmorphism_enabled": {
+                "type": "boolean",
+                "default": true
+              }
+            }
+          },
+          "operator_confirmed": {
+            "type": "boolean",
+            "description": "MANDATORY GATE: Must be true certifying that the operator answered layout, visualization, and palette questions."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Enterprise tracking parameters.",
+            "properties": {
+              "project_id": {
+                "type": "string"
+              },
+              "module_node": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "MCP inputSchema for orchestrate_ui_component.",
+        "required": [
+          "component_name",
+          "layout_constraints",
+          "data_visualization_needs",
+          "color_palette_parameters",
+          "operator_confirmed"
+        ],
+        "properties": {
+          "component_name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "layout_constraints": {
+            "type": "object"
+          },
+          "data_visualization_needs": {
+            "type": "object"
+          },
+          "color_palette_parameters": {
+            "type": "object"
+          },
+          "operator_confirmed": {
+            "type": "boolean"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "name": "orchestrate_sales_intelligence",
+      "description": "Analyzes captured lead data, evaluates sector-specific economics, and mathematically outputs the exact Goings OS products (Entry tiers, Custom UIs, Websites) to pitch in a comprehensive sales dossier before sales engagement.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "Input schema for orchestrating sales intelligence dossier generation and mathematical product recommendation.",
+        "required": [
+          "lead_id",
+          "prospect_name",
+          "industry",
+          "company_profile",
+          "mandatory_directive_acknowledged"
+        ],
+        "properties": {
+          "lead_id": {
+            "type": "string",
+            "description": "Unique identifier for the captured lead record."
+          },
+          "prospect_name": {
+            "type": "string",
+            "description": "Name of the target prospect company, enterprise organization, or executive lead."
+          },
+          "industry": {
+            "type": "string",
+            "description": "Target prospect industry or operational vertical."
+          },
+          "company_profile": {
+            "type": "object",
+            "description": "Firmographic parameters including revenue bracket, employee count, tech stack, and tech debt.",
+            "required": [
+              "annual_revenue_bracket",
+              "employee_count",
+              "estimated_tech_debt_score"
+            ],
+            "properties": {
+              "annual_revenue_bracket": {
+                "type": "string",
+                "enum": [
+                  "under_250k",
+                  "250k_to_1m",
+                  "1m_to_5m",
+                  "5m_to_25m",
+                  "over_25m"
+                ],
+                "description": "Annual revenue bracket used for pricing calibration and budget multiplier computation."
+              },
+              "employee_count": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Total headcount of the prospect organization."
+              },
+              "current_tech_stack": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Existing software systems, CRMs, and infrastructure tools."
+              },
+              "estimated_tech_debt_score": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Subjective or assessed technical debt severity on a 0 to 100 scale."
+              }
+            }
+          },
+          "operational_bottlenecks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Primary operational failure points."
+          },
+          "sales_readiness_status": {
+            "type": "string",
+            "enum": [
+              "INTAKE_CAPTURED",
+              "ANALYSIS_REQUIRED",
+              "DOSSIER_COMPILED",
+              "READY_FOR_SALES_CALL"
+            ],
+            "default": "INTAKE_CAPTURED",
+            "description": "Workflow phase of the captured lead."
+          },
+          "mandatory_directive_acknowledged": {
+            "type": "boolean",
+            "description": "MANDATORY GATE: Must be true certifying that the sales dossier and mathematical product suite are compiled before sales engagement."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Optional tracking parameters and CRM sync identifiers.",
+            "properties": {
+              "crm_source": {
+                "type": "string"
+              },
+              "lead_capture_timestamp": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "MCP inputSchema for orchestrate_sales_intelligence.",
+        "required": [
+          "lead_id",
+          "prospect_name",
+          "industry",
+          "company_profile",
+          "mandatory_directive_acknowledged"
+        ],
+        "properties": {
+          "lead_id": {
+            "type": "string"
+          },
+          "prospect_name": {
+            "type": "string"
+          },
+          "industry": {
+            "type": "string"
+          },
+          "company_profile": {
+            "type": "object"
+          },
+          "operational_bottlenecks": {
+            "type": "array"
+          },
+          "sales_readiness_status": {
+            "type": "string"
+          },
+          "mandatory_directive_acknowledged": {
+            "type": "boolean"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  ],
+  "required": [
+    "tools"
+  ],
+  "properties": {
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "description"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "object"
+          },
+          "inputSchema": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

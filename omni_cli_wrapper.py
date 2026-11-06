@@ -31,10 +31,16 @@ class OmniCLIWrapper:
         self.humanitarian_db = os.path.join(self.root_dir, "choice_legacy_vault.db")
         self.log_path = os.path.join(self.root_dir, "system_faults.log")
         
-        # Hardcoded Corporate Parameters for Strategic Financial Reporting
+        # Hardcoded Conglomerate Parameters Across All 6 Operational Pillars
         self.weekly_revenue_floor = 5000.00
+        self.daily_yield_benchmark = 714.28
         self.tbe_base_retainer = 3500.00
+        self.tbe_monthly_compliance = 450.00
+        self.ldr_staging_baseline = 1500.00
         self.laec_min_booking = 2500.00
+        self.ntc_base_deposit = 150.00
+        self.ntc_broker_split = 75.00
+        self.ntc_manifest_ceiling = 400
         self.choice_grant_block = 10000.00
 
         logging.basicConfig(
@@ -67,7 +73,7 @@ class OmniCLIWrapper:
                 logging.error(f"Failed to clear WAL database paths for wrapper operations: {str(fault)}")
 
     def verify_and_log_binary_presence(self, binary_name: str) -> bool:
-        """Checks if the command utility is correctly configured inside your system environment paths."""
+        """Checks if the command utility is correctly configured inside system environment paths."""
         binary_path = shutil.which(binary_name)
         status = binary_path is not None
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
@@ -149,7 +155,7 @@ if __name__ == "__main__":
         available = wrapper.verify_and_log_binary_presence(utility)
         print(f" -> Checking Terminal Interface [{utility}]: {'OPERATIONAL' if available else 'PATH_UNCONFIGURED'}")
         
-    print("\n📡 Initiating Secure GitHub Cloud Sync Handshake...")
+    print("\n[GOINGS OS] Initiating Secure GitHub Cloud Sync Handshake...")
     github_check = wrapper.execute_cli_handshake("gh", ["auth", "status"])
     print(f" -> Operation Signal State: {github_check['status']}")
     print("==========================================================")

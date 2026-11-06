@@ -206,6 +206,198 @@ STANDARD_AGENT_CARDS: Dict[str, Dict[str, Any]] = {
             "CALCULATE_FINANCIAL_SPLITS",
             "PROJECT_PRODUCT_ECONOMICS"
         ]
+    },
+    "workspace-architect": {
+        "agent_id": "workspace-architect",
+        "name": "Workspace_Architect",
+        "node_id": "node_13_developer",
+        "role": "Google Workspace Architect & Autonomous Asset Orchestrator",
+        "security_clearance": "WORKSPACE_AUTOMATION",
+        "capabilities": [
+            "orchestrate_workspace_asset",
+            "google_docs_synthesis",
+            "google_sheets_grid_modeling",
+            "workspace_schema_validation",
+            "drive_lifecycle_management"
+        ],
+        "endpoints": {
+            "mcp_tool": "orchestrate_workspace_asset",
+            "schema_file": "mcp_registry_schema.json",
+            "module": "core_nodes.workspace_architect_daemon"
+        },
+        "authorized_intents": [
+            "ORCHESTRATE_WORKSPACE_ASSET",
+            "GENERATE_GOOGLE_DOC",
+            "GENERATE_GOOGLE_SHEET",
+            "VALIDATE_ASSET_SCHEMA"
+        ]
+    },
+    "intelligence-scout": {
+        "agent_id": "intelligence-scout",
+        "name": "Intelligence_Scout",
+        "node_id": "node_13_developer",
+        "role": "Autonomous Web Intelligence, Technical Documentation Scout & Research Synthesizer",
+        "security_clearance": "OSINT_RESEARCH",
+        "capabilities": [
+            "scout_technical_intelligence",
+            "autonomous_web_search",
+            "api_documentation_ingestion",
+            "technical_findings_synthesis",
+            "research_dossier_compilation"
+        ],
+        "endpoints": {
+            "mcp_tool": "scout_technical_intelligence",
+            "schema_file": "mcp_registry_schema.json",
+            "module": "core_nodes.intelligence_scout_daemon"
+        },
+        "authorized_intents": [
+            "SCOUT_TECHNICAL_INTELLIGENCE",
+            "INGEST_API_DOCS",
+            "COMPILE_RESEARCH_DOSSIER"
+        ]
+    },
+    "form-specialist": {
+        "agent_id": "form-specialist",
+        "name": "Form_Specialist",
+        "node_id": "node_13_developer",
+        "role": "Google Forms API Architect & Gated Operator Intake Orchestrator",
+        "security_clearance": "WORKSPACE_AUTOMATION",
+        "capabilities": [
+            "orchestrate_google_form",
+            "google_forms_api_v1_synthesis",
+            "operator_intake_interview",
+            "webhook_routing_architecture",
+            "apps_script_trigger_compilation"
+        ],
+        "endpoints": {
+            "mcp_tool": "orchestrate_google_form",
+            "schema_file": "mcp_registry_schema.json",
+            "module": "core_nodes.form_specialist_daemon"
+        },
+        "authorized_intents": [
+            "SOLICIT_OPERATOR_INTAKE",
+            "ORCHESTRATE_GOOGLE_FORM",
+            "GENERATE_APPS_SCRIPT_WEBHOOK"
+        ]
+    },
+    "intake-dispatcher": {
+        "agent_id": "intake-dispatcher",
+        "name": "Intake_Dispatcher",
+        "node_id": "node_04_courier",
+        "role": "Instantaneous Ingress Parsing, GHL SMS & Gmail API Dispatch Engine",
+        "security_clearance": "CLIENT_COMMUNICATIONS",
+        "capabilities": [
+            "dispatch_intake_confirmation",
+            "ghl_webhook_ingestion",
+            "gmail_api_mime_synthesis",
+            "low_latency_sms_dispatch",
+            "payment_receipt_issuance"
+        ],
+        "endpoints": {
+            "mcp_tool": "dispatch_intake_confirmation",
+            "schema_file": "mcp_registry_schema.json",
+            "module": "core_nodes.intake_dispatcher_daemon"
+        },
+        "authorized_intents": [
+            "PROCESS_GHL_WEBHOOK",
+            "DISPATCH_CLIENT_INTAKE",
+            "ISSUE_PAYMENT_CONFIRMATION"
+        ]
+    },
+    "presentation-specialist": {
+        "agent_id": "presentation-specialist",
+        "name": "Presentation_Specialist",
+        "node_id": "node_09_catalyst_cmo",
+        "role": "Enterprise Pitch Deck & Google Slides Programmatic Architect",
+        "security_clearance": "MARKETING_CREATIVE",
+        "capabilities": [
+            "orchestrate_enterprise_presentation",
+            "google_slides_api_synthesis",
+            "high_ticket_pitch_modeling",
+            "value_prop_variable_isolation",
+            "slidev_deck_compilation"
+        ],
+        "endpoints": {
+            "mcp_tool": "orchestrate_enterprise_presentation",
+            "schema_file": "mcp_registry_schema.json",
+            "module": "core_nodes.presentation_specialist_daemon"
+        },
+        "authorized_intents": [
+            "DRAFT_ENTERPRISE_PITCH",
+            "ORCHESTRATE_GOOGLE_SLIDES",
+            "SOLICIT_PITCH_VARIABLES"
+        ]
+    },
+    "ui-frontend-architect": {
+        "agent_id": "ui-frontend-architect",
+        "name": "UI_Frontend_Architect",
+        "node_id": "node_13_developer",
+        "role": "React, Tailwind & Dark Mode Enterprise Interface Architect",
+        "security_clearance": "FRONTEND_DEVELOPMENT",
+        "capabilities": [
+            "orchestrate_ui_component",
+            "react_tsx_synthesis",
+            "tailwind_dark_mode_tokens",
+            "glassmorphism_interface_design",
+            "telemetry_visualization_modeling"
+        ],
+        "endpoints": {
+            "mcp_tool": "orchestrate_ui_component",
+            "schema_file": "mcp_registry_schema.json",
+            "module": "core_nodes.ui_frontend_architect_daemon"
+        },
+        "authorized_intents": [
+            "SYNTHESIZE_UI_COMPONENT",
+            "ORCHESTRATE_UI_FRONTEND",
+            "SOLICIT_UI_CONSTRAINTS"
+        ]
+    },
+    "sales-intelligence-node": {
+        "agent_id": "sales-intelligence-node",
+        "name": "Sales_Intelligence_Node",
+        "node_id": "node_05_analyst",
+        "role": "Captured Lead Analytics, Sector Intelligence & Mathematical Product Recommendation Engine",
+        "security_clearance": "SALES_INTELLIGENCE",
+        "capabilities": [
+            "orchestrate_sales_intelligence",
+            "lead_firmographic_analysis",
+            "mathematical_product_selection",
+            "dossier_compilation_pipeline",
+            "sales_battlecard_synthesis"
+        ],
+        "endpoints": {
+            "mcp_tool": "orchestrate_sales_intelligence",
+            "schema_file": "mcp_registry_schema.json",
+            "module": "core_nodes.sales_intelligence_node_daemon"
+        },
+        "authorized_intents": [
+            "ANALYZE_LEAD_DATA",
+            "GENERATE_SALES_DOSSIER",
+            "CALCULATE_PRODUCT_SUITE",
+            "EMBARGO_SALES_ENGAGEMENT"
+        ]
+    },
+    "swarm-orchestrator-core": {
+        "agent_id": "swarm-orchestrator-core",
+        "name": "Swarm_Orchestrator",
+        "node_id": "node_01_core",
+        "role": "Master Swarm Orchestration Engine & Cross-Node Event Router",
+        "security_clearance": "EXECUTIVE_OVERSIGHT",
+        "capabilities": [
+            "cross_node_command_dispatch",
+            "swarm_fleet_lifecycle_management",
+            "telemetry_aggregation",
+            "pipeline_orchestration"
+        ],
+        "endpoints": {
+            "module": "swarm_orchestrator"
+        },
+        "authorized_intents": [
+            "DISPATCH_CROSS_NODE_COMMAND",
+            "BROADCAST_SWARM_COMMAND",
+            "BOOT_SWARM_FLEET",
+            "STOP_SWARM_FLEET"
+        ]
     }
 }
 
