@@ -5,79 +5,205 @@
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/extension-to-functions-codebase/SKILL.md",
-      "computedHash": "1b0b4150895374330ff51a6f0d99663eda4d266730802eec85882443aeca9539"
+      "computedHash": "79fbb6197a78398e0c5930270effb123920997c0e6a891ca29383a09aa9b4849"
     },
     "firebase-ai-logic-basics": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/firebase-ai-logic-basics/SKILL.md",
-      "computedHash": "98ce1d8a08d8def339306a5a9fa7114aca57dcccb36a4a46fdcdb7a99f96ac5b"
+      "computedHash": "92d534c48871a27f82a2cd4cfeda25f4af2bc869d4e2b1a7d87e6196eef62337"
     },
     "firebase-app-hosting-basics": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/firebase-app-hosting-basics/SKILL.md",
-      "computedHash": "052ef64fe35efdf02b7e0dc121abc09b1514e8b228454ab2002af31448c0a212"
+      "computedHash": "1b3a264fc812c53666094d74e8792388278cbd22c1330cf38396761e4ef638e5"
     },
     "firebase-auth-basics": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/firebase-auth-basics/SKILL.md",
-      "computedHash": "8d09dcaae9fc5f33ea6e8c23dade9bf37ef94b143128052e84846759f48ff578"
+      "computedHash": "bf06da11613a0f346432914c91f8a7076111c0cd1ff7c66bb2222adb9e814158"
     },
     "firebase-basics": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/firebase-basics/SKILL.md",
-      "computedHash": "c0e06c4f5be407fcf74c9b76c91a4f87cac653a07c639904f82424fc4dbbe864"
+      "computedHash": "475eac9c8c48ad907561406b221ad9f5e67666eba4edb0094d007275e6c52c1f"
     },
     "firebase-crashlytics": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/firebase-crashlytics/SKILL.md",
-      "computedHash": "236543a47d13c8cb0c15b35b905eee9a8dd79e168c08635153bb9bbbe7ef9ee4"
+      "computedHash": "c34f838c9bd0bfb8bff2ae3cabfe9d76cfc3d5e8ca5b8bd201040e004d7faba7"
     },
     "firebase-data-connect": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/firebase-data-connect-basics/SKILL.md",
-      "computedHash": "8bfaff4b91f9dcbd8c48f1e013214f4801c2f9e924473ea8611b72295b7771d1"
+      "computedHash": "93dc727f31727abd9513839f53b18905059cbabebbdb7178a56dc183673e3753"
     },
     "firebase-firestore": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/firebase-firestore/SKILL.md",
-      "computedHash": "07b62cec74cfdd1cb197ad0383318921fa00dd416b687ef1bb0f8f2521487083"
+      "computedHash": "ef7f436546f82fb454f4c4453cdadd4f5cfca7c471bb6670fe1244048207aca6"
     },
     "firebase-hosting-basics": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/firebase-hosting-basics/SKILL.md",
-      "computedHash": "3df1714a23bde9fbce5c0e6fb7ce4502a0a88e5fbcf2e1ad341deb1b9e648e67"
+      "computedHash": "2c501342012d9d5f244e43c3a73cff3b1062c3aef29cd851e68f82c5d5a1d778"
     },
     "firebase-remote-config-basics": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/firebase-remote-config-basics/SKILL.md",
-      "computedHash": "b3e5c76a5e2bc5b8e52adcc6965f921cff87e871e51d5b758f6148729ae5b278"
+      "computedHash": "f15c78ef573c757e857cb843ab59bfc4ce693f7553d3f3b004939926d5b194d5"
     },
     "firebase-security-rules-auditor": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/firebase-security-rules-auditor/SKILL.md",
-      "computedHash": "3f18bc99bfb23cc5beb1f2745a9dbac2eef738a7d8017ff9662508c120d00c7e"
+      "computedHash": "0e4ae0fc7959d957831817d54417bbfebe1091533d7174e61207564b4a9ab2ec"
     },
     "firestore-rules-creation": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/firestore-rules-creation/SKILL.md",
-      "computedHash": "94d140568445427bb4d15c9a7313cecb10dd132791ffe48bd64d263318bcd617"
+      "computedHash": "c5010c6672065676f24ecefc1beba6e25ecce0314d0e43d14341111b8b8e64de"
     },
     "xcode-project-setup": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/xcode-project-setup/SKILL.md",
-      "computedHash": "954176d9418293d02df8e1a3a31bdfd1cb0624968b2bad5a5dc7afbd6a35199e"
+      "computedHash": "be7e5bc48383dc9cedf09382a2d11757f8d3ca499e106dfe2360269af62763fd"
+    },
+    "form-specialist": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/form-specialist/SKILL.md",
+      "computedHash": "582d67464e3714c7b735ad7936c728cefd7c175988119c6675a87d21772cffb1"
+    },
+    "intake-dispatcher": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/intake-dispatcher/SKILL.md",
+      "computedHash": "e67c4308907c7303d333021d46056496fe0663eccd2f6d76c17ffa3a7677c2df"
+    },
+    "intelligence-scout": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/intelligence-scout/SKILL.md",
+      "computedHash": "30083c0ed7b14c6a5942868088b6685d44e1f594c9f6e97f2de60b79443fe154"
+    },
+    "presentation-specialist": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/presentation-specialist/SKILL.md",
+      "computedHash": "d69aa8c3ec2976dee1bfa819f361fedaa8342672e8d09acd65a25ff937a9f82b"
+    },
+    "sales-intelligence-node": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/sales-intelligence-node/SKILL.md",
+      "computedHash": "29847e43a0525e7d6a9f1d512a8a1a76481e7b6f54db37fe72acceed41600200"
+    },
+    "ui-frontend-architect": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/ui-frontend-architect/SKILL.md",
+      "computedHash": "fa106ee930961654f898d044006091327338c011ad02852d4cf8f1682843ff3c"
+    },
+    "workspace-architect": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/workspace-architect/SKILL.md",
+      "computedHash": "33bb5e43461827e3f1d48c5f371fe8630a342fce236c7aca5df524dd0b542171"
+    },
+    "node_01_architect": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": "core_nodes/node_01_architect/SKILL.md",
+      "computedHash": "2219db51f9a94162aa3b74e21218dd6c148290d750bbf4e45ef61a1c43eff786"
+    },
+    "node_02_governor": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": "core_nodes/node_02_governor/SKILL.md",
+      "computedHash": "9e2e64f00b5389fb9d58009a00a1cd9d5fd8dfaa2be5e7456c406e9ef5d502b3"
+    },
+    "node_03_sentry": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": "core_nodes/node_03_sentry/SKILL.md",
+      "computedHash": "2f694f9d2af117209cd2a178192af4f0b03a695d6dccb012828a5e18c3d8f511"
+    },
+    "node_04_courier": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": "core_nodes/node_04_courier/SKILL.md",
+      "computedHash": "8ba45cb35c36175185ce081fc64356ddb31134bf207bcc4fa392d0e0e99ef7b2"
+    },
+    "node_05_analyst": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": "core_nodes/node_05_analyst/SKILL.md",
+      "computedHash": "07726e405cd8db7d7bc460dd35914a10147e58b22a74ef715d991b399f0da500"
+    },
+    "node_06_scout": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": "core_nodes/node_06_scout/SKILL.md",
+      "computedHash": "dcf1af2ea7294b956ab3319ceae96456643ca7d3e64cfd8c06ec0e467b421953"
+    },
+    "node_07_concierge": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": "core_nodes/node_07_concierge/SKILL.md",
+      "computedHash": "ad62f15512ee2940e5af71f39d4204a9abcdac143b155dba95435e57d3e629ea"
+    },
+    "node_08_vault": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": "core_nodes/node_08_vault/SKILL.md",
+      "computedHash": "8fe7882eac02811e689292f040d797ef1dc845bf748ec3f13d9130718fefe229"
+    },
+    "node_09_catalyst_cmo": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": "core_nodes/node_09_catalyst_cmo/SKILL.md",
+      "computedHash": "1e6eefcddcd13679a94683a06de8b5f97e8641a797f9318b12eab3e259d65958"
+    },
+    "node_10_grid_edge": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": "core_nodes/node_10_grid_edge/SKILL.md",
+      "computedHash": "4af3f56c6fc6be615d50848d5b10cebcd517cc6c4c517a24b69feb72657ff223"
+    },
+    "node_13_developer": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": "core_nodes/node_13_developer/SKILL.md",
+      "computedHash": "053e4720e10ed9d2d12a76693459228749a2878e5f601d33283c08cf9593f632"
+    },
+    "node_17_agent_orchestrator": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": "core_nodes/node_17_agent_orchestrator/SKILL.md",
+      "computedHash": "c3691c2cb7c249293ed1206e15c79a3145666d4e4a4d0eecb454a4db44b4df7c"
+    },
+    "node_20_agent_bus": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": "core_nodes/node_20_agent_bus/SKILL.md",
+      "computedHash": "40d515b8bd50cc461aba760c24993cd11de45857f7acd63634ea75134d7b30d2"
+    },
+    "node_21_governance_kms": {
+      "source": "Goings-OS/Goings-OS",
+      "sourceType": "local",
+      "skillPath": "core_nodes/node_21_governance_kms/SKILL.md",
+      "computedHash": "11c86f509f5b23e5e9f4265476766e716ea6285b78627d8047bb8c161492f287"
     }
   }
 }
